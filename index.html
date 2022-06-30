@@ -5,10 +5,245 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel = "stylesheet" href = "map-style.css"/>
-  <title> Wildfire Aware App</title>
-</head>
-<body>
-  <h3>Testing</h3>
+  <link rel="stylesheet" href="https://js.arcgis.com/4.21/esri/themes/light/main.css"></link>
+  <link rel="stylesheet" href="https://s3-us-west-1.amazonaws.com/patterns.esri.com/files/calcite-web/1.2.5/css/calcite-web.min.css"/>
+
   
-</body>
+  <script type="module" src="https://js.arcgis.com/calcite-components/1.0.0-beta.77/calcite.esm.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://js.arcgis.com/calcite-components/1.0.0-beta.77/calcite.css"/>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <title> Wildfire Aware App</title>
+    
+  </head>
+  <body>
+    <main>
+      <div id="viewDiv" style = "float: left;">
+        <div id="searchContainer" style="width: 250px; margin-left: 1rem; 
+        position: absolute; 
+        top: 18px; left: 45px;">
+        </div>
+        <div id="layerListContainer" style="width: 200px; margin-left: 1rem; 
+        position: absolute; 
+        bottom: 30px; left: 10px;">
+        <div style = "margin: auto 0; background: rgba(17, 54, 81, 1);">
+          <div id="layers" class="animate-in-up js-animation" style = "display: none;"> 
+            <span class="btn" id = "layer-list-close" style ="margin: 0px 159px;">x</span>
+            <ul class="animate-in-up js-animation">
+              <label >
+                <input type="checkbox" id = "fire-perimeters" class = "layer-checkbox" checked>
+                FIRE PERIMETERS
+              </label>
+              <label>
+                <input type="checkbox" id = "satellite-hotspots" class = "layer-checkbox">
+                SATELLITE HOTSPOTS
+              </label>
+              <label>
+                <input type="checkbox" id = "watchesAndWarnings" class = "layer-checkbox">
+                WEATHER WATCHES <br>
+                <span style = "margin: 0 0px 0 27px;">
+                   & WARNINGS
+                </span>
+              </label>
+              <label>
+                <input type="checkbox" id="AQI-today" class="layer-checkbox">
+                AIR QUALITY TODAY
+              </label>
+              <label>
+                <input type="checkbox" id="AQI-tomorrow" class = "layer-checkbox">
+                AIR QUALITY TOMORROW
+              </label>
+              <label >
+                <input type="checkbox" id="burned-areas" class="layer-checkbox">
+                FIRE BURNED AREAS <br> 1984-2020
+              </label>
+            </ul>
+          </div>
+          <button class = "btn-transparent" id = "layer-list-button" style = " padding: 5px 60px 5px 5px; margin: 7px 10px; border: 1px solid #efefef;">LAYER LIST</button>
+        </div>
+        </div>
+      </div>
+
+      <div class="item-container item-container" style="float:left">
+        <aside id="sideBar"
+          style=" width: 410px; height: 100%; background: rgba(17, 49, 73, 1); overflow: hidden auto;">
+          <div stlye="display: block;">
+            <div style="background-color: rgb(17, 49, 73); padding: 0.5rem 1rem;">
+              <div class="trailer-0">
+                <span style = "color: #FFBA1F; font-size: 1.8rem;">WILDFIRE AWARE - Esri</span>
+                <span id="modal-btn" class="right btn icon-ui-question cursor-pointer js-modal-toggle" href="#"
+                  data-modal="foo"></span>
+              </div>
+              <div class="trailer-0" style = "margin-top: -8px;">
+                <span style="color: #FFBA1F; font-size: 14px;"> Sources:
+                  <a class="link">Census</a>,
+                  <a class="link">EPA</a>,
+                  <a class="link">IRWIN</a>,
+                  <a class="link">NatureServe</a>,
+                  <a class="link">NIFC</a>,
+                  <a class="link">NOAA</a>,
+                  <a class="link">USGS</a>,
+                  <a class="link">USDA</a>,
+                  <a class="link">USFW</a>
+                </span>
+                <p class="trailer-0" style ="font-size: 14px">
+                  For community awareness within the US about a wildfire, select from the list or click on the map.
+                </p>
+              </div>
+            </div>
+            <div id="sideBarContent" class="trailer-quarter" style="padding: 0rem 1rem 1rem">
+             
+              <hr class="divider">
+              <div id="activeFiresDropdown" class="dropdown js-dropdown" style="width: 100%;">
+                <p id="fireSorting"
+                  style="display: initial;width: 100%; margin-bottom: 0.5rem;">
+                  <span class=" sortClass padding-right-1" id="fire-date"
+                    style="text-decoration: underline #FFBA1F 3px; text-underline-position: under; text-underline-offset: 2px; cursor: default;">
+                    DATE
+                  </span>
+                  <span class=" sortClass padding-right-1" style = "cursor: default" id="fire-name">
+                    NAME 
+                  </span>
+                  <span class=" sortClass padding-right-1" style = "cursor: default" id="fire-size">
+                    SIZE 
+                  </span>
+                  <span class="right" id="firesInView"> </span>
+                </p>
+                <div style="text-align: center;">
+                  <button id="fire-list-Btn" class="btn modifier-class btn-fill"
+                    style="display: none; background: #FFBA1F; color: #14273d; color: rgb(17, 54, 81); width: auto;font-weight: 900; margin: 0 50px;"
+                    tab-index="0" aria-haspopup="false" aria-expanded="false">
+                    RETURN TO WILDFIRE LIST
+                  </button>
+                </div>
+                <nav id="activeFiresList" class="modifier-class" role="menu" style="width: 100%;">
+                </nav>
+              </div>
+              <div id="fire-list" style="display: initial"></div>
+              <div id="sideBarInformation" style="display: none">
+                <div class="item-contianer">
+                  <div class="item-header" style="margin-bottom: 0;">
+                  </div>
+                  <div class="item-content">
+                    <div id="fire-container">
+                    </div>
+                  </div>
+                </div>
+                <div class="item-contianer">
+                  <div class="item-header">
+                  </div>
+                  <div class="item-content">
+                    <div id="weather-container">
+                      <div id="drought-condition">
+                      </div>
+                      <div id="temp-wind-aq">
+                      </div>
+                      <div id="watches-and-warnings" style="margin: 30px 0 15px 0px;">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+      
+                <div class="item-contianer">
+                  <div class="item-header">
+                  </div>
+                  <div class="item-content">
+                    <div id = "people-data-control"> </div>
+                    <div id="people-container" style="display: flex">
+                      <div id="total-population">
+                        <div id="general-population" style="margin: auto; width: fit-content;">
+                        </div>
+                        <div id="at-risk-population">
+                        </div>
+                      </div>
+                    </div>
+                   
+                    <div id="percentages-container" style="margin: 0 auto; width: 350px; text-align:center;">
+                      <div id="english-pop-percentage"></div>
+                      <div id="smartphone-pop-percentage"></div>
+                      <div id="internet-pop-percentage"></div>
+                      <div id="vehicle-pop-percentage"></div>
+                    </div>
+                  </div>
+
+                <div class="item-contianer">
+                  <div class="item-header">
+                  </div>
+                  <div class="item-content">
+                    <div id="housing-contianer" style='display: flex;'>
+                    </div>
+                    <div id="wildfire-risk" style = "margin-top: 20px;">
+                      <div style="display: flex; width: 100%;">
+                        <p style="width: 100%; margin-bottom: 0;">WILDFIRE HAZARD POTENTIAL</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="item-contianer">
+                  <div class="item-header">
+                  </div>
+                  <div class="item-content">
+                    <div id='habitat-container'>
+                      <div id = 'ecoregion'>
+                      </div>
+                      <div id = 'landform'>
+                      </div>
+                      <div id='landcover-chart'>
+                      </div>
+                      <div id = 'biodiversity'>
+                      </div>
+                      <div id='criticalHabitat'>
+                      </div>
+                      <div id='protectedAreas'>
+                      </div>
+                      <div id='habitat-information'></div>
+                    </div>
+                  </div>
+                </div>
+                <div style = "margin: 30px 0;">
+                  <div style="text-align: center;">
+                    <button id="top-page-Btn" class="btn modifier-class btn-fill"
+                      style="background: #FFBA1F; color: #14273d; color: rgb(17, 54, 81); width: 223.08px; font-weight: 900; margin: 0 50px;"
+                      tab-index="0" aria-haspopup="false" aria-expanded="false">
+                      RETURN TO TOP
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <div class="js-modal modal-overlay modifier-class" data-modal="foo">
+        <div class="modal-content column-12" style = "background-color: rgba(0, 48, 77, 0.7);" role="dialog" aria-labelledby="modal" role="dialog">
+          <h5 class='avenir-demi trailer-half'>About this app</h5>
+          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+            tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+            quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+            consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+            cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+            proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+          <div class="text-right">
+            <button class="btn btn-clear-white js-modal-toggle">close</button>
+          </div>
+        </div>
+      </div>
+
+      
+    </main>
+
+    <script src="https://s3-us-west-1.amazonaws.com/patterns.esri.com/files/calcite-web/1.2.5/js/calcite-web.min.js"></script>
+    <script>calcite.init()</script>
+</script>
+
+  </body>
+  
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  
+  <script src="https://js.arcgis.com/4.21/"></script>
+  
+  <script type = "text/javascript" src="main.js"></script>
+
 </html>

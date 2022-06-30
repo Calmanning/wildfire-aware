@@ -1,0 +1,124 @@
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body,
+main {
+  display: flex;
+  font-family: Avenir Next;
+  color: #efefef;
+  font-size: 0.9375rem;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+#viewDiv {
+  height: 100%;
+  width: 100%;
+}
+
+#modal-btn {
+  color: #ea1600;
+  background-color: transparent;
+  padding: 0;
+  border: 0;
+}
+
+#population-svg .domain {
+  stroke: none;
+}
+
+#population-svg line {
+  stroke: none;
+}
+
+#layer-list-button {
+  color: #fff;
+}
+
+.dropdown .dropdown-menu .dropdown-link {
+  color: white;
+  background-color: rgba(0, 48, 77, 0.95);
+  border-top: 1px solid hsla(0, 0%, 100%, 0.3);
+}
+
+.esri-search__container .esri-search__input-container .esri-search__form .esri-search__input{
+  background-color:#113149;
+  color: #FFFFFF;
+}
+.esri-view-width-less-than-small .esri-search__input {
+  color: #FFFFFF;
+  font-size: 1rem;
+}
+
+.esri-search__container .esri-search__input-container .esri-search__suggestions-menu .esri-menu__list{
+  background-color: #113149;
+  color: #FFFFFF;
+}
+
+.esri-search__container button {
+  background-color: #113149;
+}
+
+.tick text {
+  font-size: 0.875rem;
+  
+}
+
+.ecoregionInformation{
+  width: 100%;
+  min-height: 3rem;
+  background-color: #001E33;
+  font-size: 0.875rem;
+}
+
+.divider {
+  margin: 0rem 0rem 0.5rem;
+  border: none;
+  border-top: 2px solid hsl(0, 0%, 70%);
+}
+
+.fire-item p {
+  margin-bottom: -5px;
+}
+
+.item-contianer{
+  margin-top: 1.5625rem;
+}
+
+.item-header {
+  margin-bottom: 0.9375rem;
+}
+
+.sectionHeader {
+  font-size: 1.5rem;
+  color: #ffba1f;
+}
+
+.sectionSubHeader {
+  font-size: 0.875rem;
+  margin-top: -5px;
+}
+
+.bold {
+  font-family: Avenir Next LT Pro;
+  font-weight: 600;
+  color: #ffba1f;
+  display: inline;
+}
+
+#habitat-container .bold{
+  color: #659B63;
+}
+
+#people-container .bold {
+    color: #07698C;
+}
+
+.link {
+  color: #ffba1f;
+}
