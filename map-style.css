@@ -60,8 +60,28 @@ main {
   color: #FFFFFF;
 }
 
+#searchContainer-input .esri-view-width-less-than-small .esri__input .esri-search__input placeholder{
+  color: #ffffff;
+}
+
 .esri-search__container button {
   background-color: #113149;
+}
+
+.esri-icon-search{
+  color: #ffffff;
+}
+
+.esri-zoom .esri-widget--button{
+  background-color: #113149;
+}
+
+.esri-zoom .esri-widget--button .esri-icon-plus{
+  color: #ffffff;
+}
+
+.esri-zoom .esri-widget--button .esri-icon-minus{
+  color: #ffffff;
 }
 
 .tick text {
@@ -69,11 +89,20 @@ main {
   
 }
 
+#landcover-chart .percentage, .landcover {
+  fill: #659B63;
+  font-size: 1.414rem;
+  font-weight: bold;
+  text-align: center;
+
+}
+
 .ecoregionInformation{
   width: 100%;
   min-height: 3rem;
-  background-color: #001E33;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
+  color: #6aa067;
+  font-weight: 500;
 }
 
 .divider {
@@ -100,7 +129,7 @@ main {
 }
 
 .sectionSubHeader {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   margin-top: -5px;
 }
 
@@ -112,11 +141,17 @@ main {
 }
 
 #habitat-container .bold{
-  color: #659B63;
+  color: #6aa067;
+  line-height: 1.2;
+}
+
+#housing-contianer .bold {
+    color: #a5927c;
 }
 
 #people-container .bold {
     color: #07698C;
+    margin-bottom: -5px;
 }
 
 .link {

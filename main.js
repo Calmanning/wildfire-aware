@@ -9,8 +9,9 @@ require([
           "esri/layers/FeatureLayer",
           "esri/core/watchUtils",
           "esri/tasks/support/Query",
-          "esri/geometry/Point"
-], (esriConfig, WebMap, MapView, Search, Graphic, Layer, FeatureLayer, watchUtils, Query, Point) => {
+          "esri/geometry/Point",
+          "esri/geometry/geometryEngine"
+], (esriConfig, WebMap, MapView, Search, Graphic, Layer, FeatureLayer, watchUtils, Query, Point, geometryEngine) => {
     
   'use strict';
 
@@ -384,9 +385,7 @@ let highlightIcon
     await removeMapHexes();
 
     hexGraphic.geometry.rings = hexRings.rings
-    console.log(hexGraphic)
     mapView.graphics.add(hexGraphic)
-      console.log(mapView.graphics)
 
   };
  
@@ -486,7 +485,7 @@ let highlightIcon
 
     const recentFireData = new Date(fireData.modifiedOnDateTime).toLocaleDateString(undefined,{month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric'});
 
-    const fireDate = new Date(fireData.fireDiscoveryDateTime).toLocaleDateString(undefined,{month: 'long', day: 'numeric', year: 'numeric'});
+    const fireDate = new Date(fireData.fireDiscoveryDateTime).toLocaleDateString(undefined,{hour: 'numeric', minute: 'numeric', month: 'long', day: 'numeric', year: 'numeric'});
     
     const fireAge = fireData.fireDiscovery;
     
@@ -511,13 +510,13 @@ let highlightIcon
 
     const fireHeader = infoItemHeader[0].innerHTML = `
                           <p class = "trailer-0 sectionHeader">FIRE INFORMATION</p>
-                          <p class="sectionSubHeader"> Information current as of:  ${recentFireData} </p>`
+                          <p class="sectionSubHeader">CURRENT AS OF:  ${recentFireData.toUpperCase()} </p>`
                       
 
     infoItemContent[0].setAttribute('style', 'display: inline')
 
     const fireTitleInfo =  infoItemContent[0].innerHTML = `
-          <div style="display: inline-flex;">
+          <div style="display: inline-flex; margin-top: -5px;">
               <img src= ${fireIcon({fireType, fireAge})} 
                 style="width:64px; height:64px;" 
                 viewbox="0 0 32 32" 
@@ -526,28 +525,27 @@ let highlightIcon
               <div>
                 <h4 class = "bold trailer-0" style= "line-height: 0px;"><b>${fireName}</b></h4>
                 <p style = "font-size: 0.875rem;" class = "trailer-0">INCIDENT TYPE: ${fireType}</p>
-                <p style = "font-size: 0.875rem;" class = "trailer-0">START: ${fireDate}</p>
+                <p style = "font-size: 0.875rem;" class = "trailer-0">START: ${fireDate.toUpperCase()}</p>
               </div>
           </div>
           
           <div>
-            <div class = "trailer-0 "> 
+            <div class = "trailer-0 " style= "margin-top: 10px;"> 
               <span class = "" style = "vertical-align: text-bottom; margin: 0 5px 0px 103px"> DAY </span>
               <h4 class = "bold trailer-0"> ${fireAge}</h4>
             </div>
-            <div class = "trailer-0">
+            <div class = "trailer-0" style = "margin: 5px auto;">
               <span style = "vertical-align: text-bottom; margin: 0 5px 0px 5px"> REPORTED ACRES </span> <h4 class = "bold trailer-0"> ${fireAcres ? fireAcres.toLocaleString() : 'Not reported'}</h4>
             </div>
           </div>
           <div id = 'containment' style = 'display:inline-flex'>
-            <p class = "trailer-0">
+            <p class = "trailer-0" style="margin-top: 5px;">
               <span style = "vertical-align: text-bottom; margin: 0 5px 0 23px;">CONTAINMENT</span>
               <span id = "containment-text"></span>
             </p>
             </div>
           `;
 
-    console.log(fireHeader)
     fireHeader
     fireTitleInfo
     
@@ -606,9 +604,7 @@ let highlightIcon
   mapView.on('click', async (event) => {
     event.preventDefault();
     closeLayerList();
-    console.log(firePoints.renderer)
-
-
+    
     if(queryPointGraphic){
           removeMapPointGraphic();
     };
@@ -632,15 +628,14 @@ let highlightIcon
         const mapPoint = feature.geometry.centroid 
                        ? event.mapPoint 
                        : feature.geometry;
-        console.log(mapPoint)
         
         const hitTestResponse = feature.attributes
-        
-        console.log(mapView.graphics)
-        
+        const hitTestGeographicResponse = feature.geometry
 
+        console.log(feature)
+        
         feature.sourceLayer.title === 'Current Perimeters Outline'
-        ? (selectedFireInfoQuery({hitTestResponse}), queryHub({ mapPoint }), addSearchQueryLocationGraphic({ mapPoint }), console.log('fill') )
+        ? (selectedFireInfoQuery({hitTestResponse}), queryHub({ mapPoint }), addSearchQueryLocationGraphic({ mapPoint }), generalizeFirePerimeter({hitTestGeographicResponse}))
         : (selectedFireInfoQuery({hitTestResponse}), queryHub({ mapPoint }), featureHitTestGraphic(feature));
         
       } else {
@@ -821,6 +816,8 @@ let highlightIcon
         clearWeatherGrid()
 
         renderPeopleHeader();
+      censusBlockCentroidQuery({ mapPoint, fireInformation });
+
       populationAgeByYear({ mapPoint, fireInformation });
 
       disabledPopulationQuery({ mapPoint, fireInformation });
@@ -968,12 +965,15 @@ let highlightIcon
   }; 
    
   const selectedFireInfoQuery = ({hitTestResponse, irwinID}) => {
-    console.log(hitTestResponse ? hitTestResponse.IRWINID || hitTestResponse.IrwinID: irwinID)
-    console.log(hitTestResponse ? hitTestResponse : null)
+    
     const url = 'https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/USA_Wildfires_v1/FeatureServer/0/query'
 
+    const irwinIdNumber = hitTestResponse 
+          ? hitTestResponse.IrwinID || hitTestResponse.IRWINID.replace(/[{}]/g, "")
+          : irwinID;
+
     const params = {
-      where: `IrwinId ='${hitTestResponse ? hitTestResponse.IRWINID || hitTestResponse.IrwinID : irwinID}'`,
+      where: `IrwinId ='${irwinIdNumber}'`,
       time: null,
       outFields: ['IrwinID', 'IncidentName', 'ModifiedOnDateTime', 'FireDiscoveryDateTime', 'FireDiscoveryAge ', 'IncidentTypeCategory', 'DailyAcres', 'PercentContained', 'objectId'].join(","),
       returnGeometry: true,
@@ -1007,16 +1007,57 @@ let highlightIcon
             percentContained: 'Not reported'
           }
           
-          console.log(fireData)
-        const highlightInfo = fireData.irwinId
-        console.log(highlightInfo)
-        // highlightFireIcon({ highlightInfo })
         setFireContentInfo({ fireData })
       })
         .catch((error) => {
           console.log(error)
         })
   };
+
+  const generalizeFirePerimeter = ({hitTestGeographicResponse}) => {
+    console.log('generalize')
+    console.log(hitTestGeographicResponse)
+    const firePerimeterGeography = hitTestGeographicResponse
+    const newPerimeter = geometryEngine.generalize(firePerimeterGeography, 100, 'meters');
+
+    censusBlockCentroidPerimeterQuery({newPerimeter})    
+  };
+
+  const censusBlockCentroidPerimeterQuery = ({newPerimeter}) => {
+    console.log(newPerimeter)
+
+    const url = 'https://services.arcgis.com/jIL9msH9OI208GCb/ArcGIS/rest/services/Populated_Block_Centroids_2020/FeatureServer/0/post'
+
+    const params = {
+      where: "1=1",
+      geometry: newPerimeter,
+      geometryType: 'esriGeometryPolygon',      
+      spatialRelationship: 'intersects',
+      // distance: 0,
+      // units: 'esriSRUnit_StatuteMile',
+      inSR: 4326,
+      outFields: ['P0010001', 'EstimatedUnder18Pop', 'Estimated18to64Pop', 'Estimated65PlusPop'].join(','),
+      returnGeometry: true,
+      returnQueryGeometry: true,
+      f: 'json'
+    }
+
+    axios.get(url, {
+      params
+    })
+      .then((response) => {
+        console.log(response)
+
+      const aggregatedPopulationBlockObject = response.data.features.reduce((a,b) => {
+          Object.keys(b.attributes).forEach(key => {
+            a[key] = (a[key] || 0) + b.attributes[key];
+        }), 0;
+        return a
+        },{})
+
+      console.log(aggregatedPopulationBlockObject)
+   });
+  }
 
   const weatherWatchAndWarningsQuery = async ({ mapPoint, fireInformation}) => {
 
@@ -1255,8 +1296,8 @@ let highlightIcon
             kph: '184-200 km/h'
           },
           {
-            mph: 'no data',
-            kph: 'no data'
+            mph: 'No data',
+            kph: 'No data'
           }
         ]
         
@@ -1300,7 +1341,7 @@ let highlightIcon
           
           const currentAQICode = response.data.features[0]
                             ? response.data.features[0].attributes.gridcode
-                            : 'no data'
+                            : 'No data'
                                 
           console.log(currentAQICode)
           const airQualityToday = (currentAQICode) => { 
@@ -1317,7 +1358,7 @@ let highlightIcon
             } else if (currentAQICode === 6) {
               return 'Hazardous';
             } else {
-              return 'no data';
+              return 'No data';
             }
           };
 
@@ -1352,7 +1393,7 @@ let highlightIcon
           console.log(response)
           const airQualityForecast = response.data.features[0]
                                    ? response.data.features[0].attributes.gridcode
-                                   : 'no data'
+                                   : 'No data'
 
           const airQualityTomorrow = (airQualityForecast) => { 
             if(airQualityForecast === 1) {
@@ -1368,7 +1409,7 @@ let highlightIcon
             } else if (airQualityForecast === 6) {
               return 'Hazardous';
             } else {
-              return 'no data';
+              return 'No data';
             }
           };
           //TODO: create this function to render the AQ forecast
@@ -1378,6 +1419,41 @@ let highlightIcon
           console.error(error);
         })
       })
+  }
+
+  const censusBlockCentroidQuery = ({ mapPoint, fireInformation }) => {
+
+    const url = 'https://services.arcgis.com/jIL9msH9OI208GCb/ArcGIS/rest/services/Populated_Block_Centroids_2020/FeatureServer/0/query'
+
+    const params = {
+      where: "1=1",
+      geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
+      geometryType: 'esriGeometryPoint',      
+      spatialRelationship: 'intersects',
+      distance: 2,
+      units: 'esriSRUnit_StatuteMile',
+      inSR: 4326,
+      outFields: ['P0010001', 'EstimatedUnder18Pop', 'Estimated18to64Pop', 'Estimated65PlusPop'].join(','),
+      returnGeometry: true,
+      returnQueryGeometry: true,
+      f: 'json'
+    }
+
+    axios.get(url, {
+      params
+    })
+      .then((response) => {
+        console.log(response)
+
+      const aggregatedPopulationBlockObject = response.data.features.reduce((a,b) => {
+          Object.keys(b.attributes).forEach(key => {
+            a[key] = (a[key] || 0) + b.attributes[key];
+        }), 0;
+        return a
+        },{})
+
+      console.log(aggregatedPopulationBlockObject)
+   });
   }
 
   const populationAgeByYear = ({ mapPoint, fireInformation }) => {
@@ -1402,23 +1478,23 @@ let highlightIcon
 
       const underFourteenPop = response.data.features[0] 
       ? response.data.features[0].attributes.B01001_003E + response.data.features[0].attributes.B01001_004E + response.data.features[0].attributes.B01001_005E + response.data.features[0].attributes.B01001_027E + response.data.features[0].attributes.B01001_028E + response.data.features[0].attributes.B01001_029E
-      : 'data unavailable';
+      : 'No information available';
 
       const fifteenToSeventeenPop = response.data.features[0]
       ? response.data.features[0].attributes.B01001_006E + response.data.features[0].attributes.B01001_030E
-      : 'data unavailable';
+      : 'No information available';
 
       const eightteenToSixtyfourPop = response.data.features[0] 
       ? response.data.features[0].attributes.B01001_001E -  response.data.features[0].attributes.B01001_calc_numLT18E - response.data.features[0].attributes.B01001_calc_numGE65E
-      : 'data unavailable';
+      : 'No information available';
 
       const eightyPop = response.data.features[0]
       ? response.data.features[0].attributes.B01001_024E + response.data.features[0].attributes.B01001_025E + response.data.features[0].attributes.B01001_048E + response.data.features[0].attributes.B01001_049E
-      : 'data unavailable';
+      : 'No information available';
 
       const sixtyfiveToSeventynine = response.data.features[0]
       ? response.data.features[0].attributes.B01001_calc_numGE65E - eightyPop
-      : 'data unavailable';
+      : 'No information available';
 
       const censusTract = response.data.features[0]
       ? response.data.features[0].geometry
@@ -1426,7 +1502,7 @@ let highlightIcon
 
       const totalPopulation = response.data.features[0] 
       ? response.data.features[0].attributes.B01001_001E
-      : 'Total population unavailbe';
+      : 'No information available';
 
       const populationData = response.data.features[0] 
       ? [{'data': underFourteenPop, name: '<14'}, {'data': fifteenToSeventeenPop, name: '15-17'}, {'data': eightteenToSixtyfourPop, name: '18-64'},{'data': sixtyfiveToSeventynine, 'name': '65-79'},{'data': eightyPop, 'name': '+80'}]
@@ -1531,7 +1607,7 @@ let highlightIcon
           housingUnits: response.data.features[0].attributes.B25002_001E,
           housingValue: response.data.features[0].attributes.B25077_001E
                         ? `$${response.data.features[0].attributes.B25077_001E.toLocaleString()}`
-                        : 'Information unavailable'
+                        : 'No information available'
         }
         
         console.log(`Total Houses ${housingData.housingUnits}`)
@@ -1713,16 +1789,16 @@ let highlightIcon
           bioDiversity: response.data.features[0].attributes.RichClass,
           ecoregion: response.data.features[0].attributes.L3EcoReg
                    ? response.data.features[0].attributes.L3EcoReg
-                   : 'No data',
+                   : 'No information available',
           landformType: response.data.features[0].attributes.LandForm
                       ? response.data.features[0].attributes.LandForm
-                      : 'No data',
+                      : 'No information available',
           criticalHabitat: response.data.features[0].attributes.CritHab
                          ? response.data.features[0].attributes.CritHab
-                         : 'No data',
+                         : 'No information available',
           protectedAreas: uneditedProtectedLandsList
                           ? uneditedProtectedLandsList.join(', ')
-                          : 'No data',
+                          : 'No information available',
           tractRanking: response.data.features[0].attributes.RichRank,
           totalTracts: response.data.features[0].attributes.TotalTracts,
           state: response.data.features[0].attributes.State.toUpperCase()
@@ -1840,7 +1916,7 @@ const landCoverDataFormatting = ({ landCoverPercentage }) => {
                       
   landCoverArray.map(value => {
   
-    value.percent = parseFloat(parseFloat(value.percent).toFixed(2))
+    value.percent = parseFloat(parseFloat(value.percent).toFixed(0))
     
     if (value.percent < 10) {
       
@@ -1851,7 +1927,7 @@ const landCoverDataFormatting = ({ landCoverPercentage }) => {
 
   });
 
-   const otherPercent = { 'name': 'Other', 'percent' : parseFloat(placeholderPercent.toFixed(2)), 'fill': '#D9C7AE' }
+   const otherPercent = { 'name': 'Other', 'percent' : parseFloat(placeholderPercent.toFixed(0)), 'fill': '#D9C7AE' }
    landCoverArray.push(otherPercent)
 
   renderLandCoverGraph(landCoverArray);
@@ -1888,12 +1964,20 @@ const renderLandCoverGraph = (landCoverArray) => {
   const g = landcoverSVG.append('g')
                         .attr('transform', `translate(${width / 2}, ${height / 2})`);
 
+  const bgColor = landcoverSVG.append('g')
+                        .attr('transform', `translate(${width / 2}, ${height / 2})`);
+  
+                        
+  const text = landcoverSVG.append('g')
+                        .attr('transform', `translate(${width / 2}, ${height / 2})`);
+
+
   const pie = d3.pie()
                 .value((d) => d.percent);
 
   const pieArc = d3.arc()
-                      .outerRadius(radius * 0.7)
-                      .innerRadius(radius * 0.5);
+                      .outerRadius(radius * 1.0)
+                      .innerRadius(radius * 0.7);
 
   const piePiece = g.selectAll('arc')
     .data(pie(landCoverArrayData))
@@ -1905,22 +1989,22 @@ const renderLandCoverGraph = (landCoverArray) => {
         //text appears while hovering over corresponding doughtnut 
           .on('mouseover', (e, d, i) => {
             (console.log(e), console.log(d), console.log(i));
-            g.append('text')
-              .attr('dy', '1.5em')
-              .attr('dx', '-1.5em')
+            text.append('text')
+              .attr('dy', '1em')
+              // .attr('dx', '-1.5em')
+              .attr('text-anchor', 'middle')
               .attr('class', 'percentage')
-              .attr('fill', '#659B63')
               .text(`${d.value}%`)
-            g.append('text')
+            text.append('text')
               // .attr('dy', 'em')
-              .attr('dx', '-2em')
+              // .attr('dx', '-2em')
+              .attr('text-anchor', 'middle')
               .attr('class', 'landcover')
-              .attr('fill', '#659B63')
               .text(`${d.data.name}`)
           })
           .on('mouseout', () => {
-            g.select('.percentage').remove()
-            g.select('.landcover').remove()
+            text.select('.percentage').remove()
+            text.select('.landcover').remove()
           })
 
 }
@@ -1935,8 +2019,6 @@ const containmentBar =  (containment) => {
   if (containment === 'Not reported'){
     document.getElementById('containment-text').innerHTML =  `<h4 class = "bold trailer-0">${containment}</h4>`
   } else {
-
-  console.log(containment)
 
   const data = [100.01, containment]
 
@@ -1962,7 +2044,8 @@ const containmentBar =  (containment) => {
       .enter().append('rect')
         .attr('width', statusBar)
         .attr('height', 20)
-        .attr('fill', d => barColors(d));
+        .attr('fill', d => barColors(d))
+        .attr('dy', '0.1');
 
     barSVG.append("text")
       .attr("dy", "2em")
@@ -1987,7 +2070,7 @@ const containmentBar =  (containment) => {
     )
 
     const width = 260;
-    const height = 130;
+    const height = 120;
     const margin = {
       top: 15,
       right: 10,
@@ -2021,11 +2104,10 @@ const containmentBar =  (containment) => {
       .attr('height', height)
       .attr('width', width)
       .style('overflow', 'visible')
+      .style('margin-top', '1.1865em')
       .style('margin-bottom', margin.bottom);
-      
 
     const g = svg.append('g');
-
     
     //set up the Scales
     const xScale = d3.scaleBand()
@@ -2059,7 +2141,7 @@ const containmentBar =  (containment) => {
           .attr('class', 'pop')
           .attr('x', xScale(d.name))
           .attr('y', yScale(d.data))
-          .attr('dy', '-0.3em')
+          .attr('dy', '-0.5em')
           .attr('dx', `${d.data < 10 ? '0.7em' :'0.25em'}`)
           .attr('transform', `translate(${d.data > 999 ? -6 : 0}, 0)`)
           .attr('fill', '#ffb600')
@@ -2090,7 +2172,8 @@ const containmentBar =  (containment) => {
    .remove()
 
   const range = 350;
-  const height = 150;
+  const height = 75;
+  const width = 350;
   
   const margin = {
     top: 0,
@@ -2100,10 +2183,6 @@ const containmentBar =  (containment) => {
   };
   
   d3.select('#english-pop-percentage')
-    
-    .insert('text')
-      .attr('id','english-pop-header')
-    .text('SPEAKS ENGLISH')
     .insert('div',"div")
       .attr('id', 'english-percent-bar')
     .append('svg')
@@ -2115,13 +2194,17 @@ const containmentBar =  (containment) => {
   console.log(data)
   const barColors = d3.scaleOrdinal()
                         .domain(data)
-                        .range(['#001E33', '#07698C',])
+                        .range(['#032235', '#07698C',])
 
     const barSVG = d3.select('#english-speaking-svg')
       .attr('class', 'bar')
-      .attr('width', `100%`)
-      .attr('height', 40)
+      .attr('width', width)
+      .attr('height', height)
       .attr("x", 20);
+
+  const g = barSVG.append('g')
+          .attr('transform', `translate(${width / 2}, ${height / 2})`);
+
 
     const percentBar = d3.scaleLinear()
       .domain([0, d3.max(data)])
@@ -2131,19 +2214,25 @@ const containmentBar =  (containment) => {
       .data(data)
       .enter().append('rect')
         .attr('width', percentBar)
-        .attr('height', 25)
+        .attr('height', 30)
         .attr('fill', d => barColors(d));
 
     barSVG.append("text")
-      .attr("dy", "1.1em")
+      .attr("dy", "1.4em")
       .attr("dx", "1.5em")
       .attr("x", (range/2))
       .attr('text-anchor', 'end')
       .style('fill', 'white')
       .style('font-weight', 'bold')
-    .text(`${data[1]}%`)
+    .text(`${data[1]}%`);
     
 
+    g.insert('text')
+      .attr('id','english-pop-header')
+      .attr('dy', '1em')
+      .attr('text-anchor', 'middle')
+      .text('SPEAKS ENGLISH')
+      .attr('fill', '#efefef');
   }
 
   const smartphonePercentageBar = ({ concentrationOfSmartphones }) => {
@@ -2284,7 +2373,8 @@ const containmentBar =  (containment) => {
     .remove();
 
   const range = 350;
-  const height = 150;
+  const height = 75;
+  const width = 350;
   
   const margin = {
     top: 0,
@@ -2294,9 +2384,6 @@ const containmentBar =  (containment) => {
   };
   
   d3.select('#vehicle-pop-percentage')
-    .insert('text')
-    .attr('id','vehicle-pop-header')
-    .text('HAS VEHICLE')
     .insert('div',"div")
       .attr('id', 'vehicle-percent-bar')
     .append('svg')
@@ -2307,13 +2394,17 @@ const containmentBar =  (containment) => {
 
   const barColors = d3.scaleOrdinal()
                         .domain(data)
-                        .range(['#001E33', '#07698C',])
+                        .range(['#032235', '#07698C',])
 
     const barSVG = d3.select('#vehicle-svg')
       .attr('class', 'bar')
       .attr('width', `100%`)
-      .attr('height', 40)
+      .attr('height', height)
+      .attr('width', width)
       .attr("x", 20);
+      
+    const g = barSVG.append('g')
+        .attr('transform', `translate(${width / 2}, ${height / 2})`);
 
     const percentBar = d3.scaleLinear()
       .domain([0, d3.max(data)])
@@ -2323,17 +2414,25 @@ const containmentBar =  (containment) => {
       .data(data)
       .enter().append('rect')
         .attr('width', percentBar)
-        .attr('height', 25)
+        .attr('height', 30)
         .attr('fill', d => barColors(d));
 
+
     barSVG.append("text")
-      .attr("dy", "1.1em")
+      .attr("dy", "1.4em")
       .attr("dx", "1.5em")
       .attr("x", (range/2))
       .attr('text-anchor', 'end')
       .style('fill', 'white')
       .style('font-weight', 'bold')
     .text(`${data[1]}%`);
+
+    g.insert('text')
+      .attr('id','vehicle-pop-header')
+      .attr('dy', '1em')
+      .attr('text-anchor', 'middle')
+      .text('HAS VEHICLE')
+      .attr('fill', '#efefef');
 
   }
 
@@ -2380,6 +2479,7 @@ const containmentBar =  (containment) => {
         .attr('id', 'wildfire-risk-graph')
         .style('width', `${width}px`)
         .style('margin-left', `${margin.left}px`)
+        .style('margin-top', '-5px')
       .append('svg')
         .attr('id', 'wildfire-risk-graph-svg');
 
@@ -2406,7 +2506,7 @@ const containmentBar =  (containment) => {
       const yScale = d3.scaleBand()
           .domain(wildfireTestData.map(d => d.name))
           .range([0, innerHeight])
-          .padding(0.1);
+          .padding(-0.1);
       
       //assigning the scales(and data) to the axes
       const xAxis = d3.axisBottom(xScale);
@@ -2431,7 +2531,7 @@ const containmentBar =  (containment) => {
           .attr('y', (d, i) => yScale(d.name, i) + 5  )
           // .attr('x', d => xScale(d.value))
           .attr('width', d => (d.value*7.5))
-          .attr('height', "1.125rem")
+          .attr('height', "20px")
           .attr('fill', d => barColors(d.name));
   }
 
@@ -2447,14 +2547,14 @@ const containmentBar =  (containment) => {
 
   const renderWeatherHeader = async () => {
     const weatherContentHeader = infoItemHeader[1].innerHTML = `<p class = "trailer-0 padding-trailer-0 sectionHeader">WEATHER</p>
-                                                                <p class = "trailer-0 padding-leader-0 sectionSubHeader">Location Clicked</p>`;
+                                                                <p class = "trailer-0 padding-leader-0 sectionSubHeader">LOCATION CLICKED</p>`;
 
     weatherContentHeader
   };
 
   const renderPeopleHeader = async () => {
     const poepleContentHeader = infoItemHeader[2].innerHTML = `<p class = "trailer-0 sectionHeader">POPULATION</p>
-                                                               <p class = "trailer-0 sectionSubHeader">By Census Tract</p>`;
+                                                               <p class = "trailer-0 sectionSubHeader">CENSUS BLOCK</p>`;
 
     poepleContentHeader
   };
@@ -2462,7 +2562,7 @@ const containmentBar =  (containment) => {
   //NOTE: I don't have the HTML set up for this. Maybe just add all the needed markup in the HTML file?
   const renderHousingHeader = async () => {
   const poepleContentHeader = infoItemHeader[3].innerHTML = `<p class = "trailer-0 sectionHeader">HOUSING</p>
-                                                              <p class = "trailer-0 sectionSubHeader">By Area Information</p>`;
+                                                              <p class = "trailer-0 sectionSubHeader">CENSUS BLOCK</p>`;
 
   poepleContentHeader
   };
@@ -2470,7 +2570,7 @@ const containmentBar =  (containment) => {
   const renderHabitatHeader = () => {
 
     const habitatContentHeader = infoItemHeader[4].innerHTML = `<p class = "trailer-0 sectionHeader">ECOSYSTEM</p>
-                                                                <p class = "trailer-0 sectionSubHeader">By Census Tract</p>`;
+                                                                <p class = "trailer-0 sectionSubHeader">HIGHLIGHTED SUMMARY</p>`;
 
     habitatContentHeader
   };
@@ -2642,9 +2742,9 @@ const containmentBar =  (containment) => {
 
     document.querySelector('#general-population').innerHTML = 
     `
-      <div style = "margin-bottom: 5px;">
-      <p style = "margin: 0 auto -5px"> POPULATION </p>
-      <h4  style = "" class= "bold">${ totalPopulation.toLocaleString()}</h4>
+      <div style = "margin-bottom: 10px;">
+      <h4 class= "bold">${ totalPopulation.toLocaleString()}</h4>
+      <p style = "margin: -5px auto -5px"> POPULATION </p>
       </div>
     `
   }
@@ -2668,9 +2768,9 @@ const containmentBar =  (containment) => {
 
     document.querySelector('#poverty').innerHTML = 
     `
-    <div style = "margin-bottom: 5px;">
-    <p class= "text-center" style = "margin: 0 auto -5px; text-align: left;">POVERTY</p>
-    <h4 class = "bold trailer-0 text-center">${povertyPopulation}%</h4>
+    <div style = "margin-bottom: 10px;">
+    <h4 class = "bold text-center">${povertyPopulation}%</h4>
+    <p class= "text-center" style = "margin: -5px auto -5px; text-align: left;">POVERTY</p>
     </div>
     `
   }
@@ -2693,9 +2793,9 @@ const containmentBar =  (containment) => {
 
     document.querySelector('#disability').innerHTML = 
     `
-    <div style = "margin-bottom: 5px;">
-    <p class= "text-center" style = "margin: 0 auto -5px; text-align: left;">DISABILITY</p>
-    <h4 class = "bold trailer-0 text-center">${disabledPopulation}%</h4>
+    <div style = "margin-bottom: 10px;">
+    <h4 class = "bold text-center">${disabledPopulation}%</h4>
+    <p class= "text-center" style = "margin: -5px auto -5px; text-align: left;">DISABILITY</p>
     </div>
     `
   }
@@ -2705,7 +2805,7 @@ const containmentBar =  (containment) => {
     document.querySelector('#housing-contianer').innerHTML = `
     <div style = "width: 40%;">
     <img src="https://www.arcgis.com/sharing/rest/content/items/e1e519abf84542c1b4557697bcb7984b/data"
-    style = "width:100px; height:100px; 
+    style = "width:100%; height:100%; 
      display: inline-flex;
      margin: -10px 0 0 0 " 
      class="svg-icon" 
@@ -2713,12 +2813,12 @@ const containmentBar =  (containment) => {
     </div>
     <div style = "width: 60%; margin: 0; text-align: center;">
       <div style = "margin-bottom: 10px">
+      <h4 class= "bold">${housingData.housingUnits.toLocaleString()}</h4>
         <p style = "margin-bottom: -5px;">TOTAL HOUSING UNITS </p> 
-        <h4 class= "bold">${housingData.housingUnits.toLocaleString()}</h4>
       </div>
       <div>
+      <h4 class = "bold">${housingData.housingValue.toLocaleString()}</h4>
         <p style = "margin-bottom: -5px;"> MEDIAN HOUSING VALUE </p>
-        <h4 class = "bold">${housingData.housingValue.toLocaleString()}</h4>
       </div>
     </div>`
   }
@@ -2732,16 +2832,16 @@ const containmentBar =  (containment) => {
       document.querySelector('#ecoregion').innerHTML = `
      <div>
         <p class = "trailer-0">ECOREGION</p>
-        <div class = "bold">
-          <p style = "margin-top: -7px;">${habitatDetails.ecoregion}</p>
+        <div style = "margin-bottom: 15px;">
+          <h4 class = "bold" style = "margin-top: -7px; ">${habitatDetails.ecoregion}</h4>
         </div>
       </div>`;
 
       document.querySelector('#landform').innerHTML = `
       <div>
           <p class = "trailer-0">LANDFORM TYPE</p>
-          <div class = "bold">
-            <p style = "margin-top: -7px;">${habitatDetails.landformType}</p>
+          <div style = "margin-bottom: 15px;">
+            <h4 class = "bold" style = "margin-top: -7px;">${habitatDetails.landformType}</h4>
           </div>
         </div>`;
 
@@ -2754,11 +2854,12 @@ const containmentBar =  (containment) => {
         <div style ="width: 100%; display: flex">
           <div style = "width: 50%; text-align: center; align-self: center;">
           <h4 class = "bold">${habitatDetails.bioDiversity}</h4>
-              <p style ="margin-bottom: 0;">Imperiled Species Biodiversity</p>
+              <p style ="margin-bottom: 5px; margin-top: 5px;">Imperiled Species Biodiversity</p>
           </div>
           <div style = "width: 50%;"> 
             <img src="https://www.arcgis.com/sharing/rest/content/items/668bf6e91edd49d1bb8b3f00d677b315/data"
-              style="width:70px; height:70px; 
+              style="width:70px; height:70px;
+              margin-right: 10px; 
               display: inline-flex;" 
               viewbox="0 0 32 32" 
               class="svg-icon" 
@@ -2770,7 +2871,8 @@ const containmentBar =  (containment) => {
               class="svg-icon" 
               type="image/svg+xml">
             <img src="https://www.arcgis.com/sharing/rest/content/items/96a4af6a248b4da48f1b7bd703f88485/data"
-              style="width:70px; height:70px; 
+              style="width:70px; height:70px;
+              margin-right: 7px;
               display: inline-flex;" 
               viewbox="0 0 32 32" 
               class="svg-icon" 
@@ -2786,17 +2888,17 @@ const containmentBar =  (containment) => {
       </div>`;
 
       document.querySelector('#criticalHabitat').innerHTML = `
-      <div style = "margin-bottom: 1.5625rem;">
-        <p style = "margin-bottom: 0.625rem;">CRITICAL HABITAT DESIGNATION</p>
+      <div>
+        <p style = "margin-bottom: 2px;">CRITICAL HABITAT DESIGNATION</p>
         <div class = "ecoregionInformation">
-          <p style= "font-size: 0.8rem">${habitatDetails.criticalHabitat}</p>
+          <p>${habitatDetails.criticalHabitat}</p>
         </div>
       </div>
       `;
 
       document.querySelector('#protectedAreas').innerHTML = `
-      <div style = "margin-bottom: 1.5625rem;">
-        <p style = "margin-bottom: 0.625rem;">PROTECTED AREAS, TRIBAL LANDS, & WILDERNESS AREAS</p>
+      <div>
+        <p style = "margin-bottom: 2px;">PROTECTED AREAS, TRIBAL LANDS, </br>& WILDERNESS AREAS</p>
         <div class = "ecoregionInformation">
           <p>${habitatDetails.protectedAreas}</p>
         </div>
