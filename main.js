@@ -441,6 +441,7 @@ const goto = ({ mapPoint, fireInformation }) => {
   console.log(point)        
     mapView.goTo(
       {
+        zoom: 8,
         target: point ? point : mapPoint,
       },
       {
@@ -670,7 +671,9 @@ const goto = ({ mapPoint, fireInformation }) => {
         
         feature.sourceLayer.title === 'Current Perimeters Outline'
         ? (selectedFireInfoQuery({hitTestResponse}), queryHub({ mapPoint }), addSearchQueryLocationGraphic({ mapPoint }), generalizeFirePerimeter({hitTestGeographicResponse}))
-        : (selectedFireInfoQuery({hitTestResponse}), queryHub({ mapPoint }), featureHitTestGraphic(feature));
+        : (selectedFireInfoQuery({hitTestResponse}), queryHub({ mapPoint }));
+        // Below is a function that will add a fireIcon to the map. Commented out for demo.
+        //  featureHitTestGraphic(feature)
         
       } else {
         infoItemHeader[0].innerHTML = '';
