@@ -317,19 +317,19 @@ let highlightIcon
     }
   });
 
-  const hexGraphic = new Graphic({
-    geometry: {
-      type: 'polygon',
-    },
-    symbol: {
-      type: "simple-fill",
-      color: [0, 0, 0, 0],
-      outline: {
-        color: [0, 97, 155],
-        width: 1,
-      }
-    }
-  });
+  // const hexGraphic = new Graphic({
+  //   geometry: {
+  //     type: 'polygon',
+  //   },
+  //   symbol: {
+  //     type: "simple-fill",
+  //     color: [0, 0, 0, 0],
+  //     outline: {
+  //       color: [0, 97, 155],
+  //       width: 1,
+  //     }
+  //   }
+  // });
   
   const searchWidget = new Search({
     view: mapView,
@@ -378,25 +378,23 @@ let highlightIcon
     censusTractOutlineGraphic.geometry.rings = null 
   };
 
-  const renderMapHexes = async (hexRings) => {
-    console.log('hex this')
-    console.log(hexRings)
+  // const renderMapHexes = async (hexRings) => {
     
-    await removeMapHexes();
+  //   await removeMapHexes();
 
-    hexGraphic.geometry.rings = hexRings.rings
-    mapView.graphics.add(hexGraphic)
+  //   hexGraphic.geometry.rings = hexRings.rings
+  //   mapView.graphics.add(hexGraphic)
 
-  };
+  // };
  
-  const removeMapHexes = async () => {
-    hexGraphic.geometry.rings = null 
-    await clearHexes(); 
-  };
+  // const removeMapHexes = async () => {
+  //   hexGraphic.geometry.rings = null 
+  //   await clearHexes(); 
+  // };
 
-  const clearHexes = async () => {
-    mapView.graphics.remove(hexGraphic);
-  };
+  // const clearHexes = async () => {
+  //   mapView.graphics.remove(hexGraphic);
+  // };
 
   const highlightFireIcon = ({highlightInfo, fireInformation}) => {
     //the fire Highlight function should probably be merged with the QueryLocationGraphic funtion. or Create a function that will clear the mapPoint Graphic
@@ -609,9 +607,9 @@ let highlightIcon
           removeMapPointGraphic();
     };
 
-    if(hexGraphic){
-      await removeMapHexes();
-    }
+    // if(hexGraphic){
+    //   await removeMapHexes();
+    // }
 
     let feature;
     
@@ -1796,7 +1794,7 @@ let highlightIcon
           criticalHabitat: response.data.features[0].attributes.CritHab
                          ? response.data.features[0].attributes.CritHab
                          : 'No information available',
-          protectedAreas: uneditedProtectedLandsList
+          protectedAreas: uneditedProtectedLandsList 
                           ? uneditedProtectedLandsList.join(', ')
                           : 'No information available',
           tractRanking: response.data.features[0].attributes.RichRank,
@@ -1881,7 +1879,7 @@ let highlightIcon
           allHexRings.rings.push(eachHexGeography.geometry.rings[0]);
         
         });
-       renderMapHexes(allHexRings);
+      //  renderMapHexes(allHexRings);
       })
   }
 
