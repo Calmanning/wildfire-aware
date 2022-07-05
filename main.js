@@ -79,13 +79,7 @@ let highlightIcon
     popup: {
       popup: null,
       autoOpenEnabled: false,
-    },
-    highlightOptions: {
-      color: 'green',
-      fillOpacity: 0.0
-    },
-    zoom: 5,
-    center: [253, 42]
+    }
   });
 
   // const layerList = new LayerList({
@@ -171,8 +165,14 @@ let highlightIcon
 
         
         
-        return firePoints
         
+        
+      })
+      .then(() => {
+        mapView.goTo({
+                    zoom: 5,
+                    center: [253, 42]
+                  });
       })
       .then(() => {
         layerListBtn.addEventListener('click', (event) => {
@@ -340,6 +340,7 @@ let highlightIcon
 
   
 
+//MAP-ORIENTED FUNCTIONS
 
 //MAP POINT GRAPHIC FUNCTION
   const addSearchQueryLocationGraphic = ({location, mapPoint, fireInformation}) => {    
@@ -418,6 +419,41 @@ let highlightIcon
 
   }
 
+const goto = ({ mapPoint, fireInformation }) => {
+    fireInformation ? console.log(fireInformation) : console.log(mapPoint)
+    
+    const fireLocation = fireInformation[0].split(',');
+    console.log(fireLocation)
+
+  let point = null;
+
+  if(fireInformation){
+    
+    point = new Point(
+      {
+        x: fireLocation[0], 
+        y: fireLocation[1],
+        // spatialReference: mapView.spatialReference,
+      }
+    )
+  };
+
+  console.log(point)        
+    mapView.goTo(
+      {
+        target: point ? point : mapPoint,
+      },
+      {
+        duration: 1000
+      }
+    )
+      .catch((error) => {
+        console.error(error)
+        
+      });
+  };
+
+//FORMATTING THE FIRST ENTRY IN THE FIRE LIST
   const fireDateEdit = () => {
     fireListDate[0]
     ? fireListDate[0].style.marginTop = 0
@@ -765,23 +801,6 @@ let highlightIcon
     formatActiveFires(dateSortedList)
   }
 
-
-//TODO: started eventlistener for reorganizing fires. Need to create functions that will sort fires and bold/unbold the clicked text.
-  // document.getElementById('fireSorting').addEventListener('click', (event) => {
-  //   console.log('click')
-  //   //this will make every clicked element-text bold. But how do we take away the bold style?
-  //   event.target.style.fontWeight = "bold"
-
-  //   if (event.target.innerText === 'NAME') {
-  //     console.log('name clicked')
-  //   } else if (event.target.innerText === 'SIZE') {
-  //     console.log('size clicked')
-  //   } else {
-  //     console.log('name with fire')
-  //   }
-  // })
-
-
   const firesInView = (number) => {
 
     const firesInViewEl = document.getElementById('firesInView')
@@ -954,7 +973,7 @@ let highlightIcon
       
       selectedFireInfoQuery({irwinID}); //collects the selected fires information and ALSO renders it to the sidebar 
 
-      // highlightFireIcon({ fireInformation });
+      goto({ fireInformation })
 
       queryHub({ fireInformation });
       
@@ -1020,7 +1039,7 @@ let highlightIcon
 
     censusBlockCentroidPerimeterQuery({newPerimeter})    
   };
-
+//TO RENDER ALL HEXBINS INTERSECTING WITH THE FIRE PERIMETER 
   const censusBlockCentroidPerimeterQuery = ({newPerimeter}) => {
     console.log(newPerimeter)
 
