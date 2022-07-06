@@ -192,7 +192,7 @@ let highlightIcon
     layerList.style.display === 'none'
     ? (layerList.style.display = 'initial', changelayerListButtonText())
     //regarding the button text-change above, Could make a function to change the text. Put a timeOut  on it 
-    : (uncheckLayerVisbility()) 
+    : (uncheckLayerVisbility(), closeLayerList()) 
   }
 
   const changelayerListButtonText = () => {
@@ -200,7 +200,7 @@ let highlightIcon
     
       layerList.style.display === 'none'
       ? layerListBtn.innerText = 'LAYER LIST'
-      : layerListBtn.innerText = 'CLEAR LAYERS'
+      : layerListBtn.innerText = 'CLEAR & CLOSE'
     
   };
 
@@ -216,15 +216,6 @@ let highlightIcon
     })
      
   };
-
-  const closeLayerListBtn = (() => {
-    const closeBtn = document.querySelector('#layer-list-close')
-
-    closeBtn.addEventListener('click', () => {
-      closeLayerList()
-      
-    })
-  })()
 
   const closeLayerList = () => {
 
@@ -1453,7 +1444,7 @@ const goto = ({ mapPoint, fireInformation }) => {
       distance: 2,
       units: 'esriSRUnit_StatuteMile',
       inSR: 4326,
-      outFields: ['P0010001', 'EstimatedUnder18Pop', 'Estimated18to64Pop', 'Estimated65PlusPop'].join(','),
+      outFields: ['P0010001', 'EstimatedUnder18Pop', 'Estimated18to64Pop', 'Estimated65PlusPop', 'EstPopWithDisability', 'EstPopinPoverty', 'H0010001', 'EstPopNoEnglish', 'EstPopWith0Vehicles'].join(','),
       returnGeometry: true,
       returnQueryGeometry: true,
       f: 'json'
@@ -1474,7 +1465,7 @@ const goto = ({ mapPoint, fireInformation }) => {
 
       console.log(aggregatedPopulationBlockObject)
    });
-  }
+  };
 
   const populationAgeByYear = ({ mapPoint, fireInformation }) => {
 
@@ -1865,11 +1856,11 @@ const goto = ({ mapPoint, fireInformation }) => {
       where: '1=1',
       geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.x}, ${mapPoint.y}`,
       geometryType: 'esriGeometryPoint',
-      inSR: 102100,
+      inSR: 4326,
       spatialRelationship: 'intersects',
       distance: 2,
       units: 'esriSRUnit_StatuteMile',
-      outFields: ['LandForm', 'CritHab', 'OwnersPadus'].join(','),
+      outFields: ['L3EcoReg', 'LandForm', 'CritHab', 'OwnersPadus', 'RichClass', 'WHPClass', 'PctWater', 'PctSnowIce', 'PctDevelop', 'PctBarren', 'PctForest', 'PctShrub', 'PctGrass', 'PctCropland', 'PctWetlands'].join(','),
       returnGeometry: true,
       outSR: 102100,
       f: 'json'
@@ -1879,31 +1870,87 @@ const goto = ({ mapPoint, fireInformation }) => {
       params
     })
       .then((response) => {
-        console.log(response);
-        const landFormArray = [];
-        const landFormObj = {}
-        const hexLandForms = response.data.features;
-        hexLandForms.map((hexDataFeatures) => {
-          landFormArray.push(hexDataFeatures.attributes.LandForm);
-        });
+        console.log(response.data.features);
+        
+        const ecoResponse = response.data.features;
+        
+        const aggragateEcoObj = ecoResponse.reduce((a,b) => {
+          Object.keys(b.attributes).forEach(key => {
+            
+            if(typeof(b.attributes[key]) === 'string'){            
+              (a[key] = (a[key] + ', '|| ""  + b.attributes[key])) 
+            }
 
-        console.log(landFormArray);
+            (a[key] = (a[key] || 0) + b.attributes[key])
+          })
+          return a
+        }, {})
+        
+        aggragateEcoObj.CritHab = aggragateEcoObj.CritHab.split(', ').filter(entry => !entry.includes(undefined) && !entry.includes("")).reduce((CritHabObj, CritHabItem) => {
+          !CritHabObj[CritHabItem] 
+          ? CritHabObj[CritHabItem] = 1 
+          : CritHabObj[CritHabItem]++
+          return CritHabObj
+          },{})
+        
+        aggragateEcoObj.L3EcoReg = aggragateEcoObj.L3EcoReg.split(', ').filter(entry => !entry.includes(undefined)).reduce((L3EcoRegObj, L3EcoRegItem) => {
+          !L3EcoRegObj[L3EcoRegItem] 
+          ? L3EcoRegObj[L3EcoRegItem] = 1 
+          : L3EcoRegObj[L3EcoRegItem]++
+          return L3EcoRegObj
+        },{})
+        
+        aggragateEcoObj.LandForm = aggragateEcoObj.LandForm.split(', ').filter(entry => !entry.includes(undefined)).reduce((landformObj, landformItem) => {
+          !landformObj[landformItem] 
+          ? landformObj[landformItem] = 1 
+          : landformObj[landformItem]++
+          return landformObj
+          },{})
 
-        landFormArray.forEach((landForm) => {
-          landFormObj[landForm] = (landFormObj[landForm] || 0) + 1
-        })
-
-        console.log(landFormObj);
-
+        aggragateEcoObj.OwnersPadus = aggragateEcoObj.OwnersPadus.split(', ').filter(entry => !entry.includes(undefined)).reduce((OwnersPadusObj, OwnersPadusItem) => {
+          !OwnersPadusObj[OwnersPadusItem] 
+          ? OwnersPadusObj[OwnersPadusItem] = 1 
+          : OwnersPadusObj[OwnersPadusItem]++
+          return OwnersPadusObj
+         },{})
+        
+        aggragateEcoObj.RichClass = aggragateEcoObj.RichClass.split(', ').filter(entry => !entry.includes(undefined)).reduce((RichClassObj, RichClassItem) => {
+          !RichClassObj[RichClassItem] 
+          ? RichClassObj[RichClassItem] = 1 
+          : RichClassObj[RichClassItem]++
+          return RichClassObj
+         },{})
+        
+        aggragateEcoObj.WHPClass = aggragateEcoObj.WHPClass.split(', ').filter(entry => !entry.includes(undefined)).reduce((WHPClassObj, WHPClassItem) => {
+          !WHPClassObj[WHPClassItem] 
+          ? WHPClassObj[WHPClassItem] = 1 
+          : WHPClassObj[WHPClassItem]++
+          return WHPClassObj
+         },{})
+        
+        aggragateEcoObj.PctBarren = aggragateEcoObj.PctBarren/ecoResponse.length
+        aggragateEcoObj.PctCropland = aggragateEcoObj.PctCropland/ecoResponse.length
+        aggragateEcoObj.PctDevelop = aggragateEcoObj.PctDevelop/ecoResponse.length
+        aggragateEcoObj.PctForest = aggragateEcoObj.PctForest/ecoResponse.length
+        aggragateEcoObj.PctGrass = aggragateEcoObj.PctGrass/ecoResponse.length
+        aggragateEcoObj.PctShrub = aggragateEcoObj.PctShrub/ecoResponse.length
+        aggragateEcoObj.PctSnowIce = aggragateEcoObj.PctSnowIce/ecoResponse.length
+        aggragateEcoObj.PctWater = aggragateEcoObj.PctWater/ecoResponse.length
+        aggragateEcoObj.PctWetlands = aggragateEcoObj.PctWetlands/ecoResponse.length
+        const totalLandcoverPct = aggragateEcoObj.PctBarren + aggragateEcoObj.PctCropland + aggragateEcoObj.PctDevelop + aggragateEcoObj.PctForest + aggragateEcoObj.PctGrass + aggragateEcoObj.PctShrub + aggragateEcoObj.PctSnowIce + aggragateEcoObj.PctWater + aggragateEcoObj.PctWetlands;
+        
+        console.log(aggragateEcoObj)
+        console.log(totalLandcoverPct)
         const allHexRings = {rings: []};
-        const hexPerimeter = response.data.features.map((eachHexGeography) => {
-          
+        const hexPerimeter = response.data.features.map((eachHexGeography) => {    
           allHexRings.rings.push(eachHexGeography.geometry.rings[0]);
         
         });
-      //  renderMapHexes(allHexRings);
+        
+        console.log(allHexRings)
+        //renderMapHexes(allHexRings);
       })
-  }
+  };
 
 //DATA VIZ
 
@@ -2837,7 +2884,7 @@ const containmentBar =  (containment) => {
         <p style = "margin-bottom: -5px;">TOTAL HOUSING UNITS </p> 
       </div>
       <div>
-      <h4 class = "bold">${housingData.housingValue.toLocaleString()}</h4>
+      <h4 class = "bold" style = "line-height: 1.2;">${housingData.housingValue.toLocaleString()}</h4>
         <p style = "margin-bottom: -5px;"> MEDIAN HOUSING VALUE </p>
       </div>
     </div>`
@@ -2865,50 +2912,50 @@ const containmentBar =  (containment) => {
           </div>
         </div>`;
 
-      document.querySelector('#biodiversity').innerHTML = `
-    <div style = "margin-bottom: 1.5625rem;">
-        <div style = "width: 100%;">
-          <div>
-          <p class = "trailer-0">BIODIVERSITY</p>
-        </div>
-        <div style ="width: 100%; display: flex">
-          <div style = "width: 50%; text-align: center; align-self: center;">
-          <h4 class = "bold">${habitatDetails.bioDiversity}</h4>
-              <p style ="margin-bottom: 5px; margin-top: 5px;">Imperiled Species Biodiversity</p>
-          </div>
-          <div style = "width: 50%;"> 
-            <img src="https://www.arcgis.com/sharing/rest/content/items/668bf6e91edd49d1bb8b3f00d677b315/data"
-              style="width:70px; height:70px;
-              margin-right: 10px; 
-              display: inline-flex;" 
-              viewbox="0 0 32 32" 
-              class="svg-icon" 
-              type="image/svg+xml">
-            <img src="https://www.arcgis.com/sharing/rest/content/items/bc5dc73ad7d345de840c128cc42cc938/data"
-              style="width:70px; height:70px; 
-              display: inline-flex;" 
-              viewbox="0 0 32 32" 
-              class="svg-icon" 
-              type="image/svg+xml">
-            <img src="https://www.arcgis.com/sharing/rest/content/items/96a4af6a248b4da48f1b7bd703f88485/data"
-              style="width:70px; height:70px;
-              margin-right: 7px;
-              display: inline-flex;" 
-              viewbox="0 0 32 32" 
-              class="svg-icon" 
-              type="image/svg+xml">
-            <img src="https://www.arcgis.com/sharing/rest/content/items/3c9e63f9173a463ba4e5765c08cf7238/data"
-              style="width:70px; height:70px; 
-              display: inline-flex;" 
-              viewbox="0 0 32 32" 
-              class="svg-icon" 
-              type="image/svg+xml">
-          </div>
-        </div>
-      </div>`;
+    //   document.querySelector('#biodiversity').innerHTML = `
+    // <div style = "margin-bottom: 1.5625rem;">
+    //     <div style = "width: 100%;">
+    //       <div>
+    //       <p class = "trailer-0">BIODIVERSITY</p>
+    //     </div>
+    //     <div style ="width: 100%; display: flex">
+    //       <div style = "width: 50%; text-align: center; align-self: center;">
+    //       <h4 class = "bold">${habitatDetails.bioDiversity}</h4>
+    //           <p style ="margin-bottom: 5px; margin-top: 5px;">Imperiled Species Biodiversity</p>
+    //       </div>
+    //       <div style = "width: 50%;"> 
+    //         <img src="https://www.arcgis.com/sharing/rest/content/items/668bf6e91edd49d1bb8b3f00d677b315/data"
+    //           style="width:70px; height:70px;
+    //           margin-right: 10px; 
+    //           display: inline-flex;" 
+    //           viewbox="0 0 32 32" 
+    //           class="svg-icon" 
+    //           type="image/svg+xml">
+    //         <img src="https://www.arcgis.com/sharing/rest/content/items/bc5dc73ad7d345de840c128cc42cc938/data"
+    //           style="width:70px; height:70px; 
+    //           display: inline-flex;" 
+    //           viewbox="0 0 32 32" 
+    //           class="svg-icon" 
+    //           type="image/svg+xml">
+    //         <img src="https://www.arcgis.com/sharing/rest/content/items/96a4af6a248b4da48f1b7bd703f88485/data"
+    //           style="width:70px; height:70px;
+    //           margin-right: 7px;
+    //           display: inline-flex;" 
+    //           viewbox="0 0 32 32" 
+    //           class="svg-icon" 
+    //           type="image/svg+xml">
+    //         <img src="https://www.arcgis.com/sharing/rest/content/items/3c9e63f9173a463ba4e5765c08cf7238/data"
+    //           style="width:70px; height:70px; 
+    //           display: inline-flex;" 
+    //           viewbox="0 0 32 32" 
+    //           class="svg-icon" 
+    //           type="image/svg+xml">
+    //       </div>
+    //     </div>
+    //   </div>`;
 
       document.querySelector('#criticalHabitat').innerHTML = `
-      <div>
+      <div style = "margin-top: 10px">
         <p style = "margin-bottom: 2px;">CRITICAL HABITAT DESIGNATION</p>
         <div class = "ecoregionInformation">
           <p>${habitatDetails.criticalHabitat}</p>
