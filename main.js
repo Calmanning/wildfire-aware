@@ -385,20 +385,20 @@ require([
   //   mapView.graphics.remove(hexGraphic);
   // };
 
-  const fireGraphic = async ({fireData, fireInformation}) => {
-    console.log(fireData || fireInformation)
+  const fireGraphic = async ({fireIconGraphicInfo, fireInformation}) => {
+    console.log(fireIconGraphicInfo || fireInformation)
 
     const fireLocation = fireInformation 
                          ? fireInformation[0].split(',')
-                         : fireData.geometry;
+                         : fireIconGraphicInfo.geometry;
                          
     const fireType = fireInformation
                    ? fireInformation[2]
-                   : fireData.attributes.IncidentTypeCategory;
+                   : fireIconGraphicInfo.attributes.incidentType;
 
     const fireSize = fireInformation    
                    ? fireInformation[3]
-                   : fireData.attributes.DailyAcres;
+                   : fireIconGraphicInfo.attributes.DailyAcres;
 
     const fireIconGraphic =  new Graphic ({
       geometry: {
@@ -419,7 +419,7 @@ require([
 
   await removePreviousFireIcon({ fireIconGraphic })
 
-    if(fireType === 'WF') {
+    if(fireType !== 'RX' || 'PERSCRIPTTION BURN') {
       fireIconGraphic.symbol.size = 25
         if(fireSize > 50000){
           fireIconGraphic.symbol.size = 35
@@ -673,32 +673,6 @@ const goto = ({ mapPoint, fireInformation }) => {
     })
 
   });
-
-  const formatHitTestResponse = ({ hitTestResponse }) => {
-    
-          console.log('map point response');
-          
-          const fireData = {
-          incidentName: hitTestResponse.IncidentName,
-          fireDiscovery: hitTestResponse.FireDiscoveryAge === 0 
-          ? 'Less than 24 hours' 
-          : hitTestResponse.FireDiscoveryAge,
-          fireDiscoveryDateTime: hitTestResponse.FireDiscoveryDateTime,
-          modifiedOnDateTime: hitTestResponse.ModifiedOnDateTime,
-          incidentType: hitTestResponse.IncidentTypeCategory === "WF" 
-          ? 'WILDFIRE' 
-          : 'PERSCRIPTION BURN',
-          dailyAcres: hitTestResponse.DailyAcres === null 
-          ? 'Not reported'
-          : hitTestResponse.DailyAcres,
-          percentContained: hitTestResponse.PercentContained === null 
-          ? 'Not reported' 
-          : hitTestResponse.PercentContained
-          }
-          console.log(fireData)
-          setFireContentInfo({ fireData })
-       
-  }
 
   fireListBtn.addEventListener('click', () => {
   //TODO: problem here with list toggle and the map click
@@ -994,6 +968,7 @@ const goto = ({ mapPoint, fireInformation }) => {
       .then((response) => {
         console.log(response)
         console.log(response.data.features)
+        const fireIconGraphicInfo = response.data.features[0]
         const fireData = response.data.features[0]
           ? {
               irwinId: response.data.features[0].attributes.IrwinID,
@@ -1016,7 +991,7 @@ const goto = ({ mapPoint, fireInformation }) => {
           }
           
         setFireContentInfo({ fireData })
-        fireGraphic({ fireData })
+        fireGraphic({ fireIconGraphicInfo })
       })
         .catch((error) => {
           console.log(error)
@@ -1870,6 +1845,10 @@ const goto = ({ mapPoint, fireInformation }) => {
       .then((response) => {
         console.log(response);
         
+        if(!response.data.features){
+          return
+        }
+        
         const ecoResponse = response.data.features;
         
         const aggragateEcoObj = ecoResponse.reduce((a,b) => {
@@ -1939,6 +1918,7 @@ const goto = ({ mapPoint, fireInformation }) => {
         : null;
         
         
+      //Adjusting the percentages
         aggragateEcoObj.PctBarren = aggragateEcoObj.PctBarren/ecoResponse.length
         aggragateEcoObj.PctCropland = aggragateEcoObj.PctCropland/ecoResponse.length
         aggragateEcoObj.PctDevelop = aggragateEcoObj.PctDevelop/ecoResponse.length
@@ -1948,11 +1928,17 @@ const goto = ({ mapPoint, fireInformation }) => {
         aggragateEcoObj.PctSnowIce = aggragateEcoObj.PctSnowIce/ecoResponse.length
         aggragateEcoObj.PctWater = aggragateEcoObj.PctWater/ecoResponse.length
         aggragateEcoObj.PctWetlands = aggragateEcoObj.PctWetlands/ecoResponse.length
-        const totalLandcoverPct = aggragateEcoObj.PctBarren + aggragateEcoObj.PctCropland + aggragateEcoObj.PctDevelop + aggragateEcoObj.PctForest + aggragateEcoObj.PctGrass + aggragateEcoObj.PctShrub + aggragateEcoObj.PctSnowIce + aggragateEcoObj.PctWater + aggragateEcoObj.PctWetlands;
         
+        if(aggragateEcoObj.WHPClass){
+        aggragateEcoObj.WHPClass["Very High"] = aggragateEcoObj.WHPClass["Very High"]/ecoResponse.length;
+        aggragateEcoObj.WHPClass["High"] = aggragateEcoObj.WHPClass["High"] / ecoResponse.length;
+        aggragateEcoObj.WHPClass["Moderate"] = aggragateEcoObj.WHPClass["Moderate"] / ecoResponse.length;
+        aggragateEcoObj.WHPClass["Low"] = aggragateEcoObj.WHPClass["Low"] / ecoResponse.length;
+        aggragateEcoObj.WHPClass["Very Low"] = aggragateEcoObj.WHPClass["Very Low"] / ecoResponse.length;
+        }
         console.log(ecoResponse)
         console.log(aggragateEcoObj)
-        console.log(totalLandcoverPct)
+        
         const allHexRings = {rings: []};
         const hexPerimeter = response.data.features.map((eachHexGeography) => {    
           allHexRings.rings.push(eachHexGeography.geometry.rings[0]);
@@ -2529,15 +2515,13 @@ const containmentBar =  (containment) => {
   ];
 
   console.log(aggragateEcoObj.WHPClass)
-    if (!aggragateEcoObj.WHPClass){
-      wildfirePotentialGraph({ wildfireRiskData })
-    }
-
+    if (aggragateEcoObj.WHPClass){
     wildfireRiskData[0].value = aggragateEcoObj.WHPClass["Very High"] || 0;
     wildfireRiskData[1].value = aggragateEcoObj.WHPClass["High"] || 0;
     wildfireRiskData[2].value = aggragateEcoObj.WHPClass["Moderate"] || 0;
     wildfireRiskData[3].value = aggragateEcoObj.WHPClass["Low"] || 0;
     wildfireRiskData[4].value = aggragateEcoObj.WHPClass["Very Low"] || 0;
+    }
 
     console.log({ wildfireRiskData })
 
@@ -2599,7 +2583,7 @@ const containmentBar =  (containment) => {
       //formating the scale and data source for the axes
       const xScale = d3.scaleLinear()
         .domain([0, d3.max(wildfireRiskData, d => d.value)])
-        .range([0, innerWidth]);
+        .range([0, width]);
       
       const yScale = d3.scaleBand()
           .domain(wildfireRiskData.map(d => d.name))
@@ -2628,7 +2612,7 @@ const containmentBar =  (containment) => {
           .attr('class', 'fire-rect-bar')
           .attr('y', (d, i) => yScale(d.name, i) + 5  )
           // .attr('x', d => xScale(d.value))
-          .attr('width', d => (d.value*7.5))
+          .attr('width', d => (d.value)*200)
           .attr('height', "20px")
           .attr('fill', d => barColors(d.name));
   }
