@@ -47,7 +47,7 @@ main {
 }
 
 .esri-search__container .esri-search__input-container .esri-search__form .esri-search__input{
-  background-color:#113149;
+  background-color:rgb(17, 54, 81);
   color: #FFFFFF;
 }
 .esri-view-width-less-than-small .esri-search__input {
@@ -56,7 +56,7 @@ main {
 }
 
 .esri-search__container .esri-search__input-container .esri-search__suggestions-menu .esri-menu__list{
-  background-color: #113149;
+  background-color: rgb(17, 54, 81);
   color: #FFFFFF;
 }
 
@@ -65,7 +65,7 @@ main {
 }
 
 .esri-search__container button {
-  background-color: #113149;
+  background-color: rgb(17, 54, 81);
 }
 
 .esri-icon-search{
@@ -73,7 +73,7 @@ main {
 }
 
 .esri-zoom .esri-widget--button{
-  background-color: #113149;
+  background-color: rgb(17, 54, 81);
 }
 
 .esri-zoom .esri-widget--button .esri-icon-plus{
@@ -115,7 +115,7 @@ main {
   margin-bottom: -5px;
 }
 
-.item-contianer{
+.item-container{
   margin-top: 1.5625rem;
 }
 
@@ -145,7 +145,11 @@ main {
   line-height: 1.2;
 }
 
-#housing-contianer .bold {
+#housing-container .bold {
+    color: #a5927c;
+}
+
+#wildfire-risk .bold {
     color: #a5927c;
 }
 

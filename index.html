@@ -21,69 +21,103 @@
       <div id="viewDiv" style = "float: left;">
         <div id="searchContainer" style="width: 250px; margin-left: 1rem; 
         position: absolute; 
-        top: 18px; left: 45px;">
+        top: 15px; left: 45px;">
         </div>
-        <div id="layerListContainer" style="width: 200px; margin-left: 1rem; 
+        <div id="layerListContainer" style="width: 205px; 
         position: absolute; 
-        bottom: 30px; left: 10px;">
-        <div style = "margin: auto 0; background: rgba(17, 54, 81, 1);">
+        bottom: 0px; left: 0px;">
+        <div id = "layer-List-Container-background" style = "margin: auto 0; background: none;">
           <div id="layers" class="animate-in-up js-animation" style = "display: none;"> 
-            <ul class="animate-in-up js-animation">
-              <label >
-                <input type="checkbox" id = "fire-perimeters" class = "layer-checkbox" checked>
-                FIRE PERIMETERS
+            <ul class="animate-in-up js-animation" style = "margin-left: 5px;">
+              <label style = "padding-top: 10px;">
+                <input class="layer-checkbox" type="checkbox" id="fire-points" checked>
+                Wildfire Points
               </label>
               <label>
-                <input type="checkbox" id = "satellite-hotspots" class = "layer-checkbox">
-                SATELLITE HOTSPOTS
+                <input class = "layer-checkbox" type="checkbox" id = "fire-perimeters" checked>
+                Wildfire Perimeters
+                <div style = "margin-left: 27px; width:25%; height: 20px; background: #F7BAB7; border: solid 2px #B13F31;"></div>
               </label>
               <label>
-                <input type="checkbox" id = "watchesAndWarnings" class = "layer-checkbox">
-                WEATHER WATCHES <br>
+                <input type="checkbox" id = "satellite-hotspots" class = "layer-checkbox" checked>
+                Satellite Hot Spots
+                <div style="margin-left: 27px; width:59%; height: 20px; background: white;">
+                </div>
+                <span style = "margin-left: 8px; margin-right: 74px;">&lt24 hr</span><span>&gt72 hr</span>
+              </label>
+              <label>
+                <input type="checkbox" id = "watchesAndWarnings" class = "auto-checkbox">
+                Fire Related Weather  </br>
                 <span style = "margin: 0 0px 0 27px;">
-                   & WARNINGS
+                  Watches & Warnings
                 </span>
+                <div style="margin-left: 27px; width:25%; height: 20px; background: #F7BAB7; border: solid 2px #B13F31;"></div>
               </label>
               <label>
-                <input type="checkbox" id="AQI-today" class="layer-checkbox">
-                AIR QUALITY TODAY
+                <input type="checkbox" id="AQI-today" class="auto-checkbox" checked>
+                Air Quality Today
+                <ul>
+                  <div style = "margin-bottom: 5px;">
+                    <div style="margin-left: 27px; width:36px; height: 20px; background: #F7BAB7; border: solid 2px #B13F31;"> <div style = "margin-left: 3rem; margin-top: -2px;">Moderate</div></div>
+                  </div>
+                  <div style = "margin-bottom: 70px;">
+                    <div style="margin-left: 27px; width:36px; height: 20px; background: #F7BAB7; border: solid 2px #B13F31;"> <div style = "margin-left: 3rem; margin-top: -2px;">Unhealthy for Sensitive Groups</div></div>
+                  </div>
+                  <div style = "margin-bottom: 5px;">
+                    <div style="margin-left: 27px; width:36px; height: 20px; background: #F7BAB7; border: solid 2px #B13F31;"> <div style = "margin-left: 3rem; margin-top: -2px;">Unhealthy</div></div>
+                  </div>
+                  <div style = "margin-bottom: 20px;">
+                    <div style="margin-left: 27px; width:36px; height: 20px; background: #F7BAB7; border: solid 2px #B13F31;"> <div style = "margin-left: 3rem; margin-top: -2px;">Very Unhealthy</div></div>
+                  </div>
+                  <div style = "margin-bottom: 5px;">
+                    <div style="margin-left: 27px; width:36px; height: 20px; background: #F7BAB7; border: solid 2px #B13F31;"> <div style = "margin-left: 3rem; margin-top: -2px;">Hazardous</div></div>
+                  </div>
+                </ul>
               </label>
               <label>
-                <input type="checkbox" id="AQI-tomorrow" class = "layer-checkbox">
-                AIR QUALITY TOMORROW
+                <input type="checkbox" id="AQI-tomorrow" class = "auto-checkbox">
+                Air Quality Tomorrow
               </label>
               <label >
-                <input type="checkbox" id="burned-areas" class="layer-checkbox">
-                FIRE BURNED AREAS <br> 1984-2020
+                <input type="checkbox" id="burned-areas" class="auto-checkbox">
+                Fire Burned Areas
+                <div style="margin-left: 27px; width:59%; height: 20px; background: white;">
+                </div>
+                <span style="margin-left: 8px; margin-right: 74px;">&lt24 hr</span><span>&gt72 hr</span>
               </label>
             </ul>
           </div>
-          <button class = "btn-transparent" id = "layer-list-button" style = "background: #FFBA1F; color: #113651; font-weight: 900; padding: 5px 60px 5px 5px; margin: 7px 10px; border: 1px solid #efefef;">LAYER LIST</button>
+          <button class="btn modifier-class btn-fill" id = "layer-list-button"
+            style="background: #FFBA1F; color: #14273d; width: 160px; margin-left: 20px; margin-bottom: 17px; font-weight: 900; border: none;"
+            tab-index="2" aria-haspopup="false" aria-expanded="false">
+            LAYER LIST
+          </button>
         </div>
         </div>
       </div>
 
-      <div class="item-container item-container" style="float:left">
+      <div class="" style="float:left">
         <aside id="sideBar"
           style=" width: 410px; height: 100%; background: rgba(17, 49, 73, 1); overflow: hidden auto;">
           <div stlye="display: block;">
             <div style="background-color: rgb(17, 49, 73); padding: 0.5rem 1rem;">
               <div class="trailer-0">
                 <span style = "color: #FFBA1F; font-size: 1.8rem;">WILDFIRE AWARE</span>
-                <span id="modal-btn" class="right btn icon-ui-question cursor-pointer js-modal-toggle" href="#"
-                  data-modal="foo"></span>
+                <span id="modal-btn" class="right btn icon-ui-description cursor-pointer js-modal-toggle" href="#"
+                  data-modal="infoModal"></span>
               </div>
               <div class="trailer-0" style = "margin-top: -8px;">
                 <span style="color: #FFBA1F; font-size: 14px;"> Sources:
-                  <a class="link">Census</a>,
-                  <a class="link">EPA</a>,
-                  <a class="link">NOAA</a>,
-                  <a class="link">USDA</a>,
-                  <a class="link">USFS</a>,
-                  <a class="link">USFWS</a>,
-                  <a class="link">USGS</a>,
-                  <a class="link">IRWIN</a>,
-                  <a class="link">NIFC</a>,
+                  <span class="link">Census</span>,
+                  <span class="link">EPA</span>,
+                  <span class="link">NASA</span>,
+                  <span class="link">NWS</span>,
+                  <span class="link">USDA</span>,
+                  <span class="link">USFS</span>,
+                  <span class="link">USFWS</span>,
+                  <span class="link">USGS</span>,
+                  <span class="link">IRWIN</span>,
+                  <span class="link">NIFC</span>
                   <!-- <a class="link">NatureServe</a> -->
                 </span>
                 <p class="trailer-0" style ="font-size: 14px">
@@ -111,7 +145,7 @@
                 </p>
                 <div style="text-align: center;">
                   <button id="fire-list-Btn" class="btn modifier-class btn-fill"
-                    style="display: none; background: #FFBA1F; color: #14273d; color: rgb(17, 54, 81); width: auto;font-weight: 900; margin: 0 50px;"
+                    style="display: none; background: #FFBA1F; color: #14273d; color: rgb(17, 54, 81); width: auto;font-weight: 900; margin: 17px 50px 0 50px; border: none;"
                     tab-index="0" aria-haspopup="false" aria-expanded="false">
                     RETURN TO WILDFIRE LIST
                   </button>
@@ -121,15 +155,15 @@
               </div>
               <div id="fire-list" style="display: initial"></div>
               <div id="sideBarInformation" style="display: none">
-                <div class="item-contianer">
-                  <div class="item-header" style="margin-bottom: 0;">
+                <div class="item-container" style="margin-top: 17px;">
+                  <div class="item-header" >
                   </div>
                   <div class="item-content">
                     <div id="fire-container">
                     </div>
                   </div>
                 </div>
-                <div class="item-contianer">
+                <div class="item-container">
                   <div class="item-header">
                   </div>
                   <div class="item-content">
@@ -144,7 +178,7 @@
                   </div>
                 </div>
       
-                <div class="item-contianer">
+                <div class="item-container">
                   <div class="item-header">
                   </div>
                   <div class="item-content">
@@ -166,21 +200,24 @@
                     </div>
                   </div>
 
-                <div class="item-contianer">
+                <div class="item-container">
                   <div class="item-header">
                   </div>
                   <div class="item-content">
-                    <div id="housing-contianer" style='display: flex;'>
+                    <div id="housing-container" style='display: flex;'>
                     </div>
                     <div id="wildfire-risk" style = "margin-top: 20px;">
-                      <div style="display: flex; width: 100%;">
+                      <div style="width: 100%;">
                         <p style="width: 100%; margin-bottom: 0;">WILDFIRE HAZARD POTENTIAL</p>
+                        <div> 
+                          <h4 id="wildfire-risk-data-control" class = "bold"> </h4>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div class="item-contianer">
+                <div class="item-container">
                   <div class="item-header">
                   </div>
                   <div class="item-content">
@@ -191,7 +228,7 @@
                       </div>
                       <div id='landcover-chart'>
                       </div>
-                      <div id = 'biodiversity'>
+                      <div id = 'biodiversity' style = "margin-top: 10px;">
                       </div>
                       <div id='criticalHabitat'>
                       </div>
@@ -204,7 +241,7 @@
                 <div style = "margin: 30px 0;">
                   <div style="text-align: center;">
                     <button id="top-page-Btn" class="btn modifier-class btn-fill"
-                      style="background: #FFBA1F; color: #14273d; color: rgb(17, 54, 81); width: 223.08px; font-weight: 900; margin: 0 50px;"
+                      style="background: #FFBA1F; color: rgb(17, 54, 81); width: 223.08px; font-weight: 900; margin: 0 50px; border: none;"
                       tab-index="2" aria-haspopup="false" aria-expanded="false">
                       RETURN TO TOP
                     </button>
@@ -216,17 +253,38 @@
         </aside>
       </div>
 
-      <div class="js-modal modal-overlay modifier-class" data-modal="foo">
-        <div class="modal-content column-12" style = "background-color: rgba(0, 48, 77, 0.7);" role="dialog" aria-labelledby="modal" role="dialog">
-          <h5 class='avenir-demi trailer-half'>About this app</h5>
-          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-            tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-            quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-            consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-            cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-            proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-          <div class="text-right">
-            <button class="btn btn-clear-white js-modal-toggle">close</button>
+      <div class="js-modal modal-overlay modifier-class" data-modal="infoModal">
+        <div class="modal-content" style = "background-color: rgba(17, 54, 81, 0.85); width: 75vw;" role="dialog" aria-labelledby="modal" role="dialog">
+          <h5 class='avenir-demi trailer-half' style = "color:rgb(255,186,31)">ABOUT THIS APP</h5>
+          <div>
+            <p>
+              The Wildfire Aware app is intended to provide information about current wildfire incidents in the United States. The
+              data shown here from the Living Atlas are authoritative sources, including:
+            </p>
+            <p>
+             Environmental Protection Agency – <span class="link">Ecoregions</span> and Air Quality <span class="link">Current</span> and <span class="link">Tomorrow</span> </br>
+              National Aeronautics and Space Administration – <span class="link">MODIS</span> and <span class="link">VIIRS</span> </br>
+              National Weather Service – <span class="link">Temperature Forecast</span>, <span class="link">Wind Speed</span>, <span class="link">Weather Watches and Warnings</span></br>
+              US Department of Agriculture – <span class="link">Drought Monitor</span></br>
+              US Census – <span class="link">Census 2020 Redistricting Blocks</span> and <span class="link">American Community Survey</span></br>
+              US Forest Service – <span class="link">Wildfire Burned Areas</span> and <span class="link">Wildfire Hazard Potential</span></br>
+              US Fish and Wildlife Service – <span class="link">Critical Habitat</span></br>
+              US Geological Survey – <span class="link">National Land Cover Database</span> and <span class="link">Protected Areas Database</span></br>
+              Integrated Reporting of Wildland-Fire Information (IRWIN) – <span class="link">Wildfire Points</span></br>
+              National Interagency Fire Center (NIFC) – <span class="link">Wildfire Perimeters</span></br>
+              Nature Serve – <span class="link">Imperiled Species</span></br>
+              Esri – <span class="link">2022 Demographics</span> and <span class="link">World Ecological Landforms</span>
+            </p>
+            
+              <h5 style = "color:rgb(255,186,31)"><strong>APP USE</strong></h5>
+              Click on a location in the U.S. to find out more about a wildfire along with affected populations. You can also
+              inpidually select a wildfire to find out detailed information. This app was designed by Esri’s Michael Dangermond, Gonzalo Espinoza-Davalos, Jim Herries, Calvin Manning, Emily Meriam,
+              and Dan Pisut
+            </p>
+            <br>
+          </div>
+          <div class="text-center">
+            <button class="btn btn-clear-white js-modal-toggle" style="background: #FFBA1F; color: rgb(17, 54, 81); font-weight: 900; margin: 0 50px; border: none;">CLOSE</button>
           </div>
         </div>
       </div>

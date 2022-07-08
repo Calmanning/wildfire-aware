@@ -5,57 +5,39 @@ require([
           "esri/views/MapView",
           "esri/widgets/Search",
           "esri/Graphic",
-          "esri/layers/GraphicsLayer",
           "esri/layers/Layer",
           "esri/layers/FeatureLayer",
           "esri/core/watchUtils",
           "esri/tasks/support/Query",
           "esri/geometry/Point",
           "esri/geometry/geometryEngine"
-], (esriConfig, WebMap, MapView, Search, Graphic, GraphicsLayer, Layer, FeatureLayer, watchUtils, Query, Point, geometryEngine) => {
+], (esriConfig, WebMap, MapView, Search, Graphic, Layer, FeatureLayer, watchUtils, Query, Point, geometryEngine) => {
     
   'use strict';
 
   console.log("so far...")
   
-// GLOBAL VARIABLES
+//DOM VARIABLES
 
-  //DOM VARIABLES
   const sideBarInformation = document.getElementById('sideBarInformation');
   const fireListEl = document.querySelector('#fire-list');
   const infoItemHeader = document.getElementsByClassName('item-header');
   const infoItemContent = document.getElementsByClassName('item-content');
   const atRiskDiv = document.querySelector('#at-risk-population');
   const fireListDate  = document.getElementsByClassName('fire-list-date')
-  const fireListItem  = document.getElementsByClassName('fire-item')
   
   const fireListBtn = document.querySelector('#fire-list-Btn');
   const fireListSorting = document.querySelector('#fireSorting');
   let dateSortedList = [];
-  
-  //Layer list and associated elements
+
   const layerList = document.querySelector('#layers');
-  const layerListBackground = document.querySelector('#layer-List-Container-background');
   const layerListBtn = document.querySelector('#layer-list-button');
-  const firePointsLayerCheckbox = document.querySelector('#fire-points');
-  const firePermieterLayerCheckbox = document.querySelector('#fire-perimeters');
-  const watchesAndWarningsCheckbox = document.querySelector('#watchesAndWarnings');
-  const satelliteHotspotsCheckbox = document.querySelector('#satellite-hotspots');
-  const AQITodayCheckbox = document.querySelector('#AQI-today');
-  const AQITomorrowCheckbox = document.querySelector('#AQI-tomorrow');
-  const burnedAreasCheckbox = document.querySelector('#burned-areas');
-
-
-  let firePoints = {};
-  let fireArea = {};
-  let firePerimeter = {};
-  let weatherWatchesAndWarningsLayer = {};
-  let satelliteHotspotsLayer = {};
-  let burnedAreasFillLayer = {};
-  let burnedAreasPerimeterLayer = {};
-  let AQITodayLayer = {};
-  let AQITomorrowLayer = {};
   
+
+  let firePointsRenderer
+
+// GLOBAL VARIABLES
+let highlightIcon
 
 //MAP COMPONENTS
   const incidentFeatureLayer = new FeatureLayer ({
@@ -79,6 +61,17 @@ require([
     layers: []
   });
 
+  let firePoints = {};
+  let fireArea = {};
+  let firePerimeter = {};
+  let firePerimeterFillLayer = {};
+  let weatherWatchesAndWarningsLayer = {};
+  let satelliteHotspotsLayer = {};
+  let burnedAreasFillLayer = {};
+  let burnedAreasPerimeterLayer = {};
+  let AQITodayLayer = {};
+  let AQITomorrowLayer = {};
+
   const mapView = new MapView({
     container: "viewDiv",
     map: webmap,
@@ -89,12 +82,12 @@ require([
     }
   });
 
-  const graphicsLayer = new GraphicsLayer({
-    graphics:[]
-  })
-  webmap.add(graphicsLayer);
-  webmap.layers.reorder(graphicsLayer, 11)
-
+  // const layerList = new LayerList({
+  //         view: mapView,
+  //         container: layerListContainer,
+  //         id: "layerList",
+  //         selectionEnabled: true
+  //       });
 
   const loadMapview = (() => {
     mapView.when()
@@ -115,7 +108,8 @@ require([
             'FireDiscoveryAge', 
             'IncidentTypeCategory', 
             'DailyAcres', 
-            'PercentContained'
+            'PercentContained',
+            'ObjectId'
           ];
         
         fireArea = webmap.allLayers.find((layer) => {
@@ -128,6 +122,7 @@ require([
           'GISAcres',
           'FeatureCategory',
           'IncidentTypeCategory',
+          'ObjectId',
           'CurrentDateAge',
           'CreateDate',
           'CreateDateAge',
@@ -137,7 +132,12 @@ require([
         firePerimeter = webmap.allLayers.find((layer) => {
           return layer.title === 'Current Perimeters Outline'
         });
+
         firePerimeter.outFields = 'IrwinID';
+
+        firePerimeterFillLayer = webmap.allLayers.find((layer) => {
+          return layer.title === 'Current Perimeters Fill'
+        });
 
         weatherWatchesAndWarningsLayer = webmap.allLayers.find((layer) => {
           return layer.title ==='Weather Watches and Warnings'
@@ -163,11 +163,15 @@ require([
           return layer.title === 'Burned Areas Outline'
         });
 
+        
+        
+        
+        
       })
       .then(() => {
         mapView.goTo({
                     zoom: 5,
-                    center: [260, 39]
+                    center: [253, 42]
                   });
       })
       .then(() => {
@@ -183,11 +187,12 @@ require([
 
 
   const addLayerList = (event) => {   
+    
     //NOTE: currently this button does two different actions: opens the list, and clears the visible layers. Is it a good idea to do that? Should the button be simplified, limited to open and close the list?
     layerList.style.display === 'none'
-    ? (layerList.style.display = 'initial', layerListBackground.style.background = 'rgb(17, 54, 81)', changelayerListButtonText())
+    ? (layerList.style.display = 'initial', changelayerListButtonText())
     //regarding the button text-change above, Could make a function to change the text. Put a timeOut  on it 
-    : (uncheckLayerVisbility(), closeLayerList(), layerListBackground.style.background = 'none') 
+    : (uncheckLayerVisbility(), closeLayerList()) 
   }
 
   const changelayerListButtonText = () => {
@@ -199,6 +204,19 @@ require([
     
   };
 
+  const uncheckLayerVisbility = () => {
+    document.querySelectorAll('.layer-checkbox').forEach(checkbox => {
+      console.log(checkbox)
+      checkbox.checked = false;
+      firePerimeter.visible = checkbox.checked;
+      firePerimeterFillLayer.visible = checkbox.checked;
+      //have note added the satellite hotspot toggle
+      AQITodayLayer.visible = checkbox.checked;
+      AQITomorrowLayer.visible = checkbox.checked;
+    })
+     
+  };
+
   const closeLayerList = () => {
 
     layerList.style.display = 'none';
@@ -208,42 +226,37 @@ require([
 
 //LAYER LIST VISIBILITY TOGGLE
 
-  const toggleFirePointsLayerVisibility = (() => {
-    
-
-    console.log(firePoints)
-    
-    firePointsLayerCheckbox.addEventListener('change', () => {
-      firePoints.visible = firePointsLayerCheckbox.checked;
-    })
-  })();  
-
   const toggleFirePerimeterLayerVisibility = (() => {
-  
+    const firePermieterLayerCheckbox = document.querySelector('#fire-perimeters')
 
-      firePermieterLayerCheckbox.addEventListener('change', () => {
-        firePerimeter.visible = firePermieterLayerCheckbox.checked;
-        fireArea.visible = firePermieterLayerCheckbox.checked;
-      })
+    firePermieterLayerCheckbox.addEventListener('change', () => {
+      console.log(firePerimeter)
+      console.log(firePerimeterFillLayer)
+      firePerimeter.visible = firePermieterLayerCheckbox.checked;
+      firePerimeterFillLayer.visible = firePermieterLayerCheckbox.checked;
+    })
   })();
 
   const toggleWatchesandWarningsVisibility = (() => {
-    
+    const watchesAndWarningsCheckbox = document.querySelector('#watchesAndWarnings');
     watchesAndWarningsCheckbox.addEventListener('change', () => {
+      console.log(watchesAndWarningsCheckbox)
       weatherWatchesAndWarningsLayer.visible = watchesAndWarningsCheckbox.checked
-      
-    })
-  })();
+      console.log(weatherWatchesAndWarningsLayer.visible)
+      }
+    )})();
 
   const toggleSatelliteHotSpotsVisibility =  (() => {
-    
+    const satelliteHotspotsCheckbox = document.querySelector('#satellite-hotspots')
 
     satelliteHotspotsCheckbox.addEventListener('change', () => {
-      satelliteHotspotsLayer.visible = satelliteHotspotsCheckbox.checked
+      //NOTE: Currently the hotspots are loaded on the app at the start. Emily should be taking that layer out of the boot-up
+      console.log(satelliteHotspotsLayer)
     })
   })()
 
   const toggleAQITodayVisibility = (() => {
+    const AQITodayCheckbox = document.querySelector('#AQI-today');
 
     AQITodayCheckbox.addEventListener('change', () => {
       AQITodayLayer.visible = AQITodayCheckbox.checked
@@ -251,33 +264,23 @@ require([
   })()
   
   const toggleAQITomorrowVisibility = (() => {
-    
+    const AQITomorrowCheckbox = document.querySelector('#AQI-tomorrow');
+
     AQITomorrowCheckbox.addEventListener('change', () => {
       AQITomorrowLayer.visible = AQITomorrowCheckbox.checked
     })
   })()
 
   const toggleBurnedAreasVisibility = (() => {
+    const burnedAreasCheckbox = document.querySelector('#burned-areas');
 
     burnedAreasCheckbox.addEventListener('change', () => {
-    
+    console.log(burnedAreasFillLayer)
+    console.log(burnedAreasPerimeterLayer)
     burnedAreasFillLayer.visible = burnedAreasCheckbox.checked
     burnedAreasPerimeterLayer.visible = burnedAreasCheckbox.checked
     })
-  })();
-
-   const uncheckLayerVisbility = () => {
-    document.querySelectorAll('.auto-checkbox').forEach(checkbox => {
-      console.log(checkbox)
-      checkbox.checked = false;
-      AQITodayLayer.visible = checkbox.checked;
-      AQITomorrowLayer.visible = checkbox.checked;
-      weatherWatchesAndWarningsLayer.visible = watchesAndWarningsCheckbox.checked
-      burnedAreasFillLayer.visible = burnedAreasCheckbox.checked
-      burnedAreasPerimeterLayer.visible = burnedAreasCheckbox.checked
-    })
-     
-  };
+  })()
   
   const censusTractOutlineGraphic = new Graphic ({
     geometry: {
@@ -385,58 +388,25 @@ require([
   //   mapView.graphics.remove(hexGraphic);
   // };
 
-  const fireGraphic = async ({fireData, fireInformation}) => {
-    console.log(fireData || fireInformation)
-
-    const fireLocation = fireInformation 
-                         ? fireInformation[0].split(',')
-                         : fireData.geometry;
-                         
-    const fireType = fireInformation
-                   ? fireInformation[2]
-                   : fireData.attributes.IncidentTypeCategory;
-
-    const fireSize = fireInformation    
-                   ? fireInformation[3]
-                   : fireData.attributes.DailyAcres;
-
-    const fireIconGraphic =  new Graphic ({
-      geometry: {
-        type: 'point',
-        x: fireLocation.x || fireLocation[0],
-        y: fireLocation.y || fireLocation[1],
-      },
-      symbol: {
-      type: "simple-marker",
-      size: 15,
-      color: [255, 255, 255, 0.85],
-      outline: {
-        width: 0,
-        color: [255, 255, 255, 0]
-        }
-      }
-  });
-
-  await removePreviousFireIcon({ fireIconGraphic })
-
-    if(fireType === 'WF') {
-      fireIconGraphic.symbol.size = 25
-        if(fireSize > 50000){
-          fireIconGraphic.symbol.size = 35
-        } else if (fireSize < 5000){
-          fireIconGraphic.symbol.size = 18
-        }
-    }
-     
-    // webmap.layers.reorder(graphicsLayer, 11)
-    graphicsLayer.graphics.push(fireIconGraphic);
+  const highlightFireIcon = ({highlightInfo, fireInformation}) => {
+    //the fire Highlight function should probably be merged with the QueryLocationGraphic funtion. or Create a function that will clear the mapPoint Graphic
+   
+    if (highlightIcon) {
+        highlightIcon.remove();
+    };   
     
-  }
-  
-  const removePreviousFireIcon = async ({ fireIconGraphic }) => {
-    fireIconGraphic
-    ? graphicsLayer.graphics.pop(fireIconGraphic)
-    : null;
+      // console.log(highlightInfo ? typeof(highlightInfo) : typeof(+fireInformation[2]))
+      console.log(highlightInfo ? highlightInfo : fireInformation[1])
+      mapView.whenLayerView(firePoints).then((layerView) => {
+      highlightInfo
+      ? highlightIcon = layerView.highlight(highlightInfo)
+      // highlightIcon = layerView.highlight(highlightInfo["OBJECTID"])
+      : highlightIcon = layerView.highlight(fireInformation[1])
+      
+      
+      })
+
+       console.log(highlightIcon)
 
   }
 
@@ -454,31 +424,34 @@ const goto = ({ mapPoint, fireInformation }) => {
       {
         x: fireLocation[0], 
         y: fireLocation[1],
+        // spatialReference: mapView.spatialReference,
       }
     )
   };
 
-       
-  mapView.goTo(
-    {
-      zoom: 12,
-      target: point ? point : mapPoint,
-    },
-    {
-      duration: 1000
-    }
-  )
-    .catch((error) => {
-      console.error(error)
-      
-    });
+  console.log(point)        
+    mapView.goTo(
+      {
+        zoom: 8,
+        target: point ? point : mapPoint,
+      },
+      {
+        duration: 1000
+      }
+    )
+      .catch((error) => {
+        console.error(error)
+        
+      });
   };
 
 //FORMATTING THE FIRST ENTRY IN THE FIRE LIST
-  const formatFirstFireItem = () => {
-    fireListItem[0].style.marginTop = '39px';
-  };
-
+  const fireDateEdit = () => {
+    fireListDate[0]
+    ? fireListDate[0].style.marginTop = 0
+    : null
+  
+  }
 //List of fires in dropdown
   const formatActiveFires = (sortedFireList) => {
     console.log(sortedFireList)
@@ -501,17 +474,18 @@ const goto = ({ mapPoint, fireInformation }) => {
       fireLocation: fire[0]
               ? [fire[0].geometry.x, fire[0].geometry.y]
               : [fire.geometry.x, fire.geometry.y],
-      fireType: fire[0]
-              ? fire[0].attributes.IncidentTypeCategory
-              : fire.attributes.IncidentTypeCategory,
+      objectID: fire[0]
+              ? +fire[0].attributes.OBJECTID
+              : +fire.attributes.OBJECTID,
+    
     }
     
     return  (
       `
-      <div class = "fire-item padding-left-2" style = "margin-bottom: 15px; cursor: pointer;" value="${fireListItem.fireLocation}, ${fireListItem.fireId}, ${fireListItem.fireType}, ${fireListItem.fireAcres}" > 
-        <h5 style ="font-weight: bold; margin-bottom: -4px; color: #ffb600; line-height: 21px;" value="${fireListItem.fireLocation}, ${fireListItem.fireId}, ${fireListItem.fireType}, ${fireListItem.fireAcres}">${fireListItem.fireName} </h5>
+      <div class = "fire-item padding-left-2" style = "margin-bottom: 10px; cursor: pointer;" value="${fireListItem.fireLocation}, ${fireListItem.fireId}, ${fireListItem.objectID}" > 
+        <h5 style ="font-weight: bold; margin-bottom: -4px; color: #ffb600;" value="${fireListItem.fireLocation}, ${fireListItem.fireId}, ${fireListItem.objectID}">${fireListItem.fireName} </h5>
         
-        <p value="${fireListItem.fireLocation}, ${fireListItem.fireId}, ${fireListItem.fireType}, ${fireListItem.fireAcres}">${fireListItem.fireAcres.toLocaleString()} acres</p>
+        <p value="${fireListItem.fireLocation}, ${fireListItem.fireId}, ${fireListItem.objectID}">${fireListItem.fireAcres.toLocaleString()} acres</p>
         
       </div>
       `
@@ -526,7 +500,7 @@ const goto = ({ mapPoint, fireInformation }) => {
 
     fireListItemClickEvent() 
     fireItemHoverHighlight()     
-    // fireDateEdit()
+    fireDateEdit()
 };
 
 
@@ -583,7 +557,7 @@ const goto = ({ mapPoint, fireInformation }) => {
           
           <div>
             <div class = "trailer-0 " style= "margin-top: 10px;"> 
-              <span class = "" style = "vertical-align: 2px; margin: 0 5px 0px 103px"> DAY </span>
+              <span class = "" style = "vertical-align: text-bottom; margin: 0 5px 0px 103px"> DAY </span>
               <h4 class = "bold trailer-0"> ${fireAge}</h4>
             </div>
             <div class = "trailer-0" style = "margin: 5px auto;">
@@ -622,6 +596,36 @@ const goto = ({ mapPoint, fireInformation }) => {
     addSearchQueryLocationGraphic({ location });
 
   });
+  
+  const featureHitTestGraphic = (feature) => {
+    console.log(feature)
+    const featuregraphic =  new Graphic ({
+      geometry: feature.geometry,
+      symbol: {
+      type: "picture-marker",
+      url: "https://www.arcgis.com/sharing/rest/content/items/83e1078b2faf42309b73ba46bd86f1b8/data",
+      width: "9",
+      height: "9"
+      }
+  });
+
+    if(feature.attributes.IncidentTypeCategory === 'WF') {
+      featuregraphic.symbol.url = 'https://www.arcgis.com/sharing/rest/content/items/b07419ba04cf40149002e64ba52084a4/data',
+      featuregraphic.symbol.width = '19.5'
+      featuregraphic.symbol.height = '19.5'
+
+        if(feature.attributes.DailyAcres > 50000){
+          featuregraphic.symbol.width = '26.25'
+          featuregraphic.symbol.height = '26.25'
+        } else if (feature.attributes.DailyAcres < 5000){
+          featuregraphic.symbol.width = '12.75'
+          featuregraphic.symbol.height = '12.75'
+        }
+    }
+   
+  
+          mapView.graphics.add(featuregraphic); 
+  }
 
   mapView.on('click', async (event) => {
     event.preventDefault();
@@ -660,7 +664,7 @@ const goto = ({ mapPoint, fireInformation }) => {
         ? (selectedFireInfoQuery({hitTestResponse}), queryHub({ mapPoint }), addSearchQueryLocationGraphic({ mapPoint }), generalizeFirePerimeter({hitTestGeographicResponse}))
         : (selectedFireInfoQuery({hitTestResponse}), queryHub({ mapPoint }));
         // Below is a function that will add a fireIcon to the map. Commented out for demo.
-        //  fireGraphic(feature)
+        //  featureHitTestGraphic(feature)
         
       } else {
         infoItemHeader[0].innerHTML = '';
@@ -771,10 +775,8 @@ const goto = ({ mapPoint, fireInformation }) => {
             formatActiveFires(dateSorted)
         } else if (event.target.innerText.includes('NAME')) {
             formatActiveFires(nameSorted)
-            formatFirstFireItem()
         } else if (event.target.innerText.includes('SIZE')) {
             formatActiveFires(acreSorted)
-            formatFirstFireItem()
         }
       })
 
@@ -851,7 +853,7 @@ const goto = ({ mapPoint, fireInformation }) => {
 
       // fireRiskQuery({ mapPoint, fireInformation });
 
-      // wildfirePotentialGraph(wildfireTestData)
+      wildfirePotentialGraph(wildfireTestData)
   }
 
   const getFiresByExtent = ({ extentGeometry }) => {
@@ -876,7 +878,8 @@ const goto = ({ mapPoint, fireInformation }) => {
               'FireDiscoveryAge', 
               'IncidentTypeCategory', 
               'DailyAcres', 
-              'PercentContained'
+              'PercentContained',
+              'OBJECTID'
             ].join(','),
             f:'json'
       }
@@ -944,7 +947,7 @@ const goto = ({ mapPoint, fireInformation }) => {
           
           const fireInformation = event.target.attributes.value.value.split(', ')
 
-          fireGraphic({ fireInformation })
+          // highlightFireIcon({ fireInformation })
         });
       });
     };
@@ -983,7 +986,7 @@ const goto = ({ mapPoint, fireInformation }) => {
     const params = {
       where: `IrwinId ='${irwinIdNumber}'`,
       time: null,
-      outFields: ['IrwinID', 'IncidentName', 'ModifiedOnDateTime', 'FireDiscoveryDateTime', 'FireDiscoveryAge ', 'IncidentTypeCategory', 'DailyAcres', 'PercentContained'].join(","),
+      outFields: ['IrwinID', 'IncidentName', 'ModifiedOnDateTime', 'FireDiscoveryDateTime', 'FireDiscoveryAge ', 'IncidentTypeCategory', 'DailyAcres', 'PercentContained', 'objectId'].join(","),
       returnGeometry: true,
       f: 'json'
     };
@@ -1016,7 +1019,6 @@ const goto = ({ mapPoint, fireInformation }) => {
           }
           
         setFireContentInfo({ fireData })
-        fireGraphic({ fireData })
       })
         .catch((error) => {
           console.log(error)
@@ -1526,7 +1528,7 @@ const goto = ({ mapPoint, fireInformation }) => {
       console.log(`80+: ${eightyPop}`)
 
 
-      //renderCensusTract(censusTract)
+      renderCensusTract(censusTract)
       populationBarGraph({ populationData })
       totalPopulationUIRender({ totalPopulation })
     })
@@ -1804,7 +1806,7 @@ const goto = ({ mapPoint, fireInformation }) => {
                       : 'No information available',
           criticalHabitat: response.data.features[0].attributes.CritHab
                          ? response.data.features[0].attributes.CritHab
-                         : 'None present',
+                         : 'No information available',
           protectedAreas: uneditedProtectedLandsList 
                           ? uneditedProtectedLandsList.join(', ')
                           : 'No information available',
@@ -1852,7 +1854,7 @@ const goto = ({ mapPoint, fireInformation }) => {
 
     const params = {
       where: '1=1',
-      geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
+      geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.x}, ${mapPoint.y}`,
       geometryType: 'esriGeometryPoint',
       inSR: 4326,
       spatialRelationship: 'intersects',
@@ -1868,7 +1870,7 @@ const goto = ({ mapPoint, fireInformation }) => {
       params
     })
       .then((response) => {
-        console.log(response);
+        console.log(response.data.features);
         
         const ecoResponse = response.data.features;
         
@@ -1884,60 +1886,47 @@ const goto = ({ mapPoint, fireInformation }) => {
           return a
         }, {})
         
-        aggragateEcoObj.CritHab
-        ?  aggragateEcoObj.CritHab = aggragateEcoObj.CritHab.split(', ').filter(entry => !entry.includes(undefined) && !entry.includes("")).reduce((CritHabObj, CritHabItem) => {
-            !CritHabObj[CritHabItem] 
-            ? CritHabObj[CritHabItem] = 1 
-            : CritHabObj[CritHabItem]++
-            return CritHabObj
-            },{})
-        : null;
-        
-        aggragateEcoObj.L3EcoReg
-        ? aggragateEcoObj.L3EcoReg = aggragateEcoObj.L3EcoReg.split(', ').filter(entry => !entry.includes(undefined)).reduce((L3EcoRegObj, L3EcoRegItem) => {
-            !L3EcoRegObj[L3EcoRegItem] 
-            ? L3EcoRegObj[L3EcoRegItem] = 1 
-            : L3EcoRegObj[L3EcoRegItem]++
-            return L3EcoRegObj
+        aggragateEcoObj.CritHab = aggragateEcoObj.CritHab.split(', ').filter(entry => !entry.includes(undefined) && !entry.includes("")).reduce((CritHabObj, CritHabItem) => {
+          !CritHabObj[CritHabItem] 
+          ? CritHabObj[CritHabItem] = 1 
+          : CritHabObj[CritHabItem]++
+          return CritHabObj
           },{})
-        : null;
+        
+        aggragateEcoObj.L3EcoReg = aggragateEcoObj.L3EcoReg.split(', ').filter(entry => !entry.includes(undefined)).reduce((L3EcoRegObj, L3EcoRegItem) => {
+          !L3EcoRegObj[L3EcoRegItem] 
+          ? L3EcoRegObj[L3EcoRegItem] = 1 
+          : L3EcoRegObj[L3EcoRegItem]++
+          return L3EcoRegObj
+        },{})
+        
+        aggragateEcoObj.LandForm = aggragateEcoObj.LandForm.split(', ').filter(entry => !entry.includes(undefined)).reduce((landformObj, landformItem) => {
+          !landformObj[landformItem] 
+          ? landformObj[landformItem] = 1 
+          : landformObj[landformItem]++
+          return landformObj
+          },{})
 
-        aggragateEcoObj.LandForm
-        ? aggragateEcoObj.LandForm = aggragateEcoObj.LandForm.split(', ').filter(entry => !entry.includes(undefined)).reduce((landformObj, landformItem) => {
-            !landformObj[landformItem] 
-            ? landformObj[landformItem] = 1 
-            : landformObj[landformItem]++
-            return landformObj
-            },{})
-        : null;
-
-        aggragateEcoObj.OwnersPadus
-        ? aggragateEcoObj.OwnersPadus = aggragateEcoObj.OwnersPadus.split(', ').filter(entry => !entry.includes(undefined)).reduce((OwnersPadusObj, OwnersPadusItem) => {
-            !OwnersPadusObj[OwnersPadusItem] 
-            ? OwnersPadusObj[OwnersPadusItem] = 1 
-            : OwnersPadusObj[OwnersPadusItem]++
-            return OwnersPadusObj
-          },{})
-        : null;
+        aggragateEcoObj.OwnersPadus = aggragateEcoObj.OwnersPadus.split(', ').filter(entry => !entry.includes(undefined)).reduce((OwnersPadusObj, OwnersPadusItem) => {
+          !OwnersPadusObj[OwnersPadusItem] 
+          ? OwnersPadusObj[OwnersPadusItem] = 1 
+          : OwnersPadusObj[OwnersPadusItem]++
+          return OwnersPadusObj
+         },{})
         
-        aggragateEcoObj.RichClass
-        ? aggragateEcoObj.RichClass = aggragateEcoObj.RichClass.split(', ').filter(entry => !entry.includes(undefined)).reduce((RichClassObj, RichClassItem) => {
-            !RichClassObj[RichClassItem] 
-            ? RichClassObj[RichClassItem] = 1 
-            : RichClassObj[RichClassItem]++
-            return RichClassObj
-          },{})
-        : null;
+        aggragateEcoObj.RichClass = aggragateEcoObj.RichClass.split(', ').filter(entry => !entry.includes(undefined)).reduce((RichClassObj, RichClassItem) => {
+          !RichClassObj[RichClassItem] 
+          ? RichClassObj[RichClassItem] = 1 
+          : RichClassObj[RichClassItem]++
+          return RichClassObj
+         },{})
         
-        aggragateEcoObj.WHPClass
-        ? aggragateEcoObj.WHPClass = aggragateEcoObj.WHPClass.split(', ').filter(entry => !entry.includes(undefined)).reduce((WHPClassObj, WHPClassItem) => {
-            !WHPClassObj[WHPClassItem] 
-            ? WHPClassObj[WHPClassItem] = 1 
-            : WHPClassObj[WHPClassItem]++
-            return WHPClassObj
-          },{})
-        : null;
-        
+        aggragateEcoObj.WHPClass = aggragateEcoObj.WHPClass.split(', ').filter(entry => !entry.includes(undefined)).reduce((WHPClassObj, WHPClassItem) => {
+          !WHPClassObj[WHPClassItem] 
+          ? WHPClassObj[WHPClassItem] = 1 
+          : WHPClassObj[WHPClassItem]++
+          return WHPClassObj
+         },{})
         
         aggragateEcoObj.PctBarren = aggragateEcoObj.PctBarren/ecoResponse.length
         aggragateEcoObj.PctCropland = aggragateEcoObj.PctCropland/ecoResponse.length
@@ -1950,7 +1939,6 @@ const goto = ({ mapPoint, fireInformation }) => {
         aggragateEcoObj.PctWetlands = aggragateEcoObj.PctWetlands/ecoResponse.length
         const totalLandcoverPct = aggragateEcoObj.PctBarren + aggragateEcoObj.PctCropland + aggragateEcoObj.PctDevelop + aggragateEcoObj.PctForest + aggragateEcoObj.PctGrass + aggragateEcoObj.PctShrub + aggragateEcoObj.PctSnowIce + aggragateEcoObj.PctWater + aggragateEcoObj.PctWetlands;
         
-        console.log(ecoResponse)
         console.log(aggragateEcoObj)
         console.log(totalLandcoverPct)
         const allHexRings = {rings: []};
@@ -1960,7 +1948,6 @@ const goto = ({ mapPoint, fireInformation }) => {
         });
         
         console.log(allHexRings)
-        formatWildfireRiskData({aggragateEcoObj}) 
         //renderMapHexes(allHexRings);
       })
   };
@@ -2068,6 +2055,7 @@ const renderLandCoverGraph = (landCoverArray) => {
             .attr('fill', (d) => (d.data.fill))
         //text appears while hovering over corresponding doughtnut 
           .on('mouseover', (e, d, i) => {
+            (console.log(e), console.log(d), console.log(i));
             text.append('text')
               .attr('dy', '1em')
               // .attr('dx', '-1.5em')
@@ -2517,49 +2505,30 @@ const containmentBar =  (containment) => {
 
 //WILDFIRE HAZARD POTENTIAL BAR GRAPH
     
-  const formatWildfireRiskData = ({aggragateEcoObj}) => {
-    
-    
-    const wildfireRiskData = [
-      {name:"VERY HIGH", value: 0},
-      {name: "HIGH", value: 0},
-      {name: "MODERATE", value: 0},
-      {name: "LOW", value: 0},
-      {name: "VERY LOW", value: 0}
+  const wildfireTestData = [
+   {name: "VERY HIGH", value: 25},
+    {name: "HIGH", value: 4},
+    {name: "MODERATE", value: 2},
+    {name: "LOW", value: 1},
+    {name: "VERY LOW", value: 7}
   ];
 
-  console.log(aggragateEcoObj.WHPClass)
-    if (!aggragateEcoObj.WHPClass){
-      wildfirePotentialGraph({ wildfireRiskData })
-    }
-
-    wildfireRiskData[0].value = aggragateEcoObj.WHPClass["Very High"] || 0;
-    wildfireRiskData[1].value = aggragateEcoObj.WHPClass["High"] || 0;
-    wildfireRiskData[2].value = aggragateEcoObj.WHPClass["Moderate"] || 0;
-    wildfireRiskData[3].value = aggragateEcoObj.WHPClass["Low"] || 0;
-    wildfireRiskData[4].value = aggragateEcoObj.WHPClass["Very Low"] || 0;
-
-    console.log({ wildfireRiskData })
-
-  wildfirePotentialGraph({ wildfireRiskData })
-  };
-
-  const wildfirePotentialGraph = ({ wildfireRiskData }) => {
+  const wildfirePotentialGraph = (wildfireTestData) => {
     
-    const data = wildfireRiskData
+    const data = wildfireTestData
     console.log(data)
 
       //clear out the existing chart
       d3.select('#wildfire-risk-graph')  
         .remove();
+      
+  // NOTE: this control statement needs to be re-worked for the wildfire risk info
+      // if(populationDataValue === 0) {
+      //   console.log('no people data')
+      //   document.querySelector('#people-data-control').innerText = 'No available population data'
+      //   return
+      // };
 
-    if(data.reduce((a,b) => a + b.value, 0) === 0){
-     document.querySelector('#wildfire-risk-data-control').innerText = `No data available`
-     return
-    }
-
-    document.querySelector('#wildfire-risk-data-control').innerText = ``
-  
       const width = 290;
       const height = 170;
       const margin = {
@@ -2598,11 +2567,11 @@ const containmentBar =  (containment) => {
 
       //formating the scale and data source for the axes
       const xScale = d3.scaleLinear()
-        .domain([0, d3.max(wildfireRiskData, d => d.value)])
+        .domain([0, d3.max(wildfireTestData, d => d.value)])
         .range([0, innerWidth]);
       
       const yScale = d3.scaleBand()
-          .domain(wildfireRiskData.map(d => d.name))
+          .domain(wildfireTestData.map(d => d.name))
           .range([0, innerHeight])
           .padding(-0.1);
       
@@ -2623,7 +2592,7 @@ const containmentBar =  (containment) => {
       .remove();
 
       g.selectAll('rect')
-        .data(wildfireRiskData)
+        .data(wildfireTestData)
         .enter().append('rect')
           .attr('class', 'fire-rect-bar')
           .attr('y', (d, i) => yScale(d.name, i) + 5  )
@@ -2900,7 +2869,7 @@ const containmentBar =  (containment) => {
 
   const housingInfoRender = ({ housingData }) => {
 
-    document.querySelector('#housing-container').innerHTML = `
+    document.querySelector('#housing-contianer').innerHTML = `
     <div style = "width: 40%;">
     <img src="https://www.arcgis.com/sharing/rest/content/items/e1e519abf84542c1b4557697bcb7984b/data"
     style = "width:100%; height:100%; 
@@ -2943,50 +2912,50 @@ const containmentBar =  (containment) => {
           </div>
         </div>`;
 
-      document.querySelector('#biodiversity').innerHTML = `
-    <div style = "margin-bottom: 1.5625rem;">
-        <div style = "width: 100%;">
-          <div>
-          <p class = "trailer-0">BIODIVERSITY</p>
-        </div>
-        <div style ="width: 100%; display: flex">
-          <div style = "width: 50%; text-align: center; align-self: center;">
-          <h4 class = "bold">${habitatDetails.bioDiversity}</h4>
-              <p style ="margin-bottom: 5px; margin-top: 5px;">Imperiled Species Biodiversity</p>
-          </div>
-          <div style = "width: 50%;"> 
-            <img src="https://www.arcgis.com/sharing/rest/content/items/668bf6e91edd49d1bb8b3f00d677b315/data"
-              style="width:70px; height:70px;
-              margin-right: 10px; 
-              display: inline-flex;" 
-              viewbox="0 0 32 32" 
-              class="svg-icon" 
-              type="image/svg+xml">
-            <img src="https://www.arcgis.com/sharing/rest/content/items/bc5dc73ad7d345de840c128cc42cc938/data"
-              style="width:70px; height:70px; 
-              display: inline-flex;" 
-              viewbox="0 0 32 32" 
-              class="svg-icon" 
-              type="image/svg+xml">
-            <img src="https://www.arcgis.com/sharing/rest/content/items/96a4af6a248b4da48f1b7bd703f88485/data"
-              style="width:70px; height:70px;
-              margin-right: 7px;
-              display: inline-flex;" 
-              viewbox="0 0 32 32" 
-              class="svg-icon" 
-              type="image/svg+xml">
-            <img src="https://www.arcgis.com/sharing/rest/content/items/3c9e63f9173a463ba4e5765c08cf7238/data"
-              style="width:70px; height:70px; 
-              display: inline-flex;" 
-              viewbox="0 0 32 32" 
-              class="svg-icon" 
-              type="image/svg+xml">
-          </div>
-        </div>
-      </div>`;
+    //   document.querySelector('#biodiversity').innerHTML = `
+    // <div style = "margin-bottom: 1.5625rem;">
+    //     <div style = "width: 100%;">
+    //       <div>
+    //       <p class = "trailer-0">BIODIVERSITY</p>
+    //     </div>
+    //     <div style ="width: 100%; display: flex">
+    //       <div style = "width: 50%; text-align: center; align-self: center;">
+    //       <h4 class = "bold">${habitatDetails.bioDiversity}</h4>
+    //           <p style ="margin-bottom: 5px; margin-top: 5px;">Imperiled Species Biodiversity</p>
+    //       </div>
+    //       <div style = "width: 50%;"> 
+    //         <img src="https://www.arcgis.com/sharing/rest/content/items/668bf6e91edd49d1bb8b3f00d677b315/data"
+    //           style="width:70px; height:70px;
+    //           margin-right: 10px; 
+    //           display: inline-flex;" 
+    //           viewbox="0 0 32 32" 
+    //           class="svg-icon" 
+    //           type="image/svg+xml">
+    //         <img src="https://www.arcgis.com/sharing/rest/content/items/bc5dc73ad7d345de840c128cc42cc938/data"
+    //           style="width:70px; height:70px; 
+    //           display: inline-flex;" 
+    //           viewbox="0 0 32 32" 
+    //           class="svg-icon" 
+    //           type="image/svg+xml">
+    //         <img src="https://www.arcgis.com/sharing/rest/content/items/96a4af6a248b4da48f1b7bd703f88485/data"
+    //           style="width:70px; height:70px;
+    //           margin-right: 7px;
+    //           display: inline-flex;" 
+    //           viewbox="0 0 32 32" 
+    //           class="svg-icon" 
+    //           type="image/svg+xml">
+    //         <img src="https://www.arcgis.com/sharing/rest/content/items/3c9e63f9173a463ba4e5765c08cf7238/data"
+    //           style="width:70px; height:70px; 
+    //           display: inline-flex;" 
+    //           viewbox="0 0 32 32" 
+    //           class="svg-icon" 
+    //           type="image/svg+xml">
+    //       </div>
+    //     </div>
+    //   </div>`;
 
       document.querySelector('#criticalHabitat').innerHTML = `
-      <div style = margin-top: 10px>
+      <div style = "margin-top: 10px">
         <p style = "margin-bottom: 2px;">CRITICAL HABITAT DESIGNATION</p>
         <div class = "ecoregionInformation">
           <p>${habitatDetails.criticalHabitat}</p>
