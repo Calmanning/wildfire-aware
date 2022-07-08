@@ -2559,9 +2559,8 @@ const containmentBar =  (containment) => {
       d3.select('#wildfire-risk')
 	    .append('div',"div")
         .attr('id', 'wildfire-risk-graph')
-        .style('width', `${width}px`)
+        .style('width', `$${width+margin.right}px`)
         .style('margin-left', `${margin.left}px`)
-        .style('margin-top', '-5px')
       .append('svg')
         .attr('id', 'wildfire-risk-graph-svg');
 
@@ -2582,11 +2581,11 @@ const containmentBar =  (containment) => {
 
       //formating the scale and data source for the axes
       const xScale = d3.scaleLinear()
-        .domain([0, d3.max(wildfireRiskData, d => d.value)])
+        .domain([0, d3.max(data, d => d.value)])
         .range([0, width]);
       
       const yScale = d3.scaleBand()
-          .domain(wildfireRiskData.map(d => d.name))
+          .domain(data.map(d => d.name))
           .range([0, innerHeight])
           .padding(-0.1);
       
@@ -2606,15 +2605,29 @@ const containmentBar =  (containment) => {
       xAxisG.selectAll('.domain, .tick')
       .remove();
 
-      g.selectAll('rect')
-        .data(wildfireRiskData)
-        .enter().append('rect')
+      //const rect = svg.selectAll('.bar')
+      svg.selectAll('.bar')
+        .data(data)
+        .enter().append('g')
+          .attr('transform', `translate(${margin.left}, 22)`)
+        .append('rect')
           .attr('class', 'fire-rect-bar')
-          .attr('y', (d, i) => yScale(d.name, i) + 5  )
-          // .attr('x', d => xScale(d.value))
-          .attr('width', d => (d.value)*200)
+          .attr('y', (d, i) => yScale(d.name, i))
+          .attr('width', d => (d.value > 0 ? (d.value*210) : (0.02*210)))
           .attr('height', "20px")
           .attr('fill', d => barColors(d.name));
+        
+      svg.selectAll('.bar')
+        .data(data)
+        .enter()
+        .append('text')
+        .attr('transform', `translate(${margin.left + 10}, 38)`)
+            .attr('class', 'riskPercent')
+            .attr('x', (d) => (d.value)*210)
+            .attr('y', (d, i) => yScale(d.name, i))
+            .attr('fill', '#a5927c')
+            .style('font-weight', '600')
+          .text(d => (d.value > 0 ? `${Math.round(d.value*100)}%` : '0%'))
   }
 
   
@@ -2884,16 +2897,7 @@ const containmentBar =  (containment) => {
 
   const housingInfoRender = ({ housingData }) => {
 
-    document.querySelector('#housing-container').innerHTML = `
-    <div style = "width: 40%;">
-    <img src="https://www.arcgis.com/sharing/rest/content/items/e1e519abf84542c1b4557697bcb7984b/data"
-    style = "width:100%; height:100%; 
-     display: inline-flex;
-     margin: -10px 0 0 0 " 
-     class="svg-icon" 
-     type="image/svg+xml">
-    </div>
-    <div style = "width: 60%; margin: 0; text-align: center;">
+    document.querySelector('#housing-container-stats').innerHTML = `
       <div style = "margin-bottom: 10px">
       <h4 class= "bold">${housingData.housingUnits.toLocaleString()}</h4>
         <p style = "margin-bottom: -5px;">TOTAL HOUSING UNITS </p> 
@@ -2902,7 +2906,7 @@ const containmentBar =  (containment) => {
       <h4 class = "bold" style = "line-height: 1.2;">${housingData.housingValue.toLocaleString()}</h4>
         <p style = "margin-bottom: -5px;"> MEDIAN HOUSING VALUE </p>
       </div>
-    </div>`
+    `
   }
 
   const habitatInfoRender = ({ habitatDetails }) => {
