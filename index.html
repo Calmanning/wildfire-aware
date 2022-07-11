@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, inherit-scale=1.0">
   <link rel = "stylesheet" href = "map-style.css"/>
   <link rel="stylesheet" href="https://js.arcgis.com/4.21/esri/themes/light/main.css"></link>
   <link rel="stylesheet" href="https://s3-us-west-1.amazonaws.com/patterns.esri.com/files/calcite-web/1.2.5/css/calcite-web.min.css"/>
@@ -19,9 +19,8 @@
   <body>
     <main>
       <div id="viewDiv" style = "float: left;">
-        <div id="searchContainer" style="width: 250px; margin-left: 1rem; 
-        position: absolute; 
-        top: 15px; left: 45px;">
+        <div id = "homeContainer" style="width: 2rem; height:2rem; background:rgb(17, 54, 81); color: #efefef; margin-left: 2.8rem; margin-top: -2.7rem;"> </div>
+        <div id="searchContainer" style="width: 250px; margin-left: 5.7rem; margin-top: -4.57rem;">
         </div>
         <div id="layerListContainer" style="width: 205px; 
         position: absolute; 
@@ -32,58 +31,122 @@
               <label style = "padding-top: 10px;">
                 <input class="layer-checkbox" type="checkbox" id="fire-points" checked>
                 Wildfire Points
+                <div id = "fire-points-legend" style="display:inherit;">
+                  <div class = "legend-spacing">
+                    <div class = "legend-image-spacing">
+                      <img style = "margin-top: -10px; margin-left: -11px; min-width: 3rem; height: 3rem;" src="https://www.arcgis.com/sharing/rest/content/items/f5ae5a1952d140f9b9c4c5c6ed9ad5da/data" alt="fires at 50,000 acres or larger">
+                    </div>
+                    <div class = "legend-text">50,000 or more acres</div>
+                  </div>
+                  <div class = "legend-spacing">
+                    <div class = "legend-image-spacing">
+                      <img style = "margin-top: -10px; margin-left: -4px; width:2rem; height: 2rem;" src="https://www.arcgis.com/sharing/rest/content/items/f5ae5a1952d140f9b9c4c5c6ed9ad5da/data" alt="fires between 5,000 and 50,000 acres or larger">
+                    </div>
+                    <div class = "legend-text">5,000-50,000 acres</div>
+                  </div>
+                  <div class = "legend-spacing">
+                    <div class = "legend-image-spacing">
+                      <img class = "fire-icon-legend" src="https://www.arcgis.com/sharing/rest/content/items/f5ae5a1952d140f9b9c4c5c6ed9ad5da/data" alt="fires under 5,000 acres">
+                    </div>
+                    <div class = "legend-text"> 0-5,000 acres</div>
+                  </div class = "legend-image">
+                  <div class = "legend-spacing">
+                    <div class = "legend-image-spacing">
+                      <img class = "fire-icon-legend" src="https://www.arcgis.com/sharing/rest/content/items/3ce2a29d3c794e288b24fcd39ed1f966/data" alt="fire less than 24hours old">
+                    </div>
+                    <div class = "legend-text">New (Past 24-hour)</div>
+                  </div>
+                  <div class = "legend-spacing">
+                    <div class = "legend-image-spacing">
+                      <img class = "fire-icon-legend" src="https://www.arcgis.com/sharing/rest/content/items/83e1078b2faf42309b73ba46bd86f1b8/data" alt="Perscribed burn icon">
+                    </div>
+                    <div class = "legend-text">Perscribed Fire</div>
+                  </div>
+                </div>
               </label>
               <label>
                 <input class = "layer-checkbox" type="checkbox" id = "fire-perimeters" checked>
                 Wildfire Perimeters
-                <div style = "margin-left: 27px; width:25%; height: 20px; background: #F7BAB7; border: solid 2px #B13F31;"></div>
+                <div id = "fire-perimeter-legend" style = "display: inherit; margin-left: 27px; width:25%; height: 20px; background: #F7BAB7; border: solid 2px #B13F31;"></div>
               </label>
               <label>
                 <input type="checkbox" id = "satellite-hotspots" class = "layer-checkbox" checked>
                 Satellite Hot Spots
-                <div style="margin-left: 27px; width:59%; height: 20px; background: linear-gradient(90deg, #FFCB48, #534B48 );">
+                <div id = "SatelliteHotSpot-img-legend" style = "display: inherit;">
+                  <div style="margin-left: 27px; width:59%; height: 20px; background: linear-gradient(90deg, #FFCB48, #534B48 );">
+                  </div>
+                  <span style = "margin-left: 8px; margin-right: 74px;">&lt24 hr</span><span>&gt72 hr</span>
                 </div>
-                <span style = "margin-left: 8px; margin-right: 74px;">&lt24 hr</span><span>&gt72 hr</span>
               </label>
               <label>
-                <input type="checkbox" id = "watchesAndWarnings" class = "auto-checkbox">
+                <input type="checkbox" class = "auto-checkbox" id = "watchesAndWarnings">
                 Fire Related Weather  </br>
                 <span style = "margin: 0 0px 0 27px;">
                   Watches & Warnings
                 </span>
-                <div style="margin-left: 27px; width:25%; height: 20px; background: #F7BAB7; border: solid 2px #B13F31;"></div>
+                <div id = "watchesAndWarnings-img-legend" style="display: none; margin-left: 27px; width:25%; height: 20px; background: #fafa9f;"></div>
               </label>
-              <label>
-                <input type="checkbox" id="AQI-today" class="auto-checkbox" checked>
-                Air Quality Today
-                <ul>
-                  <div style = "margin-bottom: 5px;">
-                    <div style="margin-left: 27px; width:36px; height: 20px; background: #F7BAB7; border: solid 2px #B13F31;"> <div style = "margin-left: 3rem; margin-top: -2px;">Moderate</div></div>
+              <label style = "margin-bottom: 0;">
+                Air Quality </br>
+                <input type="checkbox" class="auto-checkbox" id="AQI-today">
+                Today
+                <div id = "aqiToday-img-legend" style="display:none">
+                  <div class = "legend-spacing">
+                    <div class = "legend-image" style="background: #f2d39d; border: solid 2px #f2d39d;"></div>
+                    <div class = "legend-text">Moderate</div>
                   </div>
-                  <div style = "margin-bottom: 70px;">
-                    <div style="margin-left: 27px; width:36px; height: 20px; background: #F7BAB7; border: solid 2px #B13F31;"> <div style = "margin-left: 3rem; margin-top: -2px;">Unhealthy for Sensitive Groups</div></div>
+                  <div class = "legend-spacing">
+                    <div class = "legend-image" style="margin-top: 10px; background: #e3a75d; border: solid 2px #e3a75d;"></div>
+                    <div class = "legend-text">Unhealthy for Sensitive Groups</div>
                   </div>
-                  <div style = "margin-bottom: 5px;">
-                    <div style="margin-left: 27px; width:36px; height: 20px; background: #F7BAB7; border: solid 2px #B13F31;"> <div style = "margin-left: 3rem; margin-top: -2px;">Unhealthy</div></div>
+                  <div class = "legend-spacing">
+                    <div class = "legend-image" style="background: #d47660; border: solid 2px #d47660;"></div>
+                    <div class = "legend-text">Unhealthy</div>
                   </div>
-                  <div style = "margin-bottom: 20px;">
-                    <div style="margin-left: 27px; width:36px; height: 20px; background: #F7BAB7; border: solid 2px #B13F31;"> <div style = "margin-left: 3rem; margin-top: -2px;">Very Unhealthy</div></div>
+                  <div class = "legend-spacing">
+                    <div class = "legend-image" style="background: #84638f; border: solid 2px #84638f;"></div>
+                    <div class = "legend-text">Very Unhealthy</div>
                   </div>
-                  <div style = "margin-bottom: 5px;">
-                    <div style="margin-left: 27px; width:36px; height: 20px; background: #F7BAB7; border: solid 2px #B13F31;"> <div style = "margin-left: 3rem; margin-top: -2px;">Hazardous</div></div>
+                  <div class = "legend-spacing">
+                    <div class = "legend-image" style="background: #6e4951; border: solid 2px #6e4951;"></div>
+                    <div class = "legend-text">Hazardous</div>
                   </div>
-                </ul>
+                </div>
               </label>
               <label>
                 <input type="checkbox" id="AQI-tomorrow" class = "auto-checkbox">
-                Air Quality Tomorrow
+                Tomorrow
+                <div id="aqiTomorrow-img-legend" style="display:none">
+                  <div class="legend-spacing">
+                    <div class="legend-image" style="background: #f2d39d; border: solid 2px #f2d39d;"></div>
+                    <div class="legend-text">Moderate</div>
+                  </div>
+                  <div class="legend-spacing">
+                    <div class="legend-image" style="margin-top: 10px; background: #e3a75d; border: solid 2px #e3a75d;"></div>
+                    <div class="legend-text">Unhealthy for Sensitive Groups</div>
+                  </div>
+                  <div class="legend-spacing">
+                    <div class="legend-image" style="background: #d47660; border: solid 2px #d47660;"></div>
+                    <div class="legend-text">Unhealthy</div>
+                  </div>
+                  <div class="legend-spacing">
+                    <div class="legend-image" style="background: #84638f; border: solid 2px #84638f;"></div>
+                    <div class="legend-text">Very Unhealthy</div>
+                  </div>
+                  <div class="legend-spacing">
+                    <div class="legend-image" style="background: #6e4951; border: solid 2px #6e4951;"></div>
+                    <div class="legend-text">Hazardous</div>
+                  </div>
+                </div>
               </label>
               <label >
                 <input type="checkbox" id="burned-areas" class="auto-checkbox">
                 Fire Burned Areas
-                <div style="margin-left: 27px; width:59%; height: 20px; background: linear-gradient(90deg, transparent, #616161);">
+                <div id = "burnedAreas-img-legend" style="display: none;" >
+                  <div style="margin-left: 27px; width:59%; height: 20px; background: linear-gradient(90deg, transparent, #616161);">
+                  </div>
+                  <span style="margin-left: 8px; margin-right: 74px;">1984</span><span>2020</span>
                 </div>
-                <span style="margin-left: 8px; margin-right: 74px;">&lt24 hr</span><span>&gt72 hr</span>
               </label>
             </ul>
           </div>
@@ -117,8 +180,8 @@
                   <span class="link">USFWS</span>,
                   <span class="link">USGS</span>,
                   <span class="link">IRWIN</span>,
-                  <span class="link">NIFC</span>
-                  <!-- <a class="link">NatureServe</a> -->
+                  <span class="link">NIFC</span>,
+                  <a class="link">NatureServe</a>
                 </span>
                 <p class="trailer-0" style ="font-size: 14px">
                   For community awareness within the US about a wildfire, select from the list or click on the map.

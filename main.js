@@ -4,6 +4,7 @@ require([
           "esri/WebMap",
           "esri/views/MapView",
           "esri/widgets/Search",
+          "esri/widgets/Home",
           "esri/Graphic",
           "esri/layers/GraphicsLayer",
           "esri/layers/Layer",
@@ -12,7 +13,7 @@ require([
           "esri/tasks/support/Query",
           "esri/geometry/Point",
           "esri/geometry/geometryEngine"
-], (esriConfig, WebMap, MapView, Search, Graphic, GraphicsLayer, Layer, FeatureLayer, watchUtils, Query, Point, geometryEngine) => {
+], (esriConfig, WebMap, MapView, Search, Home, Graphic, GraphicsLayer, Layer, FeatureLayer, watchUtils, Query, Point, geometryEngine) => {
     
   'use strict';
 
@@ -58,19 +59,6 @@ require([
   
 
 //MAP COMPONENTS
-  const incidentFeatureLayer = new FeatureLayer ({
-    portalItem : {
-      id: '3803d41add194adf9d707026eb52ff75',
-      outFields: ['*'],
-    }  
-  });
-
-  const perimeterFeatureLayer = new FeatureLayer ({
-    portalItem : {
-      id: '3803d41add194adf9d707026eb52ff75&sublayer=1',
-      outFields: ['*'],
-    }
-  })
 
   const webmap = new WebMap({
     portalItem: {
@@ -94,6 +82,29 @@ require([
   })
   webmap.add(graphicsLayer);
   webmap.layers.reorder(graphicsLayer, 11)
+
+  const searchWidget = new Search({
+    view: mapView,
+    resultGraphicEnabled: false,
+    popupEnabled: false,
+    container: searchContainer
+  });
+  mapView.ui.add(searchWidget, "top-left");
+
+  const homeWidget = new Home({
+  view: mapView,
+  container: homeContainer
+  });
+  mapView.ui.add(homeWidget, "top-left");
+
+  homeWidget.goToOverride = () => {
+  console.log(goToParams.target)
+  return mapView.goTo({ 
+                      zoom: 5,
+                      center: [260, 39]
+                    });
+};
+
 
 
   const loadMapview = (() => {
@@ -185,7 +196,7 @@ require([
   const addLayerList = (event) => {   
     //NOTE: currently this button does two different actions: opens the list, and clears the visible layers. Is it a good idea to do that? Should the button be simplified, limited to open and close the list?
     layerList.style.display === 'none'
-    ? (layerList.style.display = 'initial', layerListBackground.style.background = 'rgb(17, 54, 81)', changelayerListButtonText())
+    ? (layerList.style.display = 'inherit', layerListBackground.style.background = 'rgb(17, 54, 81)', changelayerListButtonText())
     //regarding the button text-change above, Could make a function to change the text. Put a timeOut  on it 
     : (uncheckLayerVisbility(), closeLayerList(), layerListBackground.style.background = 'none') 
   }
@@ -208,68 +219,94 @@ require([
 
 //LAYER LIST VISIBILITY TOGGLE
 
-  const toggleFirePointsLayerVisibility = (() => {
-    
+//NOTE: this function is called by all legend-img-divs.
+  const toggleLegendDivVisibility = (legendDivId) => {
+    legendDivId.style.display === "inherit"
+      ? legendDivId.style.display = "none"
+      : legendDivId.style.display = "inherit";
+  };
 
-    console.log(firePoints)
+  const toggleFirePointsLayerVisibility = (() => {
+
+    const firePointLegend = document.querySelector('#fire-points-legend')
     
     firePointsLayerCheckbox.addEventListener('change', () => {
       firePoints.visible = firePointsLayerCheckbox.checked;
-    })
+      toggleLegendDivVisibility(firePointLegend);
+    });
   })();  
 
   const toggleFirePerimeterLayerVisibility = (() => {
-  
+    const firePerimeterLegend = document.querySelector('#fire-perimeter-legend');
 
       firePermieterLayerCheckbox.addEventListener('change', () => {
         firePerimeter.visible = firePermieterLayerCheckbox.checked;
         fireArea.visible = firePermieterLayerCheckbox.checked;
-      })
+        toggleLegendDivVisibility(firePerimeterLegend);
+      });
   })();
 
   const toggleWatchesandWarningsVisibility = (() => {
-    
+    const watchesAndWarningsLegend = document.querySelector('#watchesAndWarnings-img-legend');
+
     watchesAndWarningsCheckbox.addEventListener('change', () => {
-      weatherWatchesAndWarningsLayer.visible = watchesAndWarningsCheckbox.checked
-      
-    })
+      weatherWatchesAndWarningsLayer.visible = watchesAndWarningsCheckbox.checked;
+      toggleLegendDivVisibility(watchesAndWarningsLegend);
+    });
   })();
 
   const toggleSatelliteHotSpotsVisibility =  (() => {
-    
+    const satelliteHotSpotLegend = document.querySelector('#SatelliteHotSpot-img-legend');
 
     satelliteHotspotsCheckbox.addEventListener('change', () => {
-      satelliteHotspotsLayer.visible = satelliteHotspotsCheckbox.checked
-    })
+      satelliteHotspotsLayer.visible = satelliteHotspotsCheckbox.checked;
+      toggleLegendDivVisibility(satelliteHotSpotLegend)
+    });
   })()
 
   const toggleAQITodayVisibility = (() => {
+    const aqiTodayLegend = document.querySelector('#aqiToday-img-legend');
 
     AQITodayCheckbox.addEventListener('change', () => {
       AQITodayLayer.visible = AQITodayCheckbox.checked
-    })
+
+      aqiTodayLegend.visible === true
+      ? aqiTodayLegend.parentElement.style.marginBottom = null
+      : aqiTodayLegend.parentElement.style.marginBottom = 0;
+      toggleLegendDivVisibility(aqiTodayLegend)
+    });
   })()
   
   const toggleAQITomorrowVisibility = (() => {
-    
+    const aqiTomorrowLegend = document.querySelector('#aqiTomorrow-img-legend');
+
     AQITomorrowCheckbox.addEventListener('change', () => {
       AQITomorrowLayer.visible = AQITomorrowCheckbox.checked
-    })
+
+      aqiTomorrowLegend.visible === true
+      ? aqiTomorrowLegend.parentElement.style.marginBottom = null
+      : aqiTomorrowLegend.parentElement.style.marginBottom = 0;
+      toggleLegendDivVisibility(aqiTomorrowLegend)
+    });
   })()
 
   const toggleBurnedAreasVisibility = (() => {
 
     burnedAreasCheckbox.addEventListener('change', () => {
-    
-    burnedAreasFillLayer.visible = burnedAreasCheckbox.checked
-    burnedAreasPerimeterLayer.visible = burnedAreasCheckbox.checked
-    })
+      const burnedAreasLegend = document.querySelector("#burnedAreas-img-legend");
+
+    burnedAreasFillLayer.visible = burnedAreasCheckbox.checked;
+    burnedAreasPerimeterLayer.visible = burnedAreasCheckbox.checked;
+    toggleLegendDivVisibility(burnedAreasLegend)
+    });
   })();
 
    const uncheckLayerVisbility = () => {
     document.querySelectorAll('.auto-checkbox').forEach(checkbox => {
-      console.log(checkbox)
+      
+      
       checkbox.checked = false;
+
       AQITodayLayer.visible = checkbox.checked;
       AQITomorrowLayer.visible = checkbox.checked;
       weatherWatchesAndWarningsLayer.visible = watchesAndWarningsCheckbox.checked
@@ -318,14 +355,6 @@ require([
   //     }
   //   }
   // });
-  
-  const searchWidget = new Search({
-    view: mapView,
-    resultGraphicEnabled: false,
-    popupEnabled: false,
-    container: searchContainer
-  });
-
   
 
 //MAP-ORIENTED FUNCTIONS

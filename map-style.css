@@ -86,7 +86,6 @@ main {
 
 .tick text {
   font-size: 0.875rem;
-  
 }
 
 #landcover-chart .percentage, .landcover {
@@ -160,4 +159,44 @@ main {
 
 .link {
   color: #ffba1f;
+}
+
+.legend-spacing{
+  display: flex;
+  margin-bottom: 5px;
+  margin-top: 10px;
+}
+
+.fire-icon-legend{
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.legend-image-spacing {
+  margin-top: -2px;
+  margin-bottom: 5px;
+  margin-left: 15px;
+  min-width: 32px;
+  height: 20px;
+}
+
+.legend-image{
+  margin-top: -2px;
+  margin-bottom: 5px;
+  margin-left: 25px;
+  min-width: 36px;
+  height: 20px;
+}
+
+.legend-text{
+  margin-left: 10px;
+  margin-top: -2px;
+}
+
+.auto-checkbox {
+  background-color: green;
+}
+
+label input .auto-checkbox  :checked{
+  background-color: #ea1600;
 }
