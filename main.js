@@ -24,14 +24,14 @@ require([
   //DOM VARIABLES
   const sideBarInformation = document.getElementById('sideBarInformation');
   const fireListEl = document.querySelector('#fire-list');
+  const fireListBtn = document.querySelector('#fire-list-Btn');
+  const fireListSorting = document.querySelector('#fireSorting');
   const infoItemHeader = document.getElementsByClassName('item-header');
   const infoItemContent = document.getElementsByClassName('item-content');
   const atRiskDiv = document.querySelector('#at-risk-population');
   const fireListDate  = document.getElementsByClassName('fire-list-date')
   const fireListItem  = document.getElementsByClassName('fire-item')
   
-  const fireListBtn = document.querySelector('#fire-list-Btn');
-  const fireListSorting = document.querySelector('#fireSorting');
   let dateSortedList = [];
   
   //Layer list and associated elements
@@ -39,13 +39,21 @@ require([
   const layerListBackground = document.querySelector('#layer-List-Container-background');
   const layerListBtn = document.querySelector('#layer-list-button');
   const firePointsLayerCheckbox = document.querySelector('#fire-points');
+  const firePointLegend = document.querySelector('#fire-points-legend')
   const firePermieterLayerCheckbox = document.querySelector('#fire-perimeters');
+  const firePerimeterLegend = document.querySelector('#fire-perimeter-legend');
   const watchesAndWarningsCheckbox = document.querySelector('#watchesAndWarnings');
+  const watchesAndWarningsLegend = document.querySelector('#watchesAndWarnings-img-legend');
   const satelliteHotspotsCheckbox = document.querySelector('#satellite-hotspots');
+  const satelliteHotSpotLegend = document.querySelector('#SatelliteHotSpot-img-legend');
   const AQITodayCheckbox = document.querySelector('#AQI-today');
+  const aqiTodayLegend = document.querySelector('#aqiToday-img-legend');
   const AQITomorrowCheckbox = document.querySelector('#AQI-tomorrow');
+  const aqiTomorrowLegend = document.querySelector('#aqiTomorrow-img-legend');
   const burnedAreasCheckbox = document.querySelector('#burned-areas');
-
+  const burnedAreasLegend = document.querySelector("#burnedAreas-img-legend");
+  const censusPointsCheckbox = document.querySelector('#census-points');
+  const censusPointLegend = document.querySelector('#population-points-legend');
 
   let firePoints = {};
   let fireArea = {};
@@ -56,6 +64,7 @@ require([
   let burnedAreasPerimeterLayer = {};
   let AQITodayLayer = {};
   let AQITomorrowLayer = {};
+  let censusLayer = {};
   
 
 //MAP COMPONENTS
@@ -98,7 +107,7 @@ require([
   mapView.ui.add(homeWidget, "top-left");
 
   homeWidget.goToOverride = () => {
-  console.log(goToParams.target)
+  console.log('homehome')
   return mapView.goTo({ 
                       zoom: 5,
                       center: [260, 39]
@@ -174,6 +183,10 @@ require([
           return layer.title === 'Burned Areas Outline'
         });
 
+        censusLayer = webmap.allLayers.find((layer) => {
+          return layer.title === '2020 Census Block Centroids'
+        });
+
       })
       .then(() => {
         mapView.goTo({
@@ -198,7 +211,7 @@ require([
     layerList.style.display === 'none'
     ? (layerList.style.display = 'inherit', layerListBackground.style.background = 'rgb(17, 54, 81)', changelayerListButtonText())
     //regarding the button text-change above, Could make a function to change the text. Put a timeOut  on it 
-    : (uncheckLayerVisbility(), closeLayerList(), layerListBackground.style.background = 'none') 
+    : (uncheckLayerVisbility(), layerListBackground.style.background = 'none') 
   }
 
   const changelayerListButtonText = () => {
@@ -220,16 +233,27 @@ require([
 //LAYER LIST VISIBILITY TOGGLE
 
 //NOTE: this function is called by all legend-img-divs.
+  //NOTE: may need to make the conditioning more explicit
   const toggleLegendDivVisibility = (legendDivId) => {
-    legendDivId.style.display === "inherit"
-      ? legendDivId.style.display = "none"
-      : legendDivId.style.display = "inherit";
+    
+    if(legendDivId.style.display === "inherit"){
+      legendDivId.style.display = "none"
+    } else {
+      legendDivId.style.display = "inherit"}
   };
+
+  const hideAllLegendDivs = () => {
+    aqiTodayLegend.style.display = "none";
+    aqiTomorrowLegend.style.display = "none";
+    watchesAndWarningsLegend.style.display = "none";
+    burnedAreasLegend.style.display = "none";
+    censusPointLegend.style.display = "none";
+    
+    closeLayerList()
+  }
 
   const toggleFirePointsLayerVisibility = (() => {
 
-    const firePointLegend = document.querySelector('#fire-points-legend')
-    
     firePointsLayerCheckbox.addEventListener('change', () => {
       firePoints.visible = firePointsLayerCheckbox.checked;
       toggleLegendDivVisibility(firePointLegend);
@@ -237,8 +261,7 @@ require([
   })();  
 
   const toggleFirePerimeterLayerVisibility = (() => {
-    const firePerimeterLegend = document.querySelector('#fire-perimeter-legend');
-
+    
       firePermieterLayerCheckbox.addEventListener('change', () => {
         firePerimeter.visible = firePermieterLayerCheckbox.checked;
         fireArea.visible = firePermieterLayerCheckbox.checked;
@@ -247,8 +270,7 @@ require([
   })();
 
   const toggleWatchesandWarningsVisibility = (() => {
-    const watchesAndWarningsLegend = document.querySelector('#watchesAndWarnings-img-legend');
-
+    
     watchesAndWarningsCheckbox.addEventListener('change', () => {
       weatherWatchesAndWarningsLayer.visible = watchesAndWarningsCheckbox.checked;
       toggleLegendDivVisibility(watchesAndWarningsLegend);
@@ -256,8 +278,7 @@ require([
   })();
 
   const toggleSatelliteHotSpotsVisibility =  (() => {
-    const satelliteHotSpotLegend = document.querySelector('#SatelliteHotSpot-img-legend');
-
+    
     satelliteHotspotsCheckbox.addEventListener('change', () => {
       satelliteHotspotsLayer.visible = satelliteHotspotsCheckbox.checked;
       toggleLegendDivVisibility(satelliteHotSpotLegend)
@@ -265,11 +286,10 @@ require([
   })()
 
   const toggleAQITodayVisibility = (() => {
-    const aqiTodayLegend = document.querySelector('#aqiToday-img-legend');
-
+    
     AQITodayCheckbox.addEventListener('change', () => {
       AQITodayLayer.visible = AQITodayCheckbox.checked
-
+      
       aqiTodayLegend.visible === true
       ? aqiTodayLegend.parentElement.style.marginBottom = null
       : aqiTodayLegend.parentElement.style.marginBottom = 0;
@@ -278,7 +298,7 @@ require([
   })()
   
   const toggleAQITomorrowVisibility = (() => {
-    const aqiTomorrowLegend = document.querySelector('#aqiTomorrow-img-legend');
+    
 
     AQITomorrowCheckbox.addEventListener('change', () => {
       AQITomorrowLayer.visible = AQITomorrowCheckbox.checked
@@ -293,17 +313,21 @@ require([
   const toggleBurnedAreasVisibility = (() => {
 
     burnedAreasCheckbox.addEventListener('change', () => {
-      const burnedAreasLegend = document.querySelector("#burnedAreas-img-legend");
-
     burnedAreasFillLayer.visible = burnedAreasCheckbox.checked;
     burnedAreasPerimeterLayer.visible = burnedAreasCheckbox.checked;
-    toggleLegendDivVisibility(burnedAreasLegend)
+    toggleLegendDivVisibility(burnedAreasLegend);
+    });
+  })();
+
+  const toggleCensusPopulationVisibility = (() => {
+    censusPointsCheckbox.addEventListener('change', () => {
+      censusLayer.visible = censusPointsCheckbox.checked;
+      toggleLegendDivVisibility(censusPointLegend);
     });
   })();
 
    const uncheckLayerVisbility = () => {
     document.querySelectorAll('.auto-checkbox').forEach(checkbox => {
-      
       
       checkbox.checked = false;
 
@@ -312,8 +336,12 @@ require([
       weatherWatchesAndWarningsLayer.visible = watchesAndWarningsCheckbox.checked
       burnedAreasFillLayer.visible = burnedAreasCheckbox.checked
       burnedAreasPerimeterLayer.visible = burnedAreasCheckbox.checked
+      censusLayer.visible = censusPointsCheckbox.checked
+      
     })
-     
+    hideAllLegendDivs()
+    
+
   };
   
   const censusTractOutlineGraphic = new Graphic ({
@@ -437,34 +465,34 @@ require([
       },
       symbol: {
       type: "simple-marker",
-      size: 15,
-      color: [255, 255, 255, 0.85],
+      size: 17,
+      color: [17, 54, 81, 1],
       outline: {
-        width: 0,
-        color: [255, 255, 255, 0]
+        width: 2.75,
+        color: [255, 186, 31]
         }
       }
   });
 
-  await removePreviousFireIcon({ fireIconGraphic })
+  await removePreviousFireIcon()
 
     if(fireType !== 'RX' || 'PERSCRIPTTION BURN') {
-      fireIconGraphic.symbol.size = 25
+      fireIconGraphic.symbol.size = 30
         if(fireSize > 50000){
-          fireIconGraphic.symbol.size = 35
-        } else if (fireSize < 5000){
-          fireIconGraphic.symbol.size = 18
-        }
+          fireIconGraphic.symbol.size = 40
+        } else if (fireSize < 5000 || fireSize === 'Unreported'){
+          fireIconGraphic.symbol.size = 22
+        } 
     }
      
-    // webmap.layers.reorder(graphicsLayer, 11)
+    webmap.layers.reorder(graphicsLayer, 12)
     graphicsLayer.graphics.push(fireIconGraphic);
     
   }
   
-  const removePreviousFireIcon = async ({ fireIconGraphic }) => {
-    fireIconGraphic
-    ? graphicsLayer.graphics.pop(fireIconGraphic)
+  const removePreviousFireIcon = async () => {
+    graphicsLayer.graphics
+    ? graphicsLayer.graphics.pop()
     : null;
 
   }
@@ -709,6 +737,7 @@ const goto = ({ mapPoint, fireInformation }) => {
     removeCensusTractGraphic();
     removeMapPointGraphic();
     resetFireList();
+    removePreviousFireIcon();
     sideBarInformation.style.display = 'none'
   })
 
@@ -948,9 +977,15 @@ const goto = ({ mapPoint, fireInformation }) => {
           const fireInformation = event.target.attributes.value.value.split(', ')
 
           fireGraphic({ fireInformation })
-        });
+        }),
+
+        item.addEventListener("mouseleave", (event) => {
+          removePreviousFireIcon();
+        })
       });
     };
+
+
  //query calls from clicking on a list of active fires
   const fireListItemClickEvent = async () => { 
   document.querySelectorAll(".fire-item").forEach(item => {
@@ -2033,9 +2068,23 @@ const renderLandCoverGraph = (landCoverArray) => {
 
   d3.select('#landcover-graph')  
   .remove();
+  
+  document.querySelector('#landcover-data-control').innerText = ``
 
-  const landCoverArrayData = landCoverArray.filter(entry => !(entry.percent === 0));
+  const landCoverArrayData = landCoverArray;
+  landCoverArrayData.filter(entry => !(entry.percent === 0));
   console.log(landCoverArrayData);
+  
+  if(!landCoverArrayData){
+    const noLandCoverData = document.createElement('h4');
+    
+    noLandCoverData.setAttribute("class", "bold");
+    noLandCoverData.innerHTML = 'No data available';
+    
+    document.querySelector('#landcover-data-control').append(noLandCoverData)
+    return
+  }
+
 
   const colorScheme = d3.scaleOrdinal()
                           .domain(landCoverArrayData)
@@ -2099,9 +2148,9 @@ const renderLandCoverGraph = (landCoverArray) => {
           .on('mouseout', () => {
             text.select('.percentage').remove()
             text.select('.landcover').remove()
-          })
+          });
 
-}
+};
 
 //FIRE CONTAINMENT 
 const containmentBar =  (containment) => {
@@ -2564,21 +2613,21 @@ const containmentBar =  (containment) => {
 
       //clear out the existing chart
       d3.select('#wildfire-risk-graph')  
-        .remove();
-
+      .remove();
+      document.querySelector('#wildfire-risk-data-control').innerText = ``
+      
     if(data.reduce((a,b) => a + b.value, 0) === 0){
      document.querySelector('#wildfire-risk-data-control').innerText = `No data available`
      return
     }
 
-    document.querySelector('#wildfire-risk-data-control').innerText = ``
   
       const width = 290;
       const height = 170;
       const margin = {
         top: 15,
         right: 25,
-        left: 55,
+        left: 42,
         bottom: 10
       };
 
@@ -3020,21 +3069,6 @@ const containmentBar =  (containment) => {
       </div>
       `;
     }
-
-  // const renderRisk = (fireRiskRating) => {
-  //   const riskEL = document.querySelector('#wildfire-risk');
-
-  //   const riskIndex = document.createElement('div');
-    
-  //   riskIndex.remove(riskIndex);
-
-  //   riskIndex.innerHTML = `<div class = "font-size--3 test" style = "display: flex; width: 100%;">
-  //                       <p style = "width: 30%; margin-bottom: 0;">WILDFIRE RISK INDEX</p>
-  //                       <h5 class="bold" style = "margin-bottom: 0;">${fireRiskRating.toUpperCase()}</h5>
-  //                     </div>`
-
-  //   riskEL.append(riskIndex);
-  // }
 
   const noPopulationValue = () => {
     console.log("there's nothing there");

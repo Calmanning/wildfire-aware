@@ -19,78 +19,152 @@
   <body>
     <main>
       <div id="viewDiv" style = "float: left;">
-        <div id = "homeContainer" style="width: 2rem; height:2rem; background:rgb(17, 54, 81); color: #efefef; margin-left: 2.8rem; margin-top: -2.7rem;"> </div>
+        <div id = "homeContainer" style="width: 2rem; height:2rem; background:rgb(17, 54, 81); color:  #ffffff; margin-left: 2.8rem; margin-top: -2.7rem;"> </div>
         <div id="searchContainer" style="width: 250px; margin-left: 5.7rem; margin-top: -4.57rem;">
         </div>
-        <div id="layerListContainer" style="width: 205px; 
+        <div id="layerListContainer" style="width: 215px; max-height: 64vw; overflow-y: auto;
         position: absolute; 
         bottom: 0px; left: 0px;">
         <div id = "layer-List-Container-background" style = "margin: auto 0; background: none;">
           <div id="layers" class="animate-in-up js-animation" style = "display: none;"> 
             <ul class="animate-in-up js-animation" style = "margin-left: 5px;">
-              <label style = "padding-top: 10px;">
-                <input class="layer-checkbox" type="checkbox" id="fire-points" checked>
+              <label style = "padding-top: 10px;" class = "checkbox-container">
+                <input class="layer-checkbox" type="checkbox" id="fire-points" checked="checked">
+                <span class="checkmark" style = "margin-top: 10px;"></span>
                 Wildfire Points
-                <div id = "fire-points-legend" style="display:inherit;">
-                  <div class = "legend-spacing">
-                    <div class = "legend-image-spacing">
-                      <img style = "margin-top: -10px; margin-left: -11px; min-width: 3rem; height: 3rem;" src="https://www.arcgis.com/sharing/rest/content/items/f5ae5a1952d140f9b9c4c5c6ed9ad5da/data" alt="fires at 50,000 acres or larger">
-                    </div>
-                    <div class = "legend-text">50,000 or more acres</div>
-                  </div>
-                  <div class = "legend-spacing">
-                    <div class = "legend-image-spacing">
-                      <img style = "margin-top: -10px; margin-left: -4px; width:2rem; height: 2rem;" src="https://www.arcgis.com/sharing/rest/content/items/f5ae5a1952d140f9b9c4c5c6ed9ad5da/data" alt="fires between 5,000 and 50,000 acres or larger">
-                    </div>
-                    <div class = "legend-text">5,000-50,000 acres</div>
-                  </div>
-                  <div class = "legend-spacing">
-                    <div class = "legend-image-spacing">
-                      <img class = "fire-icon-legend" src="https://www.arcgis.com/sharing/rest/content/items/f5ae5a1952d140f9b9c4c5c6ed9ad5da/data" alt="fires under 5,000 acres">
-                    </div>
-                    <div class = "legend-text"> 0-5,000 acres</div>
-                  </div class = "legend-image">
-                  <div class = "legend-spacing">
-                    <div class = "legend-image-spacing">
-                      <img class = "fire-icon-legend" src="https://www.arcgis.com/sharing/rest/content/items/3ce2a29d3c794e288b24fcd39ed1f966/data" alt="fire less than 24hours old">
-                    </div>
-                    <div class = "legend-text">New (Past 24-hour)</div>
-                  </div>
-                  <div class = "legend-spacing">
-                    <div class = "legend-image-spacing">
-                      <img class = "fire-icon-legend" src="https://www.arcgis.com/sharing/rest/content/items/83e1078b2faf42309b73ba46bd86f1b8/data" alt="Perscribed burn icon">
-                    </div>
-                    <div class = "legend-text">Perscribed Fire</div>
-                  </div>
-                </div>
               </label>
-              <label>
+              <div id="fire-points-legend" style="display:inherit;">
+                <div class="legend-spacing" style="margin-bottom: 30px; margin-left: -10px;">
+                  <div class="legend-image-spacing">
+                    <img style="margin-top: -10px; min-width: 3rem; height: 3rem;"
+                      src="https://www.arcgis.com/sharing/rest/content/items/f5ae5a1952d140f9b9c4c5c6ed9ad5da/data"
+                      alt="fires at 50,000 acres or larger">
+                  </div>
+                  <div class="legend-text" style="margin-top: 5px; margin-left: 1px;">&gt50,000 acres</div>
+                </div>
+                <div class="legend-spacing">
+                  <div class="legend-image-spacing">
+                    <img style="margin-top: -10px; margin-left: -4px; width:2rem; height: 2rem;"
+                      src="https://www.arcgis.com/sharing/rest/content/items/f5ae5a1952d140f9b9c4c5c6ed9ad5da/data"
+                      alt="fires between 5,000 and 50,000 acres or larger">
+                  </div>
+                  <div class="legend-text">5,000-50,000 acres</div>
+                </div>
+                <div class="legend-spacing">
+                  <div class="legend-image-spacing">
+                    <img class="fire-icon-legend"
+                      src="https://www.arcgis.com/sharing/rest/content/items/f5ae5a1952d140f9b9c4c5c6ed9ad5da/data"
+                      alt="fires under 5,000 acres">
+                  </div>
+                  <div class="legend-text"> 0-5,000 acres</div>
+                </div>
+                <div class="legend-spacing">
+                  <div class="legend-image-spacing">
+                    <img class="fire-icon-legend"
+                      src="https://www.arcgis.com/sharing/rest/content/items/3ce2a29d3c794e288b24fcd39ed1f966/data"
+                      alt="fire less than 24hours old">
+                  </div>
+                  <div class="legend-text">New (Past 24-hour)</div>
+                </div>
+                <div class="legend-spacing">
+                  <div class="legend-image-spacing">
+                    <img class="fire-icon-legend"
+                      src="https://www.arcgis.com/sharing/rest/content/items/83e1078b2faf42309b73ba46bd86f1b8/data"
+                      alt="Prescribed burn icon">
+                  </div>
+                  <div class="legend-text">Prescribed Fire</div>
+                </div>
+              </div>
+              <label class = "checkbox-container">
                 <input class = "layer-checkbox" type="checkbox" id = "fire-perimeters" checked>
+                <span class="checkmark"></span>
                 Wildfire Perimeters
-                <div id = "fire-perimeter-legend" style = "display: inherit; margin-left: 27px; width:25%; height: 20px; background: #F7BAB7; border: solid 2px #B13F31;"></div>
               </label>
-              <label>
+              <div class = "legend-bar-img" id = "fire-perimeter-legend" style = "display: inherit; width:25%; background: rgba(214, 164, 159, 0.7); border: solid 2px #B13F31;"></div>
+              <label class = "checkbox-container">
                 <input type="checkbox" id = "satellite-hotspots" class = "layer-checkbox" checked>
+                <span class="checkmark"></span>
                 Satellite Hot Spots
-                <div id = "SatelliteHotSpot-img-legend" style = "display: inherit;">
-                  <div style="margin-left: 27px; width:59%; height: 20px; background: linear-gradient(90deg, #FFCB48, #534B48 );">
-                  </div>
-                  <span style = "margin-left: 8px; margin-right: 74px;">&lt24 hr</span><span>&gt72 hr</span>
-                </div>
               </label>
-              <label>
+              <div id="SatelliteHotSpot-img-legend" style="display: inherit;">
+                <div class = "legend-bar-img"
+                  style="background: linear-gradient(90deg, #FFCB48, #f69d58, #a17e65, #534B48 );">
+                </div>
+                <span class ="legend-bar-img-text">&lt24 hr</span><span>&gt72 hr</span>
+              </div>
+              <label class = "checkbox-container">
+                <input type="checkbox" id="burned-areas" class="auto-checkbox">
+                <span class="checkmark"></span>
+                Fire Burned Areas
+              </label>
+              <div id="burnedAreas-img-legend" style="display: none;">
+                <div class = "legend-bar-img" 
+                  style="background: linear-gradient(90deg, #5e5a4a, #23251e); border: solid 2px #553428;">
+                </div>
+                <span class="legend-bar-img-text">1984</span><span>2020</span>
+              </div>
+              <label class = "checkbox-container">
+                <input class="layer-checkbox auto-checkbox" type="checkbox" id="census-points">
+                <span class="checkmark"></span>
+                2020 Census Population
+              </label>
+              <div id="population-points-legend" style="display:none;">
+                <div class="population-legend-spacing" style="margin-bottom: 15px; margin-left: -8px;">
+                  <div class="populationLegend-image-spacing">
+                    <img style="margin-top: -10px; min-width: 2.2rem; height: 2.2rem;"
+                      src="https://arcgis-content.maps.arcgis.com/sharing/rest/content/items/6ef53e85458543e3bb7f78ad48972fba/data"
+                      alt="&gt 200 people">
+                  </div>
+                  <div class="legend-text" style="margin-top: 5px; margin-left: 13px;">&gt 200 people</div>
+                </div>
+                <div class="population-legend-spacing">
+                  <div class="populationLegend-image-spacing">
+                    <img style="margin-top: -10px; margin-left: -4px; width:1.7rem; height: 1.7rem;"
+                      src="https://arcgis-content.maps.arcgis.com/sharing/rest/content/items/6ef53e85458543e3bb7f78ad48972fba/data"
+                      alt="160 people">
+                  </div>
+                  <div class="legend-text">160 people</div>
+                </div>
+                <div class="population-legend-spacing">
+                  <div class="populationLegend-image-spacing">
+                    <img class="population-icon-legend" style = "width:1.3rem; height: 1.3rem;"
+                      src="https://arcgis-content.maps.arcgis.com/sharing/rest/content/items/6ef53e85458543e3bb7f78ad48972fba/data"
+                      alt="120 people">
+                  </div>
+                  <div class="legend-text">120 people</div>
+                </div>
+                <div class="population-legend-spacing">
+                  <div class="populationLegend-image-spacing"> 
+                    <img class="population-icon-legend" style = "width:1rem; height: 1rem;"
+                      src="https://arcgis-content.maps.arcgis.com/sharing/rest/content/items/6ef53e85458543e3bb7f78ad48972fba/data"
+                      alt="80 people">
+                  </div>
+                  <div class="legend-text">80 people</div>
+                </div>
+                <div class="population-legend-spacing">
+                  <div class="populationLegend-image-spacing">
+                    <img class="population-icon-legend" style = "width:0.5rem; height: 0.5rem;"
+                      src="https://arcgis-content.maps.arcgis.com/sharing/rest/content/items/6ef53e85458543e3bb7f78ad48972fba/data"
+                      alt="&lt 40 people">
+                  </div>
+                  <div class="legend-text">&lt 40 people</div>
+                </div>
+              </div>
+              <label class = "checkbox-container">
                 <input type="checkbox" class = "auto-checkbox" id = "watchesAndWarnings">
+                <span class="checkmark"></span>
                 Fire Related Weather  </br>
-                <span style = "margin: 0 0px 0 27px;">
+                <span>
                   Watches & Warnings
                 </span>
-                <div id = "watchesAndWarnings-img-legend" style="display: none; margin-left: 27px; width:25%; height: 20px; background: #fafa9f;"></div>
               </label>
-              <label style = "margin-bottom: 0;">
+              <div class = "legend-bar-img" id = "watchesAndWarnings-img-legend" style="display: none; width:25%; background: #fafa9f;"></div>
+              <label class = "checkbox-container" style = "margin-bottom: 0;">
                 Air Quality </br>
-                <input type="checkbox" class="auto-checkbox" id="AQI-today">
+                <input type="checkbox" class="auto-checkbox check" id="AQI-today">
+                <span class="checkmark" style = "margin-top: 22px;"></span>
                 Today
-                <div id = "aqiToday-img-legend" style="display:none">
+                <div id = "aqiToday-img-legend" style="display:none; margin-left: -15px;">
                   <div class = "legend-spacing">
                     <div class = "legend-image" style="background: #f2d39d; border: solid 2px #f2d39d;"></div>
                     <div class = "legend-text">Moderate</div>
@@ -113,10 +187,11 @@
                   </div>
                 </div>
               </label>
-              <label>
-                <input type="checkbox" id="AQI-tomorrow" class = "auto-checkbox">
+              <label class = "checkbox-container">
+                <input type="checkbox" class = "auto-checkbox" id="AQI-tomorrow">
+                <span class="checkmark" style = "margin-top: 4px;"></span>
                 Tomorrow
-                <div id="aqiTomorrow-img-legend" style="display:none">
+                <div id="aqiTomorrow-img-legend" style="display:none; margin-left: -15px;">
                   <div class="legend-spacing">
                     <div class="legend-image" style="background: #f2d39d; border: solid 2px #f2d39d;"></div>
                     <div class="legend-text">Moderate</div>
@@ -139,21 +214,12 @@
                   </div>
                 </div>
               </label>
-              <label >
-                <input type="checkbox" id="burned-areas" class="auto-checkbox">
-                Fire Burned Areas
-                <div id = "burnedAreas-img-legend" style="display: none;" >
-                  <div style="margin-left: 27px; width:59%; height: 20px; background: linear-gradient(90deg, transparent, #616161);">
-                  </div>
-                  <span style="margin-left: 8px; margin-right: 74px;">1984</span><span>2020</span>
-                </div>
-              </label>
             </ul>
           </div>
           <button class="btn modifier-class btn-fill" id = "layer-list-button"
             style="background: #FFBA1F; color: #14273d; width: 160px; margin-left: 20px; margin-bottom: 17px; font-weight: 900; border: none;"
             tab-index="2" aria-haspopup="false" aria-expanded="false">
-            LAYER LIST
+            MAP LAYERS
           </button>
         </div>
         </div>
@@ -165,9 +231,14 @@
           <div stlye="display: block;">
             <div style="background-color: rgb(17, 49, 73); padding: 0.5rem 1rem;">
               <div class="trailer-0">
-                <span style = "color: #FFBA1F; font-size: 1.8rem;">WILDFIRE AWARE</span>
-                <span id="modal-btn" class="right btn icon-ui-description cursor-pointer js-modal-toggle" href="#"
-                  data-modal="infoModal"></span>
+                <span class = 'bold' style = "color: #FFBA1F; font-size: 1.8rem;">WILDFIRE AWARE</span>
+                <span id="modal-btn" class="right btn cursor-pointer js-modal-toggle" href="#"
+                  data-modal="infoModal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" style = "width: 24px; height: 24px; margin-top: -5px; margin-left:-1px; fill: currentColor;" class="svg-icon">
+                  <path
+                    d="M31.297 16.047c0 8.428-6.826 15.25-15.25 15.25S.797 24.475.797 16.047c0-8.424 6.826-15.25 15.25-15.25s15.25 6.826 15.25 15.25zM18 24V12h-4v12h-2v2h8v-2h-2zm0-18h-4v4h4V6z" />
+                </svg>
+                </span>
               </div>
               <div class="trailer-0" style = "margin-top: -8px;">
                 <span style="color: #FFBA1F; font-size: 14px;"> Sources:
@@ -179,6 +250,7 @@
                   <span class="link">USFS</span>,
                   <span class="link">USFWS</span>,
                   <span class="link">USGS</span>,
+                  <span class="link">Esri</span>,
                   <span class="link">IRWIN</span>,
                   <span class="link">NIFC</span>,
                   <a class="link">NatureServe</a>
@@ -297,6 +369,10 @@
                       <div id = 'landform'>
                       </div>
                       <div id='landcover-chart'>
+                        <p class="trailer-0" style = "margin-bottom: 10px;" >LANDCOVER</p>
+                        <div id = "landcover-data-control">
+                        
+                        </div>
                       </div>
                       <div id = 'biodiversity' style = "margin-top: 10px;">
                       </div>
@@ -325,7 +401,7 @@
 
       <div class="js-modal modal-overlay modifier-class" data-modal="infoModal">
         <div class="modal-content" style = "background-color: rgba(17, 54, 81, 0.85); width: 75vw;" role="dialog" aria-labelledby="modal" role="dialog">
-          <h5 class='avenir-demi trailer-half' style = "color:rgb(255,186,31)">ABOUT THIS APP</h5>
+          <h5 class='avenir-demi trailer-half' style = "color:rgb(255,186,31); margin-bottom: 0;">ABOUT THIS APP</h5>
           <div>
             <p>
               The Wildfire Aware app is intended to provide information about current wildfire incidents in the United States. The
@@ -346,7 +422,7 @@
               Esri – <span class="link">2022 Demographics</span> and <span class="link">World Ecological Landforms</span>
             </p>
             
-              <h5 style = "color:rgb(255,186,31)"><strong>APP USE</strong></h5>
+              <h5 style = "color:rgb(255,186,31); margin-bottom: 0;"><strong>APP USE</strong></h5>
               Click on a location in the U.S. to find out more about a wildfire along with affected populations. You can also
               inpidually select a wildfire to find out detailed information. This app was designed by Esri’s Michael Dangermond, Gonzalo Espinoza-Davalos, Chris Ferner, Jim Herries, Calvin Manning, Emily Meriam,
               and Dan Pisut

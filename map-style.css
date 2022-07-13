@@ -22,10 +22,14 @@ main {
 }
 
 #modal-btn {
-  color: #ea1600;
-  background-color: transparent;
+  margin-top: 11px;
   padding: 0;
   border: 0;
+  color: #ea1600;
+  background-color: #ffba1f;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
 }
 
 #population-svg .domain {
@@ -98,6 +102,7 @@ main {
 
 .ecoregionInformation{
   width: 100%;
+  margin-bottom: 15px;
   min-height: 3rem;
   font-size: 0.9375rem;
   color: #6aa067;
@@ -172,6 +177,24 @@ main {
   height: 1.5rem;
 }
 
+.population-icon-legend{
+  margin-bottom: 0;
+}
+
+.population-legend-spacing {
+  display: flex;
+  margin-bottom: 5px;
+  margin-top: 5px;
+}
+
+.populationLegend-image-spacing {
+  margin-top: 4px;
+  margin-bottom: 0px;
+  margin-left: 10px;
+  min-width: 32px;
+  height: 20px;
+}
+
 .legend-image-spacing {
   margin-top: -2px;
   margin-bottom: 5px;
@@ -183,7 +206,7 @@ main {
 .legend-image{
   margin-top: -2px;
   margin-bottom: 5px;
-  margin-left: 25px;
+  margin-left: 10px;
   min-width: 36px;
   height: 20px;
 }
@@ -193,10 +216,82 @@ main {
   margin-top: -2px;
 }
 
-.auto-checkbox {
-  background-color: green;
+.legend-bar-img {
+  margin-left: 45px;
+  margin-bottom: 5px;
+  margin-top: -5px;
+  width: 59%;
+  height: 20px;
 }
 
-label input .auto-checkbox  :checked{
-  background-color: #ea1600;
+.legend-bar-img-text{
+  margin-left: 25px;
+  margin-right: 69px;
+}
+
+/* trying to create custom checkboxes */
+.checkbox-container {
+  display: block;
+  position: relative;
+  padding-left: 27px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Hide the browser's default checkbox */
+.checkbox-container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+/* Create a custom checkbox */
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 20px;
+  width: 20px;
+  background-color: #eee;
+}
+
+/* On mouse-over, add a grey background color */
+.checkbox-container:hover input~.checkmark {
+  background-color: #ccc;
+}
+
+/* When the checkbox is checked, add a blue background */
+.checkbox-container input:checked~.checkmark {
+  background-color: #2196F3;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the checkmark when checked */
+.checkbox-container input:checked~.checkmark:after {
+  display: block;
+}
+
+/* Style the checkmark/indicator */
+.checkbox-container .checkmark:after {
+  left: 7px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid orange;
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
 }
