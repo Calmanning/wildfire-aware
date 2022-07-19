@@ -212,6 +212,7 @@ main {
 }
 
 .legend-text{
+  font-size: 14px;
   margin-left: 10px;
   margin-top: -2px;
 }
@@ -231,6 +232,7 @@ main {
 
 /* trying to create custom checkboxes */
 .checkbox-container {
+  font-size: 14px;
   display: block;
   position: relative;
   padding-left: 27px;
@@ -244,11 +246,30 @@ main {
 
 /* Hide the browser's default checkbox */
 .checkbox-container input {
+  margin-left: -25px;
   position: absolute;
   opacity: 0;
   cursor: pointer;
   height: 0;
   width: 0;
+}
+
+.checkbox-container .auto-checkbox {
+  margin-left: -25px;
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+  opacity: 0;
+}
+.checkbox-container .auto-checkbox:disabled {
+  margin-left: -25px;
+  position: absolute;
+  cursor: default;
+  height: 0;
+  width: 0;
+  opacity: 0;
 }
 
 /* Create a custom checkbox */
@@ -258,38 +279,65 @@ main {
   left: 0;
   height: 20px;
   width: 20px;
-  background-color: #eee;
+  background-color: #021a26;
 }
 
 /* On mouse-over, add a grey background color */
-.checkbox-container:hover input~.checkmark {
-  background-color: #ccc;
+
+.disable {
+  cursor: default;
+  color:rgb(150, 150, 150);
+}
+
+.disable .checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 20px;
+  width: 20px;
+  background-color: #021a26;
 }
 
 /* When the checkbox is checked, add a blue background */
 .checkbox-container input:checked~.checkmark {
-  background-color: #2196F3;
+  background-color: #021a26;
 }
 
 /* Create the checkmark/indicator (hidden when not checked) */
-.checkmark:after {
+.checkmark::after {
   content: "";
   position: absolute;
   display: none;
 }
 
 /* Show the checkmark when checked */
-.checkbox-container input:checked~.checkmark:after {
+.checkbox-container input:checked~.checkmark::after {
   display: block;
 }
 
 /* Style the checkmark/indicator */
-.checkbox-container .checkmark:after {
+.checkbox-container .checkmark::after {
   left: 7px;
   top: 2px;
   width: 5px;
   height: 10px;
-  border: solid orange;
+  border: solid #FFFFFF;
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+
+.disable input:checked~.checkmark::after {
+  display: block;
+}
+
+.disable input~.checkmark::after {
+  left: 7px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid #FFBA1F;
   border-width: 0 3px 3px 0;
   -webkit-transform: rotate(45deg);
   -ms-transform: rotate(45deg);

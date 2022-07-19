@@ -33,14 +33,14 @@
                 <span class="checkmark" style = "margin-top: 10px;"></span>
                 Wildfire Points
               </label>
-              <div id="fire-points-legend" style="display:inherit;">
+              <div id="fire-points-legend" style="display:inherit; margin-bottom: 10px;">
                 <div class="legend-spacing" style="margin-bottom: 30px; margin-left: -10px;">
                   <div class="legend-image-spacing">
                     <img style="margin-top: -10px; min-width: 3rem; height: 3rem;"
                       src="https://www.arcgis.com/sharing/rest/content/items/f5ae5a1952d140f9b9c4c5c6ed9ad5da/data"
                       alt="fires at 50,000 acres or larger">
                   </div>
-                  <div class="legend-text" style="margin-top: 5px; margin-left: 1px;">&gt50,000 acres</div>
+                  <div class="legend-text" style="margin-top: 5px; margin-left: 1px;">&gt 50,000 acres</div>
                 </div>
                 <div class="legend-spacing">
                   <div class="legend-image-spacing">
@@ -80,35 +80,35 @@
                 <span class="checkmark"></span>
                 Wildfire Perimeters
               </label>
-              <div class = "legend-bar-img" id = "fire-perimeter-legend" style = "display: inherit; width:25%; background: rgba(214, 164, 159, 0.7); border: solid 2px #B13F31;"></div>
+              <div class = "legend-bar-img" id = "fire-perimeter-legend" style = "display: inherit; margin-bottom: 10px; width:25%; background: rgba(214, 164, 159, 0.7); border: solid 2px #B13F31;"></div>
               <label class = "checkbox-container">
                 <input type="checkbox" id = "satellite-hotspots" class = "layer-checkbox" checked>
                 <span class="checkmark"></span>
                 Satellite Hot Spots
               </label>
-              <div id="SatelliteHotSpot-img-legend" style="display: inherit;">
+              <div id="SatelliteHotSpot-img-legend" style="display: inherit; margin-bottom: 10px;">
                 <div class = "legend-bar-img"
-                  style="background: linear-gradient(90deg, #FFCB48, #f69d58, #a17e65, #534B48 );">
+                  style="background: linear-gradient(90deg, #FFCB48, #f69d58 25%, #534B48 );">
                 </div>
-                <span class ="legend-bar-img-text">&lt24 hr</span><span>&gt72 hr</span>
+                <span class ="legend-bar-img-text">&lt 24 hr</span><span>&gt 72 hr</span>
               </div>
-              <label class = "checkbox-container">
-                <input type="checkbox" id="burned-areas" class="auto-checkbox">
+              <label class = "checkbox-container disable">
+                <input class="auto-checkbox layer-checkbox" id="burned-areas" type="checkbox" disabled>
                 <span class="checkmark"></span>
                 Fire Burned Areas
               </label>
-              <div id="burnedAreas-img-legend" style="display: none;">
+              <div id="burnedAreas-img-legend" style="display: none; margin-bottom: 10px;">
                 <div class = "legend-bar-img" 
                   style="background: linear-gradient(90deg, #5e5a4a, #23251e); border: solid 2px #553428;">
                 </div>
-                <span class="legend-bar-img-text">1984</span><span>2020</span>
+                <span class="legend-bar-img-text" style = 'margin-left: 28px; margin-right: 88px;'>1984</span><span>2020</span>
               </div>
-              <label class = "checkbox-container">
-                <input class="layer-checkbox auto-checkbox" type="checkbox" id="census-points">
+              <label class = "checkbox-container disable">
+                <input class="layer-checkbox auto-checkbox" id="census-points" type="checkbox" disabled>
                 <span class="checkmark"></span>
                 2020 Census Population
               </label>
-              <div id="population-points-legend" style="display:none;">
+              <div id="population-points-legend" style="display:none; margin-bottom: 10px;">
                 <div class="population-legend-spacing" style="margin-bottom: 15px; margin-left: -8px;">
                   <div class="populationLegend-image-spacing">
                     <img style="margin-top: -10px; min-width: 2.2rem; height: 2.2rem;"
@@ -151,20 +151,21 @@
                 </div>
               </div>
               <label class = "checkbox-container">
-                <input type="checkbox" class = "auto-checkbox" id = "watchesAndWarnings">
+                <input class="auto-checkbox layer-checkbox" id = "watchesAndWarnings" type="checkbox">
                 <span class="checkmark"></span>
                 Fire Related Weather  </br>
                 <span>
                   Watches & Warnings
                 </span>
               </label>
-              <div class = "legend-bar-img" id = "watchesAndWarnings-img-legend" style="display: none; width:25%; background: #fafa9f;"></div>
+              <div class = "legend-bar-img" id = "watchesAndWarnings-img-legend" style="display: none; margin-bottom: 10px; width:25%; background: #fafa9f;"></div>
               <label class = "checkbox-container" style = "margin-bottom: 0;">
-                Air Quality </br>
-                <input type="checkbox" class="auto-checkbox check" id="AQI-today">
-                <span class="checkmark" style = "margin-top: 22px;"></span>
+                <span style = "margin-left: -25px;">Air Quality</span></br>
+                <input class="auto-checkbox layer-checkbox" id="AQI-today" type="checkbox">
+                <span class="checkmark" style = "font-size: 13px; margin-top: 22px;"></span>
                 Today
-                <div id = "aqiToday-img-legend" style="display:none; margin-left: -15px;">
+                </label>
+                <div id = "aqiToday-img-legend" style="display:none; margin-bottom: 10px;">
                   <div class = "legend-spacing">
                     <div class = "legend-image" style="background: #f2d39d; border: solid 2px #f2d39d;"></div>
                     <div class = "legend-text">Moderate</div>
@@ -186,12 +187,12 @@
                     <div class = "legend-text">Hazardous</div>
                   </div>
                 </div>
-              </label>
               <label class = "checkbox-container">
-                <input type="checkbox" class = "auto-checkbox" id="AQI-tomorrow">
-                <span class="checkmark" style = "margin-top: 4px;"></span>
+                <input class="auto-checkbox layer-checkbox" id="AQI-tomorrow" type="checkbox">
+                <span class="checkmark" style = "font-size: 13px; margin-top: 4px;"></span>
                 Tomorrow
-                <div id="aqiTomorrow-img-legend" style="display:none; margin-left: -15px;">
+              </label>
+                <div id="aqiTomorrow-img-legend" style="display:none; margin-bottom: 10px;">
                   <div class="legend-spacing">
                     <div class="legend-image" style="background: #f2d39d; border: solid 2px #f2d39d;"></div>
                     <div class="legend-text">Moderate</div>
@@ -213,7 +214,7 @@
                     <div class="legend-text">Hazardous</div>
                   </div>
                 </div>
-              </label>
+              
             </ul>
           </div>
           <button class="btn modifier-class btn-fill" id = "layer-list-button"
@@ -446,7 +447,7 @@
   
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   
-  <script src="https://js.arcgis.com/4.21/"></script>
+  <script src="https://js.arcgis.com/4.23/"></script>
   
   <script type = "text/javascript" src="main.js"></script>
 

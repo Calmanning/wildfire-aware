@@ -7,13 +7,10 @@ require([
           "esri/widgets/Home",
           "esri/Graphic",
           "esri/layers/GraphicsLayer",
-          "esri/layers/Layer",
-          "esri/layers/FeatureLayer",
-          "esri/core/watchUtils",
-          "esri/tasks/support/Query",
+          "esri/core/reactiveUtils",
           "esri/geometry/Point",
           "esri/geometry/geometryEngine"
-], (esriConfig, WebMap, MapView, Search, Home, Graphic, GraphicsLayer, Layer, FeatureLayer, watchUtils, Query, Point, geometryEngine) => {
+], (esriConfig, WebMap, MapView, Search, Home, Graphic, GraphicsLayer, reactiveUtils, Point, geometryEngine) => {
     
   'use strict';
 
@@ -22,6 +19,7 @@ require([
 // GLOBAL VARIABLES
 
   //DOM VARIABLES
+  const sideBarContainer = document.querySelector("#sideBar");
   const sideBarInformation = document.getElementById('sideBarInformation');
   const fireListEl = document.querySelector('#fire-list');
   const fireListBtn = document.querySelector('#fire-list-Btn');
@@ -55,6 +53,7 @@ require([
   const censusPointsCheckbox = document.querySelector('#census-points');
   const censusPointLegend = document.querySelector('#population-points-legend');
 
+  //NOTE: Change this. Take the variable names and create function using the layer declaration from the when() instance. See if that's doable.
   let firePoints = {};
   let fireArea = {};
   let firePerimeter = {};
@@ -207,10 +206,8 @@ require([
 
 
   const addLayerList = (event) => {   
-    //NOTE: currently this button does two different actions: opens the list, and clears the visible layers. Is it a good idea to do that? Should the button be simplified, limited to open and close the list?
     layerList.style.display === 'none'
     ? (layerList.style.display = 'inherit', layerListBackground.style.background = 'rgb(17, 54, 81)', changelayerListButtonText())
-    //regarding the button text-change above, Could make a function to change the text. Put a timeOut  on it 
     : (uncheckLayerVisbility(), layerListBackground.style.background = 'none') 
   }
 
@@ -235,7 +232,6 @@ require([
 //NOTE: this function is called by all legend-img-divs.
   //NOTE: may need to make the conditioning more explicit
   const toggleLegendDivVisibility = (legendDivId) => {
-    
     if(legendDivId.style.display === "inherit"){
       legendDivId.style.display = "none"
     } else {
@@ -252,8 +248,32 @@ require([
     closeLayerList()
   }
 
-  const toggleFirePointsLayerVisibility = (() => {
+  const enableMapLayer = (enabledLayer) => {
+    enabledLayer.removeAttribute("disabled")
+    enabledLayer.parentElement.classList.remove('disable')
+  };
 
+  const disableMapLayer = (disabledLayer) => {
+    disabledLayer.setAttribute("disabled", "")
+    disabledLayer.parentElement.classList.add('disable')
+    hideLegendDiv(disabledLayer)
+  };
+
+  const hideLegendDiv = (disabledLayer) => {
+    disabledLayer.checked = false
+    disabledLayer.parentElement.nextElementSibling.style.display = 'none';
+    
+  }
+  const checkboxToggle = (() => {
+    document.querySelectorAll('.layer-checkbox').forEach((checkbox) => {
+      console.log(checkbox)
+      checkbox.addEventListener('change', () => {
+      console.log('checkbox test')
+      })
+    })
+  })()
+
+  const toggleFirePointsLayerVisibility = (() => {
     firePointsLayerCheckbox.addEventListener('change', () => {
       firePoints.visible = firePointsLayerCheckbox.checked;
       toggleLegendDivVisibility(firePointLegend);
@@ -285,28 +305,35 @@ require([
     });
   })()
 
-  const toggleAQITodayVisibility = (() => {
+  const toggleAQITodayVisibility =( () => {
     
-    AQITodayCheckbox.addEventListener('change', () => {
-      AQITodayLayer.visible = AQITodayCheckbox.checked
+    AQITodayCheckbox.addEventListener('change', (event) => {
+      AQITodayLayer.visible = AQITodayCheckbox.checked;
+      toggleLegendDivVisibility(aqiTodayLegend);
+      
+      if(aqiTomorrowLegend.style.display !== 'none'){
+      AQITomorrowCheckbox.checked = false;
+      AQITomorrowLayer.visible = false;
+      toggleLegendDivVisibility(aqiTomorrowLegend);
+      };
       
       aqiTodayLegend.visible === true
       ? aqiTodayLegend.parentElement.style.marginBottom = null
       : aqiTodayLegend.parentElement.style.marginBottom = 0;
-      toggleLegendDivVisibility(aqiTodayLegend)
     });
   })()
   
   const toggleAQITomorrowVisibility = (() => {
-    
-
+  
     AQITomorrowCheckbox.addEventListener('change', () => {
-      AQITomorrowLayer.visible = AQITomorrowCheckbox.checked
+      AQITomorrowLayer.visible = AQITomorrowCheckbox.checked;
+      toggleLegendDivVisibility(aqiTomorrowLegend);
 
-      aqiTomorrowLegend.visible === true
-      ? aqiTomorrowLegend.parentElement.style.marginBottom = null
-      : aqiTomorrowLegend.parentElement.style.marginBottom = 0;
-      toggleLegendDivVisibility(aqiTomorrowLegend)
+      if(aqiTodayLegend.style.display !== 'none'){
+      AQITodayCheckbox.checked = false;
+      AQITodayLayer.visible = false;
+      toggleLegendDivVisibility(aqiTodayLegend);
+      };
     });
   })()
 
@@ -339,11 +366,11 @@ require([
       censusLayer.visible = censusPointsCheckbox.checked
       
     })
-    hideAllLegendDivs()
-    
+    hideAllLegendDivs();
 
   };
-  
+
+//MAP GRAPHICS
   const censusTractOutlineGraphic = new Graphic ({
     geometry: {
       type: 'polygon',
@@ -370,19 +397,19 @@ require([
     }
   });
 
-  // const hexGraphic = new Graphic({
-  //   geometry: {
-  //     type: 'polygon',
-  //   },
-  //   symbol: {
-  //     type: "simple-fill",
-  //     color: [0, 0, 0, 0],
-  //     outline: {
-  //       color: [0, 97, 155],
-  //       width: 1,
-  //     }
-  //   }
-  // });
+  const hexGraphic = new Graphic({
+    geometry: {
+      type: 'polygon',
+    },
+    symbol: {
+      type: "simple-fill",
+      color: [0, 0, 0, 0],
+      outline: {
+        color: [250, 250, 250],
+        width: 3,
+      }
+    }
+  });
   
 
 //MAP-ORIENTED FUNCTIONS
@@ -394,7 +421,7 @@ require([
 
     queryPointGraphic.geometry = mapPoint;
     
-    // mapView.graphics.add(queryPointGraphic);
+    mapView.graphics.add(queryPointGraphic);
   };
 
   const removeMapPointGraphic = async () => {
@@ -424,23 +451,24 @@ require([
     censusTractOutlineGraphic.geometry.rings = null 
   };
 
-  // const renderMapHexes = async (hexRings) => {
+  const renderMapHexes = async (hexRings) => {
+    console.log(`render hexes ${hexRings}`)
+    console.log(`${hexRings.rings}`)
+    await removeMapHexes();
+
+    hexGraphic.geometry.rings = hexRings.rings
+    mapView.graphics.add(hexGraphic)
     
-  //   await removeMapHexes();
-
-  //   hexGraphic.geometry.rings = hexRings.rings
-  //   mapView.graphics.add(hexGraphic)
-
-  // };
+  };
  
-  // const removeMapHexes = async () => {
-  //   hexGraphic.geometry.rings = null 
-  //   await clearHexes(); 
-  // };
+  const removeMapHexes = async () => {
+    hexGraphic.geometry.rings = null 
+    await clearHexes(); 
+  };
 
-  // const clearHexes = async () => {
-  //   mapView.graphics.remove(hexGraphic);
-  // };
+  const clearHexes = async () => {
+    mapView.graphics.remove(hexGraphic);
+  };
 
   const fireGraphic = async ({fireIconGraphicInfo, fireInformation}) => {
     console.log(fireIconGraphicInfo || fireInformation)
@@ -468,7 +496,7 @@ require([
       size: 17,
       color: [17, 54, 81, 1],
       outline: {
-        width: 2.75,
+        width: 2,
         color: [255, 186, 31]
         }
       }
@@ -498,14 +526,16 @@ require([
   }
 
 const goto = ({ mapPoint, fireInformation }) => {
-    fireInformation ? console.log(fireInformation) : console.log(mapPoint)
+    fireInformation ? console.log(fireInformation) : console.log(mapPoint);
+
+    if (mapView.zoom >= 8 ) {
+      return
+    }
     
+    let point = null;
+    
+    if(fireInformation){
     const fireLocation = fireInformation[0].split(',');
-    console.log(fireLocation)
-
-  let point = null;
-
-  if(fireInformation){
     
     point = new Point(
       {
@@ -514,8 +544,7 @@ const goto = ({ mapPoint, fireInformation }) => {
       }
     )
   };
-
-       
+ 
   mapView.goTo(
     {
       zoom: 12,
@@ -664,33 +693,84 @@ const goto = ({ mapPoint, fireInformation }) => {
 
 //EVENT LISTENERS
 
-  watchUtils.whenTrue(mapView, "stationary", () => {        
-        if (mapView.extent) {
-          const extentGeometry = mapView.extent
-          getFiresByExtent({ extentGeometry })
-    };
-  });
+  reactiveUtils.when(
+    () => mapView.stationary, 
+    () => {
+      const extentGeometry = mapView.extent
+      getFiresByExtent({ extentGeometry })
+    },
+    {
+      intial:true
+    }
+      
+  )
+
+  reactiveUtils.watch(
+    () => mapView?.zoom,
+    () => {
+      console.log(`zoom changed to ${mapView.zoom}`);
+      if(!(mapView.zoom >= 5 && mapView.zoom <=8)){
+        disableMapLayer(AQITodayCheckbox)
+        disableMapLayer(AQITomorrowCheckbox)
+        AQITodayLayer.visible = AQITodayCheckbox.checked
+        AQITomorrowLayer.visible = AQITodayCheckbox.checked
+        if(aqiTodayLegend.style.display === 'intitial' || aqiTomorrowLegend.style.display === 'intitial')
+        toggleLegendDivVisibility(aqiTodayLegend || aqiTomorrowLegend)
+
+      } else {
+        if(AQITodayCheckbox.attributes.disabled || AQITomorrowCheckbox.attributes.disabled){
+          enableMapLayer(AQITodayCheckbox)
+          enableMapLayer(AQITomorrowCheckbox);
+        }
+      }
+      
+      if(!(mapView.zoom >= 0 && mapView.zoom <=7)){
+        disableMapLayer(watchesAndWarningsCheckbox)
+        weatherWatchesAndWarningsLayer.visible = watchesAndWarningsCheckbox.checked
+      }else{
+        enableMapLayer(watchesAndWarningsCheckbox)
+      }
+      
+      if(!(mapView.zoom >= 12 && mapView.zoom <= 15)){
+        disableMapLayer(censusPointsCheckbox)
+        censusLayer.visible = censusPointsCheckbox.checked
+      }else{
+        enableMapLayer(censusPointsCheckbox)
+      }
+      
+      if(!(mapView.zoom >= 8 && mapView.zoom <= 12)){
+        disableMapLayer(burnedAreasCheckbox)
+        burnedAreasFillLayer.visible = burnedAreasCheckbox.checked
+        burnedAreasPerimeterLayer.visible = burnedAreasCheckbox.checked
+      }else{
+        enableMapLayer(burnedAreasCheckbox)
+      }
+
+    });
+
 
   searchWidget.on('search-complete', event => {
     console.log(event)
     const location = event.results[0].results[0].feature.geometry
     console.log(location)
     
-    addSearchQueryLocationGraphic({ location });
+    // addSearchQueryLocationGraphic({ location });
 
   });
 
   mapView.on('click', async (event) => {
-    event.preventDefault();
-    closeLayerList();
+    // closeLayerList();
     
     if(queryPointGraphic){
           removeMapPointGraphic();
     };
 
-    // if(hexGraphic){
-    //   await removeMapHexes();
-    // }
+    await removePreviousFireIcon();
+
+    if(hexGraphic){
+      await removeMapHexes();
+    }
+
 
     let feature;
     
@@ -714,7 +794,7 @@ const goto = ({ mapPoint, fireInformation }) => {
         console.log(feature)
         
         feature.sourceLayer.title === 'Current Perimeters Outline'
-        ? (selectedFireInfoQuery({hitTestResponse}), queryHub({ mapPoint }), addSearchQueryLocationGraphic({ mapPoint }), generalizeFirePerimeter({hitTestGeographicResponse}))
+        ? (selectedFireInfoQuery({hitTestResponse}), queryHub({ mapPoint }))
         : (selectedFireInfoQuery({hitTestResponse}), queryHub({ mapPoint }));
         // Below is a function that will add a fireIcon to the map. Commented out for demo.
         //  fireGraphic(feature)
@@ -724,7 +804,7 @@ const goto = ({ mapPoint, fireInformation }) => {
         infoItemContent[0].innerHTML = '';
         const mapPoint = event.mapPoint;
         queryHub({ mapPoint });
-        addSearchQueryLocationGraphic({ mapPoint })
+        // addSearchQueryLocationGraphic({ mapPoint })
       };
 
     })
@@ -745,7 +825,7 @@ const goto = ({ mapPoint, fireInformation }) => {
     console.log(mapPoint)
     console.log(fireListEl.style.display)
     fireListEl.style.display === 'initial' || (mapPoint && fireListEl.style.display)
-    ? (fireListEl.style.display = 'none', fireListBtn.style.display = 'initial', sideBarInformation.style.display = 'initial', fireListSorting.style.display = 'none')
+    ? (fireListEl.style.display = 'none', fireListBtn.style.display = 'initial', sideBarInformation.style.display = 'initial', sideBarContainer.scrollTo(0,0), fireListSorting.style.display = 'none')
     : (fireListEl.style.display = 'initial', fireListBtn.style.display = 'none', sideBarInformation.style.display = 'none', fireListSorting.style.display = 'initial');
     console.log(fireListBtn.style.display)
     
@@ -753,7 +833,7 @@ const goto = ({ mapPoint, fireInformation }) => {
   
   const sortingOptions = ({ dateSorted, wildFires }) => {
     dateSortedList = dateSorted
-    formatActiveFires(dateSortedList);
+    // formatActiveFires(dateSortedList);
 
     let sortingAcrage = [];
     [...sortingAcrage] = wildFires.map(fire => (
@@ -778,17 +858,30 @@ const goto = ({ mapPoint, fireInformation }) => {
       });
 
     const sorting = document.querySelectorAll('.sortClass')
+    
+    sorting.forEach((sortCategory) => {
+      
+      if(sortCategory.innerText.includes('DATE') && sortCategory.style.textDecoration){
+          formatActiveFires(dateSorted)
+        } else if (sortCategory.innerText.includes('NAME') && sortCategory.style.textDecoration){
+            formatActiveFires(nameSorted)
+            formatFirstFireItem()
+        } else if (sortCategory.innerText.includes('SIZE') && sortCategory.style.textDecoration){
+            formatActiveFires(acreSorted)
+            formatFirstFireItem()
+        }
+    })
 
-    renderFireList({ sorting, dateSorted, nameSorted, acreSorted })
+    renderFireListClickEvent({ sorting, dateSorted, nameSorted, acreSorted })
 
   }
 
   //click event to re-render list in new order
-  const renderFireList = ({ sorting, dateSorted, nameSorted, acreSorted }) => {
+  const renderFireListClickEvent = ({ sorting, dateSorted, nameSorted, acreSorted }) => {
       
     sorting.forEach((sortCategory) => {
       sortCategory.addEventListener('click', (event) => {
-        
+        console.log(event)
         !event.target.style.textDecoration
         ? (sorting.forEach((item) => {
                                       item.style.textDecoration = '', 
@@ -800,8 +893,10 @@ const goto = ({ mapPoint, fireInformation }) => {
         : null;
 
         if(event.target.innerText.includes('DATE')) {
-            formatActiveFires(dateSorted)
+          console.log('this is the problem')  
+          formatActiveFires(dateSorted)
         } else if (event.target.innerText.includes('NAME')) {
+            
             formatActiveFires(nameSorted)
             formatFirstFireItem()
         } else if (event.target.innerText.includes('SIZE')) {
@@ -845,7 +940,9 @@ const goto = ({ mapPoint, fireInformation }) => {
       ? fireListDisplayToggle(mapPoint)
       : fireListDisplayToggle(); 
       
-      removeCensusTractGraphic();
+      goto({ mapPoint, fireInformation });
+
+      // removeCensusTractGraphic();
       
 
         renderWeatherHeader()
@@ -1002,8 +1099,6 @@ const goto = ({ mapPoint, fireInformation }) => {
       
       selectedFireInfoQuery({irwinID}); //collects the selected fires information and ALSO renders it to the sidebar 
 
-      goto({ fireInformation })
-
       queryHub({ fireInformation });
       
       });
@@ -1017,6 +1112,8 @@ const goto = ({ mapPoint, fireInformation }) => {
     const irwinIdNumber = hitTestResponse 
           ? hitTestResponse.IrwinID || hitTestResponse.IRWINID.replace(/[{}]/g, "")
           : irwinID;
+
+          console.log(irwinIdNumber);
 
     const params = {
       where: `IrwinId ='${irwinIdNumber}'`,
@@ -1055,13 +1152,14 @@ const goto = ({ mapPoint, fireInformation }) => {
           }
           
         setFireContentInfo({ fireData })
+        populationAndEcologyPerimeterHexQuery({ irwinIdNumber })
         fireGraphic({ fireIconGraphicInfo })
       })
         .catch((error) => {
           console.log(error)
         })
   };
-
+//VESTIGLE function for an old hexRender process
   const generalizeFirePerimeter = ({hitTestGeographicResponse}) => {
     console.log('generalize')
     console.log(hitTestGeographicResponse)
@@ -1107,16 +1205,20 @@ const goto = ({ mapPoint, fireInformation }) => {
    });
   }
 
-  const weatherWatchAndWarningsQuery = async ({ mapPoint, fireInformation}) => {
+  const populationAndEcologyPointHexQuery = ({ irwinIdNumber }) => {
+    const url ='https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/Wildfire_aggregated_v1/FeatureServer/0/query';
 
-    const url = 'https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/NWS_Watches_Warnings_v1/FeatureServer/6/query'
+    console.log(irwinIdNumber)
 
     const params = {
-      where: "EVENT = 'Air Quality Alert' OR EVENT = 'Extreme Fire Danger' OR EVENT = 'Fire Warning' OR EVENT = 'Red Flag Warning' OR EVENT = 'Fire Weather Watch'",
-      geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
+      where: `irwinID = '${irwinIdNumber}'`,
       geometryType: 'esriGeometryPoint',      
-      inSR: 4326,
+      spatialRelationship: 'intersects',
+      distance: 2,
+      units: 'esriSRUnit_StatuteMile',
+      inSR: 3857,
       outFields: '*',
+      returnGeometry: true,
       returnQueryGeometry: true,
       f: 'json'
     }
@@ -1126,20 +1228,46 @@ const goto = ({ mapPoint, fireInformation }) => {
     })
       .then((response) => {
         console.log(response)
-        const warnings = response.data.features[0]
-        ? {
-          existingWarning: response.data.features[0].attributes.Event
-        } 
-        : {
-          existingWarning: 'No related warnings or watches reported.'
-        }
-        
-        console.log('Weather watch & Warnings')
-        console.log(warnings)
-        renderWatchesAndWarningsContent({ warnings })
+        console.log(response.data.queryGeometry)
+        const hexRings = response.data.queryGeometry.rings
+        //renderMapHexes(hexRings)
       })
+  }
 
-  } 
+  const populationAndEcologyPerimeterHexQuery = ({ irwinIdNumber }) => {
+    const url ='https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/Wildfire_aggregated_v1/FeatureServer/1/query';
+
+    console.log(irwinIdNumber)
+
+    const params = {
+      where: `irwinID = '{${irwinIdNumber}}'`,
+      geometryType: 'esriGeometryPoint',      
+      spatialRelationship: 'intersects',
+      distance: 2,
+       units: 'esriSRUnit_StatuteMile',
+      inSR: 3857,
+      outFields: '*',
+      returnGeometry: true,
+      returnQueryGeometry: true,
+      f: 'json'
+    }
+
+    axios.get(url, {
+      params
+    })
+      .then((response) => {
+        console.log(response)
+        
+        const firePerimeterHexData = response.data.features
+        // const hexRings = response.data.queryGeometry.rings
+        
+        !firePerimeterHexData[0]
+        ? populationAndEcologyPointHexQuery({ irwinIdNumber })
+        : (console.log('yes there is perimeter data'));
+        
+        console.log(firePerimeterHexData)
+      })
+  }
 
   const currentDroughtQuery = ({mapPoint, fireInformation}) => {
     
@@ -1264,20 +1392,17 @@ const goto = ({ mapPoint, fireInformation }) => {
     })
       .then((response) => {
         console.log('Wind Forecast')
-        console.log(response.data.features.sort((a, b) => {
-          return a.attributes.fromdate - b.attributes.fromdate 
-        }))
+        
         const windTime = response.data.features[0] 
                         ?response.data.features.sort((a, b) => {
-          return a.attributes.fromdate - b.attributes.fromdate 
-        })
+          return a.attributes.fromdate - b.attributes.fromdate})
                         : null
 
         console.log(windTime)
         const windForce = [
           {
-            mph: '<1mph',
-            kph: '<1km/h'
+            mph: '< 1mph',
+            kph: '< 1km/h'
           },
           {
             mph: '1-3 mph',
@@ -1553,7 +1678,7 @@ const goto = ({ mapPoint, fireInformation }) => {
       : 'No information available';
 
       const populationData = response.data.features[0] 
-      ? [{'data': underFourteenPop, name: '<14'}, {'data': fifteenToSeventeenPop, name: '15-17'}, {'data': eightteenToSixtyfourPop, name: '18-64'},{'data': sixtyfiveToSeventynine, 'name': '65-79'},{'data': eightyPop, 'name': '+80'}]
+      ? [{'data': underFourteenPop, name: '< 14'}, {'data': fifteenToSeventeenPop, name: '15-17'}, {'data': eightteenToSixtyfourPop, name: '18-64'},{'data': sixtyfiveToSeventynine, 'name': '65-79'},{'data': eightyPop, 'name': '+ 80'}]
       : null;
 
       console.log(response);
@@ -1899,7 +2024,8 @@ const goto = ({ mapPoint, fireInformation }) => {
       units: 'esriSRUnit_StatuteMile',
       outFields: ['L3EcoReg', 'LandForm', 'CritHab', 'OwnersPadus', 'RichClass', 'WHPClass', 'PctWater', 'PctSnowIce', 'PctDevelop', 'PctBarren', 'PctForest', 'PctShrub', 'PctGrass', 'PctCropland', 'PctWetlands'].join(','),
       returnGeometry: true,
-      outSR: 102100,
+      returnQueryGeometry: true,
+      outSR: 3857,
       f: 'json'
     }
 
@@ -2010,8 +2136,10 @@ const goto = ({ mapPoint, fireInformation }) => {
         });
         
         console.log(allHexRings)
+        console.log(response.data.queryGeometry)
         formatWildfireRiskData({aggragateEcoObj}) 
-        //renderMapHexes(allHexRings);
+        // renderMapHexes(allHexRings);
+        renderMapHexes(response.data.queryGeometry)
       })
   };
 
@@ -2923,10 +3051,10 @@ const containmentBar =  (containment) => {
   }
 
   const povertyPopulationRender = (povertyPopulation) => {
-    console.log(povertyPopulation)
-    if (povertyPopulation === "null") {
-      return 
-    };
+    
+    !povertyPopulation
+    ? povertyPopulation = "N/A"
+    : povertyPopulation = `${povertyPopulation}%`
     
     if(document.querySelector('#poverty')) {
     document.querySelector('#poverty').remove()
@@ -2942,7 +3070,7 @@ const containmentBar =  (containment) => {
     document.querySelector('#poverty').innerHTML = 
     `
     <div style = "margin-bottom: 10px;">
-    <h4 class = "bold text-center">${povertyPopulation}%</h4>
+    <h4 class = "bold text-center">${povertyPopulation}</h4>
     <p class= "text-center" style = "margin: -5px auto -5px; text-align: left;">POVERTY</p>
     </div>
     `
@@ -2951,9 +3079,9 @@ const containmentBar =  (containment) => {
   const disabledPopulationRender = (disabledPopulation) => {
     console.log(disabledPopulation);
 
-    if (disabledPopulation === "null") {
-      return 
-    };
+    !disabledPopulation
+    ? disabledPopulation = "N/A"
+    : disabledPopulation = `${disabledPopulation}%`
 
     if(document.querySelector('#disability')) {
     document.querySelector('#disability').remove()
@@ -2967,7 +3095,7 @@ const containmentBar =  (containment) => {
     document.querySelector('#disability').innerHTML = 
     `
     <div style = "margin-bottom: 10px;">
-    <h4 class = "bold text-center">${disabledPopulation}%</h4>
+    <h4 class = "bold text-center">${disabledPopulation}</h4>
     <p class= "text-center" style = "margin: -5px auto -5px; text-align: left;">DISABILITY</p>
     </div>
     `
