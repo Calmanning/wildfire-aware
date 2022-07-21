@@ -16,6 +16,10 @@ main {
   overflow: hidden;
 }
 
+img {
+  object-fit: cover;
+}
+
 #viewDiv {
   height: 100%;
   width: 100%;
@@ -26,7 +30,7 @@ main {
   padding: 0;
   border: 0;
   color: #ea1600;
-  background-color: #ffba1f;
+  background-color: #ffffff;
   border-radius: 50%;
   width: 20px;
   height: 20px;
@@ -50,6 +54,8 @@ main {
   border-top: 1px solid hsla(0, 0%, 100%, 0.3);
 }
 
+/* ESRI WIDGETS */
+/* SEARCH BAR */
 .esri-search__container .esri-search__input-container .esri-search__form .esri-search__input{
   background-color:rgb(17, 54, 81);
   color: #FFFFFF;
@@ -76,6 +82,7 @@ main {
   color: #ffffff;
 }
 
+/* ZOOM WIDGET */
 .esri-zoom .esri-widget--button{
   background-color: rgb(17, 54, 81);
 }
@@ -88,6 +95,44 @@ main {
   color: #ffffff;
 }
 
+/* SCALE BAR */
+#viewDiv .esri-scale-bar__line--bottom {
+  top: -1px;
+  border-top: 2px solid #ffffff;
+  background-color: rgb(17, 54, 81);
+  outline: 6px solid rgb(17, 54, 81);
+}
+
+#viewDiv .esri-scale-bar__label{
+  font-size: inherit;
+  color: #ffffff;
+  white-space: nowrap;
+  padding: 0 7px;
+  font-weight: 600;
+}
+
+#viewDiv .esri-scale-bar__line--bottom:before{
+  content: "";
+    display: block;
+    width: 2px;
+    height: 1.5em;
+    background-color: rgb(17, 54, 81);
+    position: absolute;
+    border-right: 2px solid #ffffff;
+}
+
+#viewDiv .esri-scale-bar__line--bottom:after{
+  content: "";
+    display: block;
+    width: 2px;
+    height: 1.5em;
+    background-color: rgb(17, 54, 81);
+    position: absolute;
+    border-right: 2px solid #ffffff;
+}
+
+
+/* GRAPH & SVG */
 .tick text {
   font-size: 0.875rem;
 }
@@ -100,6 +145,7 @@ main {
 
 }
 
+/* INFORMATION SIDEBAR COMPONENTS */
 .ecoregionInformation{
   width: 100%;
   margin-bottom: 15px;
@@ -172,29 +218,6 @@ main {
   margin-top: 10px;
 }
 
-.fire-icon-legend{
-  width: 1.5rem;
-  height: 1.5rem;
-}
-
-.population-icon-legend{
-  margin-bottom: 0;
-}
-
-.population-legend-spacing {
-  display: flex;
-  margin-bottom: 5px;
-  margin-top: 5px;
-}
-
-.populationLegend-image-spacing {
-  margin-top: 4px;
-  margin-bottom: 0px;
-  margin-left: 10px;
-  min-width: 32px;
-  height: 20px;
-}
-
 .legend-image-spacing {
   margin-top: -2px;
   margin-bottom: 5px;
@@ -203,7 +226,7 @@ main {
   height: 20px;
 }
 
-.legend-image{
+.legend-image {
   margin-top: -2px;
   margin-bottom: 5px;
   margin-left: 10px;
@@ -211,7 +234,7 @@ main {
   height: 20px;
 }
 
-.legend-text{
+.legend-text {
   font-size: 14px;
   margin-left: 10px;
   margin-top: -2px;
@@ -225,10 +248,43 @@ main {
   height: 20px;
 }
 
-.legend-bar-img-text{
+.legend-bar-img-text {
   margin-left: 25px;
   margin-right: 69px;
 }
+
+.fire-icon-legend{
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+/* .population-icon-legend{
+  margin-bottom: 0;
+  object-fit: cover;
+} */
+
+.population-legend-spacing {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+  margin-top: 5px;
+}
+
+.population-legend-spacing .legend-text {
+  display: grid;
+  place-items: center;
+  
+}
+
+.populationLegend-image-spacing {
+  display: grid;
+  place-items: center;
+  margin-top: 2px;
+  margin-bottom: 15px;
+  width: 55px;
+  height: 25px;
+}
+
 
 /* trying to create custom checkboxes */
 .checkbox-container {

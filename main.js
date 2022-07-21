@@ -5,12 +5,13 @@ require([
           "esri/views/MapView",
           "esri/widgets/Search",
           "esri/widgets/Home",
+          "esri/widgets/ScaleBar",
           "esri/Graphic",
           "esri/layers/GraphicsLayer",
           "esri/core/reactiveUtils",
           "esri/geometry/Point",
           "esri/geometry/geometryEngine"
-], (esriConfig, WebMap, MapView, Search, Home, Graphic, GraphicsLayer, reactiveUtils, Point, geometryEngine) => {
+], (esriConfig, WebMap, MapView, Search, Home, ScaleBar, Graphic, GraphicsLayer, reactiveUtils, Point, geometryEngine) => {
     
   'use strict';
 
@@ -91,6 +92,7 @@ require([
   webmap.add(graphicsLayer);
   webmap.layers.reorder(graphicsLayer, 11)
 
+//WIDGETS
   const searchWidget = new Search({
     view: mapView,
     resultGraphicEnabled: false,
@@ -113,14 +115,18 @@ require([
                     });
 };
 
+  const scaleBar = new ScaleBar({
+    view: mapView
+  });
 
+  mapView.ui.add(scaleBar, {
+  position: "bottom-right"
+  });
 
   const loadMapview = (() => {
     mapView.when()
       .then(() => {
         console.log('mapView loaded')
-        console.log(webmap.layers)
-        console.log(webmap.allLayers)
 
         firePoints = webmap.allLayers.find((layer) => {
           return layer.title === 'Current Incidents'
@@ -215,7 +221,7 @@ require([
     console.log('button click')
     
       layerList.style.display === 'none'
-      ? layerListBtn.innerText = 'LAYER LIST'
+      ? layerListBtn.innerText = 'MAP LAYERS'
       : layerListBtn.innerText = 'CLEAR & CLOSE'
     
   };
@@ -264,14 +270,7 @@ require([
     disabledLayer.parentElement.nextElementSibling.style.display = 'none';
     
   }
-  const checkboxToggle = (() => {
-    document.querySelectorAll('.layer-checkbox').forEach((checkbox) => {
-      console.log(checkbox)
-      checkbox.addEventListener('change', () => {
-      console.log('checkbox test')
-      })
-    })
-  })()
+
 
   const toggleFirePointsLayerVisibility = (() => {
     firePointsLayerCheckbox.addEventListener('change', () => {
@@ -452,8 +451,6 @@ require([
   };
 
   const renderMapHexes = async (hexRings) => {
-    console.log(`render hexes ${hexRings}`)
-    console.log(`${hexRings.rings}`)
     await removeMapHexes();
 
     hexGraphic.geometry.rings = hexRings.rings
@@ -471,7 +468,6 @@ require([
   };
 
   const fireGraphic = async ({fireIconGraphicInfo, fireInformation}) => {
-    console.log(fireIconGraphicInfo || fireInformation)
 
     const fireLocation = fireInformation 
                          ? fireInformation[0].split(',')
@@ -567,7 +563,7 @@ const goto = ({ mapPoint, fireInformation }) => {
 
 //List of fires in dropdown
   const formatActiveFires = (sortedFireList) => {
-    console.log(sortedFireList)
+    // console.log(sortedFireList)
     
 
   const fires = sortedFireList.map(fire => {
@@ -812,7 +808,6 @@ const goto = ({ mapPoint, fireInformation }) => {
   });
 
   fireListBtn.addEventListener('click', () => {
-  //TODO: problem here with list toggle and the map click
     fireListDisplayToggle(); 
     removeCensusTractGraphic();
     removeMapPointGraphic();
@@ -825,15 +820,26 @@ const goto = ({ mapPoint, fireInformation }) => {
     console.log(mapPoint)
     console.log(fireListEl.style.display)
     fireListEl.style.display === 'initial' || (mapPoint && fireListEl.style.display)
-    ? (fireListEl.style.display = 'none', fireListBtn.style.display = 'initial', sideBarInformation.style.display = 'initial', sideBarContainer.scrollTo(0,0), fireListSorting.style.display = 'none')
+    ? (fireListEl.style.display = 'none', fireListBtn.style.display = 'initial', sideBarInformation.style.display = 'initial', scrollToTop(), fireListSorting.style.display = 'none')
     : (fireListEl.style.display = 'initial', fireListBtn.style.display = 'none', sideBarInformation.style.display = 'none', fireListSorting.style.display = 'initial');
     console.log(fireListBtn.style.display)
     
   }
+
+  const returnToTopBtnClick = (() => {
+    document.querySelector('#return-top-Btn').addEventListener('click', () => {
+      console.log('to the top')
+      scrollToTop()
+    })
+  })()
+
+  const scrollToTop = () => {
+    sideBarContainer.scrollTo(0,0)
+  }
   
+  //Different Ways to sort the fire list
   const sortingOptions = ({ dateSorted, wildFires }) => {
     dateSortedList = dateSorted
-    // formatActiveFires(dateSortedList);
 
     let sortingAcrage = [];
     [...sortingAcrage] = wildFires.map(fire => (
@@ -846,7 +852,7 @@ const goto = ({ mapPoint, fireInformation }) => {
       
       let nameSorted = []
       nameSorted = wildFires.sort((a,b) => {
-        let fireNames = a.attributes.IncidentName.localeCompare(b.attributes.IncidentName);
+        let fireNames = a.attributes.IncidentName.localeCompare(b.attributes.IncidentName.trim());
         return fireNames
       });
       
@@ -893,7 +899,6 @@ const goto = ({ mapPoint, fireInformation }) => {
         : null;
 
         if(event.target.innerText.includes('DATE')) {
-          console.log('this is the problem')  
           formatActiveFires(dateSorted)
         } else if (event.target.innerText.includes('NAME')) {
             
@@ -984,7 +989,6 @@ const goto = ({ mapPoint, fireInformation }) => {
   }
 
   const getFiresByExtent = ({ extentGeometry }) => {
-    console.log(extentGeometry)
     const url = 'https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/USA_Wildfires_v1/FeatureServer/0/query'
     
     const params = {
@@ -1013,22 +1017,30 @@ const goto = ({ mapPoint, fireInformation }) => {
         params
       })
         .then((response) => {
-
+          console.log(response.data.features);
         const wildFires = response.data.features
-      console.log(wildFires)
-        let fires = wildFires.map(fire => (
+      
+         let fires = wildFires.map(fire => (
           { fire,
             monthDay: new Date(fire.attributes.FireDiscoveryDateTime).toLocaleString('default', {month: 'long', day: 'numeric'}),
-            sortDate: new Date(fire.attributes.FireDiscoveryDateTime).toLocaleString('default', {month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric'})
+            sortDate: fire.attributes.FireDiscoveryDateTime
+            // .toLocaleString('default', {month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric'})
           }
         ));
 
+          fires.map((fireOBJ) => {
+            console.log(fireOBJ)
+          })
+        
+      //NOTE: Currently having a problem with the entire DATE SORTED LIST. It's not sorting
         fires = fires.sort((a,b) => {
-          let fireOrder = new Date(b.sortDate) - new Date(a.sortDate);
+          let fireOrder = b.sortDate - a.sortDate;
           //NOTE: If we wanted to sort fires by name after sorting by time use the code below.
           // if(fireOrder === 0) fireOrder = a.fire.attributes.IncidentName.localeCompare(b.fire.attributes.IncidentName)
+          // console.log(fireOrder)
           return fireOrder
         })
+        // console.log(fires)
 
         let groupedFires = {};
         fires.forEach(fireObject => {
@@ -1038,7 +1050,9 @@ const goto = ({ mapPoint, fireInformation }) => {
 
           groupedFires[fireObject.monthDay].push(fireObject)
         });
-        
+
+        console.log(groupedFires)
+
         let dateSorted = [];
         Object.keys(groupedFires).forEach(dateKey => {
           
@@ -1059,7 +1073,6 @@ const goto = ({ mapPoint, fireInformation }) => {
         
         sortingOptions({ dateSorted, wildFires });
         firesInView(response.data.features.length);
-
       })
           .catch((error) => {
             console.error(`query Error: ${error}`)
@@ -1159,51 +1172,6 @@ const goto = ({ mapPoint, fireInformation }) => {
           console.log(error)
         })
   };
-//VESTIGLE function for an old hexRender process
-  const generalizeFirePerimeter = ({hitTestGeographicResponse}) => {
-    console.log('generalize')
-    console.log(hitTestGeographicResponse)
-    const firePerimeterGeography = hitTestGeographicResponse
-    const newPerimeter = geometryEngine.generalize(firePerimeterGeography, 100, 'meters');
-
-    censusBlockCentroidPerimeterQuery({newPerimeter})    
-  };
-//TO RENDER ALL HEXBINS INTERSECTING WITH THE FIRE PERIMETER 
-  const censusBlockCentroidPerimeterQuery = ({newPerimeter}) => {
-    console.log(newPerimeter)
-
-    const url = 'https://services.arcgis.com/jIL9msH9OI208GCb/ArcGIS/rest/services/Populated_Block_Centroids_2020/FeatureServer/0/post'
-
-    const params = {
-      where: "1=1",
-      geometry: newPerimeter,
-      geometryType: 'esriGeometryPolygon',      
-      spatialRelationship: 'intersects',
-      // distance: 0,
-      // units: 'esriSRUnit_StatuteMile',
-      inSR: 4326,
-      outFields: ['P0010001', 'EstimatedUnder18Pop', 'Estimated18to64Pop', 'Estimated65PlusPop'].join(','),
-      returnGeometry: true,
-      returnQueryGeometry: true,
-      f: 'json'
-    }
-
-    axios.get(url, {
-      params
-    })
-      .then((response) => {
-        console.log(response)
-
-      const aggregatedPopulationBlockObject = response.data.features.reduce((a,b) => {
-          Object.keys(b.attributes).forEach(key => {
-            a[key] = (a[key] || 0) + b.attributes[key];
-        }), 0;
-        return a
-        },{})
-
-      console.log(aggregatedPopulationBlockObject)
-   });
-  }
 
   const populationAndEcologyPointHexQuery = ({ irwinIdNumber }) => {
     const url ='https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/Wildfire_aggregated_v1/FeatureServer/0/query';
@@ -2295,15 +2263,14 @@ const containmentBar =  (containment) => {
 
   const barColors = d3.scaleOrdinal()
                         .domain(data)
-                        .range(['#011D32', '#EC1C24',])
+                        .range(['#ffffff', '#021a26;',])
 
     const barSVG = d3.select('#containment').append('svg')
       .attr('class', 'bar')
       .attr('id','containment-bar')
-      .style('margin', '6px 5px')
-      .style('overflow', 'overlay')
+      .style('margin', '6px 5px 0')
       .attr('width', 380)
-      .attr('height', 40)
+      .attr('height', 55)
       .attr("x", 20);
 
     const statusBar = d3.scaleLinear()
@@ -2320,7 +2287,7 @@ const containmentBar =  (containment) => {
 
     barSVG.append("text")
       .attr("dy", "2em")
-      .attr("dx", "1.2em")
+      .attr("dx", "1.5em")
       .attr("x", containment*1.9)
       .attr('text-anchor', 'end')
       .attr('fill', '#ffb600')
@@ -2755,7 +2722,7 @@ const containmentBar =  (containment) => {
       const margin = {
         top: 15,
         right: 25,
-        left: 42,
+        left: 45,
         bottom: 10
       };
 
@@ -2935,9 +2902,9 @@ const containmentBar =  (containment) => {
                     gap: 0px;
                     margin: auto;">
                         <div class="item-1" style = "margin: 15px 0 10px -5px; text-align: center;">
-                          <span class = "unit-conversion" style = "margin: 0 8px 0 0; text-decoration: underline #FFBA1F 3px; text-underline-position: under; text-underline-offset: 2px; cursor: default; cursor: pointer;">&degF|MPH
+                          <span class = "unit-conversion" style = "margin: 0 8px 0 0; text-decoration: underline #FFBA1F 3px; text-underline-position: under; text-underline-offset: 2px; cursor: default; cursor: pointer;">&degF MPH
                           </span>
-                          <span class = "unit-conversion" style = "cursor: pointer; ">&degC|KM/H
+                          <span class = "unit-conversion" style = "cursor: pointer; ">&degC KM/H
                           </span>
                         </div>
                         <div class="item-2" style = "margin: 15px 0 10px 0; text-align: center;">

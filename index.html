@@ -22,7 +22,7 @@
         <div id = "homeContainer" style="width: 2rem; height:2rem; background:rgb(17, 54, 81); color:  #ffffff; margin-left: 2.8rem; margin-top: -2.7rem;"> </div>
         <div id="searchContainer" style="width: 250px; margin-left: 5.7rem; margin-top: -4.57rem;">
         </div>
-        <div id="layerListContainer" style="width: 215px; max-height: 64vw; overflow-y: auto;
+        <div id="layerListContainer" style="width: 215px; max-height: 56vw; overflow-y: auto;
         position: absolute; 
         bottom: 0px; left: 0px;">
         <div id = "layer-List-Container-background" style = "margin: auto 0; background: none;">
@@ -87,69 +87,66 @@
                 Satellite Hot Spots
               </label>
               <div id="SatelliteHotSpot-img-legend" style="display: inherit; margin-bottom: 10px;">
-                <div class = "legend-bar-img"
-                  style="background: linear-gradient(90deg, #FFCB48, #f69d58 25%, #534B48 );">
+                <div class="legend-bar-img" style="background: linear-gradient(90deg, #FFCB48, #f69d58 18%, #2e2e2e );">
                 </div>
-                <span class ="legend-bar-img-text">&lt 24 hr</span><span>&gt 72 hr</span>
+                <span class="legend-bar-img-text">&lt 24 hr</span><span>&gt 72 hr</span>
               </div>
-              <label class = "checkbox-container disable">
-                <input class="auto-checkbox layer-checkbox" id="burned-areas" type="checkbox" disabled>
+
+              <label class="checkbox-container">
+                <input class="auto-checkbox layer-checkbox" id="AQI-today" type="checkbox">
                 <span class="checkmark"></span>
-                Fire Burned Areas
+                Air Quality Today
               </label>
-              <div id="burnedAreas-img-legend" style="display: none; margin-bottom: 10px;">
-                <div class = "legend-bar-img" 
-                  style="background: linear-gradient(90deg, #5e5a4a, #23251e); border: solid 2px #553428;">
+              <div id="aqiToday-img-legend" style="display:none; margin-bottom: 10px;">
+                <div class="legend-spacing">
+                  <div class="legend-image" style="background: #f2d39d; border: solid 2px #f2d39d;"></div>
+                  <div class="legend-text">Moderate</div>
                 </div>
-                <span class="legend-bar-img-text" style = 'margin-left: 28px; margin-right: 88px;'>1984</span><span>2020</span>
+                <div class="legend-spacing">
+                  <div class="legend-image" style="margin-top: 10px; background: #e3a75d; border: solid 2px #e3a75d;"></div>
+                  <div class="legend-text">Unhealthy for Sensitive Groups</div>
+                </div>
+                <div class="legend-spacing">
+                  <div class="legend-image" style="background: #d47660; border: solid 2px #d47660;"></div>
+                  <div class="legend-text">Unhealthy</div>
+                </div>
+                <div class="legend-spacing">
+                  <div class="legend-image" style="background: #84638f; border: solid 2px #84638f;"></div>
+                  <div class="legend-text">Very Unhealthy</div>
+                </div>
+                <div class="legend-spacing">
+                  <div class="legend-image" style="background: #6e4951; border: solid 2px #6e4951;"></div>
+                  <div class="legend-text">Hazardous</div>
+                </div>
               </div>
-              <label class = "checkbox-container disable">
-                <input class="layer-checkbox auto-checkbox" id="census-points" type="checkbox" disabled>
+              <label class="checkbox-container">
+                <input class="auto-checkbox layer-checkbox" id="AQI-tomorrow" type="checkbox">
                 <span class="checkmark"></span>
-                2020 Census Population
+                Air Quality Tomorrow
               </label>
-              <div id="population-points-legend" style="display:none; margin-bottom: 10px;">
-                <div class="population-legend-spacing" style="margin-bottom: 15px; margin-left: -8px;">
-                  <div class="populationLegend-image-spacing">
-                    <img style="margin-top: -10px; min-width: 2.2rem; height: 2.2rem;"
-                      src="https://arcgis-content.maps.arcgis.com/sharing/rest/content/items/6ef53e85458543e3bb7f78ad48972fba/data"
-                      alt="&gt 200 people">
-                  </div>
-                  <div class="legend-text" style="margin-top: 5px; margin-left: 13px;">&gt 200 people</div>
+              <div id="aqiTomorrow-img-legend" style="display:none; margin-bottom: 10px;">
+                <div class="legend-spacing">
+                  <div class="legend-image" style="background: #f2d39d; border: solid 2px #f2d39d;"></div>
+                  <div class="legend-text">Moderate</div>
                 </div>
-                <div class="population-legend-spacing">
-                  <div class="populationLegend-image-spacing">
-                    <img style="margin-top: -10px; margin-left: -4px; width:1.7rem; height: 1.7rem;"
-                      src="https://arcgis-content.maps.arcgis.com/sharing/rest/content/items/6ef53e85458543e3bb7f78ad48972fba/data"
-                      alt="160 people">
-                  </div>
-                  <div class="legend-text">160 people</div>
+                <div class="legend-spacing">
+                  <div class="legend-image" style="margin-top: 10px; background: #e3a75d; border: solid 2px #e3a75d;"></div>
+                  <div class="legend-text">Unhealthy for Sensitive Groups</div>
                 </div>
-                <div class="population-legend-spacing">
-                  <div class="populationLegend-image-spacing">
-                    <img class="population-icon-legend" style = "width:1.3rem; height: 1.3rem;"
-                      src="https://arcgis-content.maps.arcgis.com/sharing/rest/content/items/6ef53e85458543e3bb7f78ad48972fba/data"
-                      alt="120 people">
-                  </div>
-                  <div class="legend-text">120 people</div>
+                <div class="legend-spacing">
+                  <div class="legend-image" style="background: #d47660; border: solid 2px #d47660;"></div>
+                  <div class="legend-text">Unhealthy</div>
                 </div>
-                <div class="population-legend-spacing">
-                  <div class="populationLegend-image-spacing"> 
-                    <img class="population-icon-legend" style = "width:1rem; height: 1rem;"
-                      src="https://arcgis-content.maps.arcgis.com/sharing/rest/content/items/6ef53e85458543e3bb7f78ad48972fba/data"
-                      alt="80 people">
-                  </div>
-                  <div class="legend-text">80 people</div>
+                <div class="legend-spacing">
+                  <div class="legend-image" style="background: #84638f; border: solid 2px #84638f;"></div>
+                  <div class="legend-text">Very Unhealthy</div>
                 </div>
-                <div class="population-legend-spacing">
-                  <div class="populationLegend-image-spacing">
-                    <img class="population-icon-legend" style = "width:0.5rem; height: 0.5rem;"
-                      src="https://arcgis-content.maps.arcgis.com/sharing/rest/content/items/6ef53e85458543e3bb7f78ad48972fba/data"
-                      alt="&lt 40 people">
-                  </div>
-                  <div class="legend-text">&lt 40 people</div>
+                <div class="legend-spacing">
+                  <div class="legend-image" style="background: #6e4951; border: solid 2px #6e4951;"></div>
+                  <div class="legend-text">Hazardous</div>
                 </div>
               </div>
+              
               <label class = "checkbox-container">
                 <input class="auto-checkbox layer-checkbox" id = "watchesAndWarnings" type="checkbox">
                 <span class="checkmark"></span>
@@ -158,60 +155,74 @@
                   Watches & Warnings
                 </span>
               </label>
-              <div class = "legend-bar-img" id = "watchesAndWarnings-img-legend" style="display: none; margin-bottom: 10px; width:25%; background: #fafa9f;"></div>
-              <label class = "checkbox-container" style = "margin-bottom: 0;">
-                <span style = "margin-left: -25px;">Air Quality</span></br>
-                <input class="auto-checkbox layer-checkbox" id="AQI-today" type="checkbox">
-                <span class="checkmark" style = "font-size: 13px; margin-top: 22px;"></span>
-                Today
+              <div class = "legend-bar-img" id = "watchesAndWarnings-img-legend" style="display: none; margin-bottom: 10px; width:25%; background: rgb(201, 141, 164);"></div>
+
+                <label class="checkbox-container disable">
+                  <input class="auto-checkbox layer-checkbox" id="burned-areas" type="checkbox" disabled>
+                  <span class="checkmark"></span>
+                  Fire Burned Areas
                 </label>
-                <div id = "aqiToday-img-legend" style="display:none; margin-bottom: 10px;">
-                  <div class = "legend-spacing">
-                    <div class = "legend-image" style="background: #f2d39d; border: solid 2px #f2d39d;"></div>
-                    <div class = "legend-text">Moderate</div>
+                <div id="burnedAreas-img-legend" style="display: none; margin-bottom: 10px;">
+                  <div class="legend-bar-img"
+                    style="background: linear-gradient(90deg, rgb(0, 0, 0), rgb(50, 50, 50) 32%, rgb(100, 100, 100), rgb(120, 120, 120), rgb(140, 140, 140)); border: solid 1px #630101;">
                   </div>
-                  <div class = "legend-spacing">
-                    <div class = "legend-image" style="margin-top: 10px; background: #e3a75d; border: solid 2px #e3a75d;"></div>
-                    <div class = "legend-text">Unhealthy for Sensitive Groups</div>
-                  </div>
-                  <div class = "legend-spacing">
-                    <div class = "legend-image" style="background: #d47660; border: solid 2px #d47660;"></div>
-                    <div class = "legend-text">Unhealthy</div>
-                  </div>
-                  <div class = "legend-spacing">
-                    <div class = "legend-image" style="background: #84638f; border: solid 2px #84638f;"></div>
-                    <div class = "legend-text">Very Unhealthy</div>
-                  </div>
-                  <div class = "legend-spacing">
-                    <div class = "legend-image" style="background: #6e4951; border: solid 2px #6e4951;"></div>
-                    <div class = "legend-text">Hazardous</div>
-                  </div>
+                  <span class="legend-bar-img-text" style='margin-left: 28px; margin-right: 88px;'>2020</span><span>1984</span>
                 </div>
-              <label class = "checkbox-container">
-                <input class="auto-checkbox layer-checkbox" id="AQI-tomorrow" type="checkbox">
-                <span class="checkmark" style = "font-size: 13px; margin-top: 4px;"></span>
-                Tomorrow
-              </label>
-                <div id="aqiTomorrow-img-legend" style="display:none; margin-bottom: 10px;">
-                  <div class="legend-spacing">
-                    <div class="legend-image" style="background: #f2d39d; border: solid 2px #f2d39d;"></div>
-                    <div class="legend-text">Moderate</div>
+                <label class="checkbox-container disable">
+                  <input class="layer-checkbox auto-checkbox" id="census-points" type="checkbox" disabled>
+                  <span class="checkmark"></span>
+                  2020 Census Population
+                </label>
+                <div id="population-points-legend" style="display:none; margin-top: 10px;">
+                  <div class="population-legend-spacing" style="margin-bottom: 15px; margin-top: 15px;">
+                    <div class="populationLegend-image-spacing">
+                      <img style="margin-top: -10px; min-width: 55px; height: 55px;"
+                        src="https://arcgis-content.maps.arcgis.com/sharing/rest/content/items/6ef53e85458543e3bb7f78ad48972fba/data"
+                        alt="&gt 200 people">
+                    </div>
+                    <div class="legend-text" style="margin-top: 15px; margin-left: 8px;">
+                      <div>&gt 200 people</div>
+                    </div>
                   </div>
-                  <div class="legend-spacing">
-                    <div class="legend-image" style="margin-top: 10px; background: #e3a75d; border: solid 2px #e3a75d;"></div>
-                    <div class="legend-text">Unhealthy for Sensitive Groups</div>
+                  <div class="population-legend-spacing">
+                    <div class="populationLegend-image-spacing">
+                      <img style="margin-top: -8px; width:46px; height: 46px;"
+                        src="https://arcgis-content.maps.arcgis.com/sharing/rest/content/items/6ef53e85458543e3bb7f78ad48972fba/data"
+                        alt="160 people">
+                    </div>
+                    <div class="legend-text">
+                      <div>160 people</div>
+                    </div>
                   </div>
-                  <div class="legend-spacing">
-                    <div class="legend-image" style="background: #d47660; border: solid 2px #d47660;"></div>
-                    <div class="legend-text">Unhealthy</div>
+                  <div class="population-legend-spacing">
+                    <div class="populationLegend-image-spacing">
+                      <img class="population-icon-legend" style="width:39px; height: 39px;"
+                        src="https://arcgis-content.maps.arcgis.com/sharing/rest/content/items/6ef53e85458543e3bb7f78ad48972fba/data"
+                        alt="120 people">
+                    </div>
+                    <div class="legend-text">
+                      <div>120 people</div>
+                    </div>
                   </div>
-                  <div class="legend-spacing">
-                    <div class="legend-image" style="background: #84638f; border: solid 2px #84638f;"></div>
-                    <div class="legend-text">Very Unhealthy</div>
+                  <div class="population-legend-spacing" style="margin-bottom: auto;">
+                    <div class="populationLegend-image-spacing">
+                      <img class="population-icon-legend" style="width:32px; height: 32px;"
+                        src="https://arcgis-content.maps.arcgis.com/sharing/rest/content/items/6ef53e85458543e3bb7f78ad48972fba/data"
+                        alt="80 people">
+                    </div>
+                    <div class="legend-text">
+                      <div>80 people</div>
+                    </div>
                   </div>
-                  <div class="legend-spacing">
-                    <div class="legend-image" style="background: #6e4951; border: solid 2px #6e4951;"></div>
-                    <div class="legend-text">Hazardous</div>
+                  <div class="population-legend-spacing" style="margin-top: auto;">
+                    <div class="populationLegend-image-spacing">
+                      <img class="population-icon-legend" style="width:25px; height: 25px;"
+                        src="https://arcgis-content.maps.arcgis.com/sharing/rest/content/items/6ef53e85458543e3bb7f78ad48972fba/data"
+                        alt="&lt 40 people">
+                    </div>
+                    <div class="legend-text">
+                      <div>&lt 40 people</div>
+                    </div>
                   </div>
                 </div>
               
@@ -387,7 +398,7 @@
                 </div>
                 <div style = "margin: 30px 0;">
                   <div style="text-align: center;">
-                    <button id="top-page-Btn" class="btn modifier-class btn-fill"
+                    <button id="return-top-Btn" class="btn modifier-class btn-fill"
                       style="background: #FFBA1F; color: rgb(17, 54, 81); width: 223.08px; font-weight: 900; margin: 0 50px; border: none;"
                       tab-index="2" aria-haspopup="false" aria-expanded="false">
                       RETURN TO TOP
@@ -415,6 +426,7 @@
               US Department of Agriculture – <span class="link">Drought Monitor</span></br>
               US Census – <span class="link">Census 2020 Redistricting Blocks</span> and <span class="link">American Community Survey</span></br>
               US Forest Service – <span class="link">Wildfire Burned Areas</span> and <span class="link">Wildfire Hazard Potential</span></br>
+              US Forest Service FIA – <span class="link">Forest Type Groups</span> and <span class="link">Predominant Major Forest Carbon Pools</span></br>
               US Fish and Wildlife Service – <span class="link">Critical Habitat</span></br>
               US Geological Survey – <span class="link">National Land Cover Database</span> and <span class="link">Protected Areas Database</span></br>
               Integrated Reporting of Wildland-Fire Information (IRWIN) – <span class="link">Wildfire Points</span></br>
