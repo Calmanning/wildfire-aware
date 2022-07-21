@@ -293,6 +293,20 @@ require([
     watchesAndWarningsCheckbox.addEventListener('change', () => {
       weatherWatchesAndWarningsLayer.visible = watchesAndWarningsCheckbox.checked;
       toggleLegendDivVisibility(watchesAndWarningsLegend);
+
+      if(aqiTodayLegend.style.display !== 'none'){
+      AQITodayCheckbox.checked = false;
+      AQITodayLayer.visible = false;
+      toggleLegendDivVisibility(aqiTodayLegend);
+      };
+      
+      if(aqiTomorrowLegend.style.display !== 'none'){
+      AQITomorrowCheckbox.checked = false;
+      AQITomorrowLayer.visible = false;
+      toggleLegendDivVisibility(aqiTomorrowLegend);
+      };
+
+
     });
   })();
 
@@ -304,18 +318,25 @@ require([
     });
   })()
 
+//NOTE: Make the watches and warning layer toggles with the AQ layers; they cannont be on at the same time.
   const toggleAQITodayVisibility =( () => {
     
     AQITodayCheckbox.addEventListener('change', (event) => {
       AQITodayLayer.visible = AQITodayCheckbox.checked;
       toggleLegendDivVisibility(aqiTodayLegend);
-      
+
       if(aqiTomorrowLegend.style.display !== 'none'){
       AQITomorrowCheckbox.checked = false;
       AQITomorrowLayer.visible = false;
       toggleLegendDivVisibility(aqiTomorrowLegend);
       };
       
+      if(watchesAndWarningsLegend.style.display !== 'none'){
+        watchesAndWarningsCheckbox.checked = false;
+        weatherWatchesAndWarningsLayer.visible = false;
+        toggleLegendDivVisibility(watchesAndWarningsLegend);
+      };
+
       aqiTodayLegend.visible === true
       ? aqiTodayLegend.parentElement.style.marginBottom = null
       : aqiTodayLegend.parentElement.style.marginBottom = 0;
@@ -332,6 +353,12 @@ require([
       AQITodayCheckbox.checked = false;
       AQITodayLayer.visible = false;
       toggleLegendDivVisibility(aqiTodayLegend);
+      };
+
+      if(watchesAndWarningsLegend.style.display !== 'none'){
+        watchesAndWarningsCheckbox.checked = false;
+        weatherWatchesAndWarningsLayer.visible = false;
+        toggleLegendDivVisibility(watchesAndWarningsLegend);
       };
     });
   })()
@@ -977,7 +1004,7 @@ const goto = ({ mapPoint, fireInformation }) => {
         renderHabitatHeader()
       landCoverQuery({ mapPoint, fireInformation });
 
-      ecoregionQuery({ mapPoint, fireInformation });
+      // ecoregionQuery({ mapPoint, fireInformation });
 
       newEcoQuery({ mapPoint, fireInformation });
 
@@ -1017,30 +1044,21 @@ const goto = ({ mapPoint, fireInformation }) => {
         params
       })
         .then((response) => {
-          console.log(response.data.features);
         const wildFires = response.data.features
       
          let fires = wildFires.map(fire => (
           { fire,
             monthDay: new Date(fire.attributes.FireDiscoveryDateTime).toLocaleString('default', {month: 'long', day: 'numeric'}),
             sortDate: fire.attributes.FireDiscoveryDateTime
-            // .toLocaleString('default', {month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric'})
           }
         ));
-
-          fires.map((fireOBJ) => {
-            console.log(fireOBJ)
-          })
-        
-      //NOTE: Currently having a problem with the entire DATE SORTED LIST. It's not sorting
+      
         fires = fires.sort((a,b) => {
           let fireOrder = b.sortDate - a.sortDate;
-          //NOTE: If we wanted to sort fires by name after sorting by time use the code below.
-          // if(fireOrder === 0) fireOrder = a.fire.attributes.IncidentName.localeCompare(b.fire.attributes.IncidentName)
-          // console.log(fireOrder)
+      
           return fireOrder
         })
-        // console.log(fires)
+        
 
         let groupedFires = {};
         fires.forEach(fireObject => {
@@ -1050,8 +1068,6 @@ const goto = ({ mapPoint, fireInformation }) => {
 
           groupedFires[fireObject.monthDay].push(fireObject)
         });
-
-        console.log(groupedFires)
 
         let dateSorted = [];
         Object.keys(groupedFires).forEach(dateKey => {
@@ -1919,7 +1935,9 @@ const goto = ({ mapPoint, fireInformation }) => {
     })
       .then((response) => {
         
-        const uneditedProtectedLandsList = response.data.features[0].attributes.OwnersPadus.split(', ');
+        const uneditedProtectedLandsList = response.data.features[0].attributes.OwnersPadus
+                                        ? response.data.features[0].attributes.OwnersPadus.split(', ')
+                                        : 'None present';
 
           uneditedProtectedLandsList[0] === uneditedProtectedLandsList[1]
           ? uneditedProtectedLandsList.shift()
@@ -1937,9 +1955,9 @@ const goto = ({ mapPoint, fireInformation }) => {
           criticalHabitat: response.data.features[0].attributes.CritHab
                          ? response.data.features[0].attributes.CritHab
                          : 'None present',
-          protectedAreas: uneditedProtectedLandsList 
+          protectedAreas: typeof(uneditedProtectedLandsList ) === "object"
                           ? uneditedProtectedLandsList.join(', ')
-                          : 'No information available',
+                          : 'None present',
           tractRanking: response.data.features[0].attributes.RichRank,
           totalTracts: response.data.features[0].attributes.TotalTracts,
           state: response.data.features[0].attributes.State.toUpperCase()
