@@ -20,6 +20,10 @@ img {
   object-fit: cover;
 }
 
+.link {
+  color: #ffba1f;
+}
+
 #viewDiv {
   height: 100%;
   width: 100%;
@@ -208,9 +212,7 @@ img {
     margin-bottom: -5px;
 }
 
-.link {
-  color: #ffba1f;
-}
+
 
 .legend-spacing{
   display: flex;
@@ -337,8 +339,6 @@ img {
   width: 20px;
   background-color: #021a26;
 }
-
-/* On mouse-over, add a grey background color */
 
 .disable {
   cursor: default;

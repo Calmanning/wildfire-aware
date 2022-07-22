@@ -7,11 +7,12 @@ require([
           "esri/widgets/Home",
           "esri/widgets/ScaleBar",
           "esri/Graphic",
+          "esri/symbols/SimpleLineSymbol",
           "esri/layers/GraphicsLayer",
           "esri/core/reactiveUtils",
           "esri/geometry/Point",
-          "esri/geometry/geometryEngine"
-], (esriConfig, WebMap, MapView, Search, Home, ScaleBar, Graphic, GraphicsLayer, reactiveUtils, Point, geometryEngine) => {
+          "esri/geometry/Circle"
+], (esriConfig, WebMap, MapView, Search, Home, ScaleBar, Graphic, SimpleLineSymbol, GraphicsLayer, reactiveUtils, Point, Circle) => {
     
   'use strict';
 
@@ -299,13 +300,12 @@ require([
       AQITodayLayer.visible = false;
       toggleLegendDivVisibility(aqiTodayLegend);
       };
-      
+
       if(aqiTomorrowLegend.style.display !== 'none'){
       AQITomorrowCheckbox.checked = false;
       AQITomorrowLayer.visible = false;
       toggleLegendDivVisibility(aqiTomorrowLegend);
       };
-
 
     });
   })();
@@ -423,17 +423,66 @@ require([
     }
   });
 
+  const circleGraphic = new Circle({
+    geodesic: true,
+    numberOfPoints: 100,
+    radius: 2,
+    radiusUnit: "miles"
+  });
+
+  //   geometry: new Circle({
+  //     center: [],
+  //     geodesic: true,
+  //     numberOfPoints: 100,
+  //     radius: 2,
+  //     radiusUnit: 'miles'
+  //   }),
+  //   symbol: ({
+  //     type: 'simple-fill',
+  //     // style: 'none',
+  //     color: 'blue',
+  //     outline: new SimpleLineSymbol({
+  //       color: [250, 250, 250],
+  //       style: 'long-dash',
+  //       width: 3
+  //     })
+  //   })
+  // });
+  
+  
+  // new Circle({
+  //   center: [],
+  //   geodisic: true,
+  //   numberOfPoints: 100,
+  //   radius: 2,
+  //   radiusUnit: "miles"
+  // });
+  
+  // new Graphic({
+  //   symbol: {
+  //     type: "simple-marker", 
+  //     color: "blue",
+  //     size: 8,
+  //     outline: { 
+  //       width: 1,
+  //       color: "white"
+  //     }
+  //   }
+  // });
+
   const hexGraphic = new Graphic({
     geometry: {
       type: 'polygon',
     },
     symbol: {
       type: "simple-fill",
-      color: [0, 0, 0, 0],
-      outline: {
+      // color: [226, 119, 40],
+      style: "none",
+      outline: new SimpleLineSymbol ({
         color: [250, 250, 250],
-        width: 3,
-      }
+        style: "long-dash",
+        width: 3
+      })
     }
   });
   
@@ -441,18 +490,38 @@ require([
 //MAP-ORIENTED FUNCTIONS
 
 //MAP POINT GRAPHIC FUNCTION
-  const addSearchQueryLocationGraphic = ({location, mapPoint, fireInformation}) => {    
+  const addCircleGraphic = ({mapPoint}) => {    
     console.log(mapPoint)
-    removeMapPointGraphic()    
+    // removeMapPointGraphic();
 
     queryPointGraphic.geometry = mapPoint;
-    
-    mapView.graphics.add(queryPointGraphic);
+
+    // queryPointGraphic.geometry.center = mapPoint;
+    // console.log(queryPointGraphic)
+
+    circleGraphic.center = mapPoint;
+
+    // mapView.graphics.add(queryPointGraphic)
+    mapView.graphics.add(new Graphic({
+      geometry:circleGraphic,
+      symbol: {
+        type: 'simple-fill',
+        color: 'blue',
+        outline: new SimpleLineSymbol ({
+        color: [250, 250, 250],
+        style: "long-dash",
+        width: 3
+        })
+      }
+    }));
+
+
+    console.log(mapView.graphics)
   };
 
   const removeMapPointGraphic = async () => {
-    mapView.graphics.remove(queryPointGraphic);
-    queryPointGraphic.geometry = null;
+    // mapView.graphics.remove(queryPointGraphic);
+    // queryPointGraphic.geometry.center = null;
   }
 
 
@@ -732,7 +801,7 @@ const goto = ({ mapPoint, fireInformation }) => {
     () => mapView?.zoom,
     () => {
       console.log(`zoom changed to ${mapView.zoom}`);
-      if(!(mapView.zoom >= 5 && mapView.zoom <=8)){
+      if(!(mapView.zoom >= 0 && mapView.zoom <=9)){
         disableMapLayer(AQITodayCheckbox)
         disableMapLayer(AQITomorrowCheckbox)
         AQITodayLayer.visible = AQITodayCheckbox.checked
@@ -747,21 +816,22 @@ const goto = ({ mapPoint, fireInformation }) => {
         }
       }
       
-      if(!(mapView.zoom >= 0 && mapView.zoom <=7)){
+      if(!(mapView.zoom >= 0 && mapView.zoom <= 9)){
         disableMapLayer(watchesAndWarningsCheckbox)
         weatherWatchesAndWarningsLayer.visible = watchesAndWarningsCheckbox.checked
       }else{
         enableMapLayer(watchesAndWarningsCheckbox)
       }
-      
-      if(!(mapView.zoom >= 12 && mapView.zoom <= 15)){
-        disableMapLayer(censusPointsCheckbox)
-        censusLayer.visible = censusPointsCheckbox.checked
+
+      if(!(mapView.zoom >= 7)){
+        disableMapLayer(satelliteHotspotsCheckbox)
+        satelliteHotspotsLayer.visible = satelliteHotspotsCheckbox.checked
+        // satelliteHotspotsCheckbox.style.height = 0;
       }else{
-        enableMapLayer(censusPointsCheckbox)
+        enableMapLayer(satelliteHotspotsCheckbox)
       }
       
-      if(!(mapView.zoom >= 8 && mapView.zoom <= 12)){
+      if(!(mapView.zoom >= 9 && mapView.zoom <= 11)){
         disableMapLayer(burnedAreasCheckbox)
         burnedAreasFillLayer.visible = burnedAreasCheckbox.checked
         burnedAreasPerimeterLayer.visible = burnedAreasCheckbox.checked
@@ -769,6 +839,13 @@ const goto = ({ mapPoint, fireInformation }) => {
         enableMapLayer(burnedAreasCheckbox)
       }
 
+      if(!(mapView.zoom >= 12 && mapView.zoom <= 15)){
+        disableMapLayer(censusPointsCheckbox)
+        censusLayer.visible = censusPointsCheckbox.checked
+      }else{
+        enableMapLayer(censusPointsCheckbox)
+      }
+      
     });
 
 
@@ -777,8 +854,6 @@ const goto = ({ mapPoint, fireInformation }) => {
     const location = event.results[0].results[0].feature.geometry
     console.log(location)
     
-    // addSearchQueryLocationGraphic({ location });
-
   });
 
   mapView.on('click', async (event) => {
@@ -827,7 +902,7 @@ const goto = ({ mapPoint, fireInformation }) => {
         infoItemContent[0].innerHTML = '';
         const mapPoint = event.mapPoint;
         queryHub({ mapPoint });
-        // addSearchQueryLocationGraphic({ mapPoint })
+        addCircleGraphic({ mapPoint })
       };
 
     })
@@ -1211,10 +1286,10 @@ const goto = ({ mapPoint, fireInformation }) => {
       params
     })
       .then((response) => {
-        console.log(response)
-        console.log(response.data.queryGeometry)
-        const hexRings = response.data.queryGeometry.rings
-        //renderMapHexes(hexRings)
+        //console.log(response)
+        //console.log(response.data.queryGeometry)
+        //const hexRings = response.data.queryGeometry.rings
+        // renderMapHexes(hexRings)
       })
   }
 
@@ -2125,7 +2200,7 @@ const goto = ({ mapPoint, fireInformation }) => {
         console.log(response.data.queryGeometry)
         formatWildfireRiskData({aggragateEcoObj}) 
         // renderMapHexes(allHexRings);
-        renderMapHexes(response.data.queryGeometry)
+       renderMapHexes(response.data.queryGeometry)
       })
   };
 
