@@ -215,11 +215,10 @@ require([
   const addLayerList = (event) => {   
     layerList.style.display === 'none'
     ? (layerList.style.display = 'inherit', layerListBackground.style.background = 'rgb(17, 54, 81)', changelayerListButtonText())
-    : (uncheckLayerVisbility(), layerListBackground.style.background = 'none') 
+    : (resetLayerList(), layerListBackground.style.background = 'none') 
   }
 
   const changelayerListButtonText = () => {
-    console.log('button click')
     
       layerList.style.display === 'none'
       ? layerListBtn.innerText = 'MAP LAYERS'
@@ -307,6 +306,13 @@ require([
       toggleLegendDivVisibility(aqiTomorrowLegend);
       };
 
+      if(burnedAreasLegend.style.display !== 'none'){
+      burnedAreasCheckbox.checked = false;
+      burnedAreasFillLayer.visible = false;
+      burnedAreasPerimeterLayer.visible = false;
+      toggleLegendDivVisibility(burnedAreasLegend);
+      };
+
     });
   })();
 
@@ -337,6 +343,13 @@ require([
         toggleLegendDivVisibility(watchesAndWarningsLegend);
       };
 
+       if(burnedAreasLegend.style.display !== 'none'){
+      burnedAreasCheckbox.checked = false;
+      burnedAreasFillLayer.visible = false;
+      burnedAreasPerimeterLayer.visible = false;
+      toggleLegendDivVisibility(burnedAreasLegend);
+      };
+
       aqiTodayLegend.visible === true
       ? aqiTodayLegend.parentElement.style.marginBottom = null
       : aqiTodayLegend.parentElement.style.marginBottom = 0;
@@ -360,6 +373,14 @@ require([
         weatherWatchesAndWarningsLayer.visible = false;
         toggleLegendDivVisibility(watchesAndWarningsLegend);
       };
+
+      if(burnedAreasLegend.style.display !== 'none'){
+      burnedAreasCheckbox.checked = false;
+      burnedAreasFillLayer.visible = false;
+      burnedAreasPerimeterLayer.visible = false;
+      toggleLegendDivVisibility(burnedAreasLegend);
+      };
+
     });
   })()
 
@@ -369,6 +390,25 @@ require([
     burnedAreasFillLayer.visible = burnedAreasCheckbox.checked;
     burnedAreasPerimeterLayer.visible = burnedAreasCheckbox.checked;
     toggleLegendDivVisibility(burnedAreasLegend);
+    
+      if(aqiTodayLegend.style.display !== 'none'){
+        AQITodayCheckbox.checked = false;
+        AQITodayLayer.visible = false;
+        toggleLegendDivVisibility(aqiTodayLegend);
+        };
+
+      if(aqiTomorrowLegend.style.display !== 'none'){
+      AQITomorrowCheckbox.checked = false;
+      AQITomorrowLayer.visible = false;
+      toggleLegendDivVisibility(aqiTomorrowLegend);
+      };
+
+      if(watchesAndWarningsLegend.style.display !== 'none'){
+        watchesAndWarningsCheckbox.checked = false;
+        weatherWatchesAndWarningsLayer.visible = false;
+        toggleLegendDivVisibility(watchesAndWarningsLegend);
+      };
+
     });
   })();
 
@@ -379,16 +419,21 @@ require([
     });
   })();
 
-   const uncheckLayerVisbility = () => {
+   const resetLayerList = () => {
+    
+    resetFirePointsAndPerimeters()
+    
+
     document.querySelectorAll('.auto-checkbox').forEach(checkbox => {
       
       checkbox.checked = false;
 
+      satelliteHotspotsLayer.visible = satelliteHotspotsCheckbox.checked
       AQITodayLayer.visible = checkbox.checked;
       AQITomorrowLayer.visible = checkbox.checked;
       weatherWatchesAndWarningsLayer.visible = watchesAndWarningsCheckbox.checked
-      burnedAreasFillLayer.visible = burnedAreasCheckbox.checked
       burnedAreasPerimeterLayer.visible = burnedAreasCheckbox.checked
+      burnedAreasFillLayer.visible = burnedAreasCheckbox.checked
       censusLayer.visible = censusPointsCheckbox.checked
       
     })
@@ -396,6 +441,18 @@ require([
 
   };
 
+  const resetFirePointsAndPerimeters = () => {
+    if(!firePoints.visible || (!firePerimeter.visible && fireArea.visible)){
+      firePoints.visible = true;
+      firePerimeter.visible = true;
+      fireArea.visible = true;
+      firePointsLayerCheckbox.checked = true;
+      firePermieterLayerCheckbox.checked = true;
+      toggleLegendDivVisibility(firePerimeterLegend);
+      toggleLegendDivVisibility(firePointLegend);
+    }
+
+  }
 //MAP GRAPHICS
   const censusTractOutlineGraphic = new Graphic ({
     geometry: {
@@ -423,9 +480,10 @@ require([
     }
   });
 
-  const circleGraphic = new Circle({
+  const circleGeometry = new Circle({
+    center: [],
     geodesic: true,
-    numberOfPoints: 100,
+    numberOfPoints: 60,
     radius: 2,
     radiusUnit: "miles"
   });
@@ -481,7 +539,7 @@ require([
       outline: new SimpleLineSymbol ({
         color: [250, 250, 250],
         style: "long-dash",
-        width: 3
+        width: 2
       })
     }
   });
@@ -494,28 +552,28 @@ require([
     console.log(mapPoint)
     // removeMapPointGraphic();
 
-    queryPointGraphic.geometry = mapPoint;
+    // queryPointGraphic.geometry = mapPoint;
 
     // queryPointGraphic.geometry.center = mapPoint;
     // console.log(queryPointGraphic)
 
-    circleGraphic.center = mapPoint;
+    circleGeometry.center = mapPoint;
 
     // mapView.graphics.add(queryPointGraphic)
     mapView.graphics.add(new Graphic({
-      geometry:circleGraphic,
+      geometry:circleGeometry,
       symbol: {
         type: 'simple-fill',
         color: 'blue',
         outline: new SimpleLineSymbol ({
-        color: [250, 250, 250],
+        color: 'green',
         style: "long-dash",
         width: 3
         })
       }
     }));
 
-
+    console.log()
     console.log(mapView.graphics)
   };
 
@@ -731,6 +789,8 @@ const goto = ({ mapPoint, fireInformation }) => {
       return "https://www.arcgis.com/sharing/rest/content/items/3ce2a29d3c794e288b24fcd39ed1f966/data"
      } else if (fireType === 'WILDFIRE') {
       return "https://www.arcgis.com/sharing/rest/content/items/f5ae5a1952d140f9b9c4c5c6ed9ad5da/data"
+      } else if (fireType === 'INCIDENT COMPLEX') {
+        return "https://www.arcgis.com/sharing/rest/content/items/f5ae5a1952d140f9b9c4c5c6ed9ad5da/data"
       } else {
       return "https://www.arcgis.com/sharing/rest/content/items/83e1078b2faf42309b73ba46bd86f1b8/data"
       }
@@ -801,7 +861,7 @@ const goto = ({ mapPoint, fireInformation }) => {
     () => mapView?.zoom,
     () => {
       console.log(`zoom changed to ${mapView.zoom}`);
-      if(!(mapView.zoom >= 0 && mapView.zoom <=9)){
+      if(!(mapView.zoom >= 0 && mapView.zoom <= 9)){
         disableMapLayer(AQITodayCheckbox)
         disableMapLayer(AQITomorrowCheckbox)
         AQITodayLayer.visible = AQITodayCheckbox.checked
@@ -913,6 +973,7 @@ const goto = ({ mapPoint, fireInformation }) => {
     fireListDisplayToggle(); 
     removeCensusTractGraphic();
     removeMapPointGraphic();
+    removeMapHexes();
     resetFireList();
     removePreviousFireIcon();
     sideBarInformation.style.display = 'none'
@@ -1053,7 +1114,7 @@ const goto = ({ mapPoint, fireInformation }) => {
       
 
         renderWeatherHeader()
-      //weatherWatchAndWarningsQuery({ mapPoint, fireInformation });
+      weatherWatchAndWarningsQuery({ mapPoint, fireInformation });
         
       currentDroughtQuery({ mapPoint, fireInformation });
 
@@ -1084,6 +1145,8 @@ const goto = ({ mapPoint, fireInformation }) => {
       newEcoQuery({ mapPoint, fireInformation });
 
       criticalHabitatQuery({ mapPoint, fireInformation });
+
+      populationAndEcologicalQuery({ mapPoint, fireInformation });
 
       // fireRiskQuery({ mapPoint, fireInformation });
 
@@ -1234,6 +1297,11 @@ const goto = ({ mapPoint, fireInformation }) => {
         console.log(response)
         console.log(response.data.features)
         const fireIconGraphicInfo = response.data.features[0]
+        
+        const incidentType = response.data.features[0].attributes.IncidentTypeCategory !== "WF" 
+        ? response.data.features[0].attributes.IncidentTypeCategory !== "RX"
+          ? 'INCIDENT COMPLEX' : 'PERSCRIPTTION BURN'
+        : 'WILDFIRE'
         const fireData = response.data.features[0]
           ? {
               irwinId: response.data.features[0].attributes.IrwinID,
@@ -1241,7 +1309,7 @@ const goto = ({ mapPoint, fireInformation }) => {
               fireDiscovery: response.data.features[0].attributes.FireDiscoveryAge === 0 ? 'Less than 24 hours' : response.data.features[0].attributes.FireDiscoveryAge,
               fireDiscoveryDateTime: response.data.features[0].attributes.FireDiscoveryDateTime,
               modifiedOnDateTime: response.data.features[0].attributes.ModifiedOnDateTime,
-              incidentType: response.data.features[0].attributes.IncidentTypeCategory === "WF" ? 'WILDFIRE' : 'PERSCRIPTTION BURN',
+              incidentType: incidentType,
               dailyAcres: response.data.features[0].attributes.DailyAcres === null ? 'Not reported': response.data.features[0].attributes.DailyAcres,
               percentContained: response.data.features[0].attributes.PercentContained === null ? 'Not reported' : response.data.features[0].attributes.PercentContained
             }
@@ -1251,7 +1319,7 @@ const goto = ({ mapPoint, fireInformation }) => {
             fireDiscovery: hitTestResponse.CurrentDateAge,
             fireDiscoveryDateTime: hitTestResponse.CreateDate,
             modifiedOnDateTime: hitTestResponse.DateCurrent,
-            incidentType: hitTestResponse.IncidentTypeCategory === "WF" ? 'WILDFIRE' : 'PERSCRIPTTION BURN',
+            incidentType: incidentType,
             percentContained: 'Not reported'
           }
           
@@ -1286,10 +1354,7 @@ const goto = ({ mapPoint, fireInformation }) => {
       params
     })
       .then((response) => {
-        //console.log(response)
-        //console.log(response.data.queryGeometry)
-        //const hexRings = response.data.queryGeometry.rings
-        // renderMapHexes(hexRings)
+        console.log(response)
       })
   }
 
@@ -1379,6 +1444,41 @@ const goto = ({ mapPoint, fireInformation }) => {
       })
 
     }
+
+    const weatherWatchAndWarningsQuery = async ({ mapPoint, fireInformation}) => {
+
+    const url = 'https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/NWS_Watches_Warnings_v1/FeatureServer/6/query'
+
+    const params = {
+      where: "EVENT = 'Air Quality Alert' OR EVENT = 'Extreme Fire Danger' OR EVENT = 'Fire Warning' OR EVENT = 'Red Flag Warning' OR EVENT = 'Fire Weather Watch'",
+      geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
+      geometryType: 'esriGeometryPoint',      
+      inSR: 4326,
+      outFields: '*',
+      returnQueryGeometry: true,
+      f: 'json'
+    }
+
+    axios.get(url, {
+      params
+    })
+      .then((response) => {
+        console.log(response)
+        const warnings = response.data.features[0]
+        ? {
+          existingWarningEvent: response.data.features[0].attributes.Event,
+          existingWarningSummary: response.data.features[0].attributes.Summary,
+          existingWarningAffectedArea: response.data.features[0].attributes.Affected,
+        } 
+        : {
+          existingWarning: 'No related warnings or watches reported.'
+        }
+        
+        console.log('Weather watch & Warnings')
+        console.log(`${warnings.existingWarningSummary} ${warnings.existingWarningAffectedArea}`)
+      })
+
+  } 
     
     const weatherCollection = async ({ mapPoint, fireInformation }) => {
       const temp = await temperatureQuery({ mapPoint, fireInformation });
@@ -2018,6 +2118,8 @@ const goto = ({ mapPoint, fireInformation }) => {
           ? uneditedProtectedLandsList.shift()
           : null;
 
+       
+        const editedCritList = response.data.features[0].attributes.CritHab.replace(/ *\([^)]*\) */g, " ")
 
         const habitatDetails = {
           bioDiversity: response.data.features[0].attributes.RichClass,
@@ -2028,7 +2130,7 @@ const goto = ({ mapPoint, fireInformation }) => {
                       ? response.data.features[0].attributes.LandForm
                       : 'No information available',
           criticalHabitat: response.data.features[0].attributes.CritHab
-                         ? response.data.features[0].attributes.CritHab
+                         ? editedCritList
                          : 'None present',
           protectedAreas: typeof(uneditedProtectedLandsList ) === "object"
                           ? uneditedProtectedLandsList.join(', ')
@@ -2204,6 +2306,33 @@ const goto = ({ mapPoint, fireInformation }) => {
       })
   };
 
+  const populationAndEcologicalQuery = ({ mapPoint, fireInformation }) => {
+
+    const url = 'https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/Wildfire_aggregated_v1/FeatureServer/0/query'
+
+    const params = {
+      where: '1=1',
+      geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
+      geometryType: 'esriGeometryPoint',
+      inSR: 4326,
+      spatialRelationship: 'intersects',
+      distance: 2,
+      units: 'esriSRUnit_StatuteMile',
+      outFields: '*',
+      returnGeometry: true,
+      returnQueryGeometry: true,
+      outSR: 3857,
+      f: 'json'
+    }
+
+    axios.get(url, {
+      params
+    })
+      .then((response) => {
+        console.log(response)
+      })
+  }
+
 //DATA VIZ
 
 //Landcover piechart
@@ -2260,18 +2389,18 @@ const renderLandCoverGraph = (landCoverArray) => {
   
   document.querySelector('#landcover-data-control').innerText = ``
 
-  const landCoverArrayData = landCoverArray;
-  landCoverArrayData.filter(entry => !(entry.percent === 0));
-  console.log(landCoverArrayData);
+  const landCoverArrayData = landCoverArray.filter(entry => entry.percent);
+  console.log(landCoverArrayData)
+
   
-  if(!landCoverArrayData){
+  if(landCoverArrayData.length === 0){
+    
     const noLandCoverData = document.createElement('h4');
     
     noLandCoverData.setAttribute("class", "bold");
-    noLandCoverData.innerHTML = 'No data available';
+    noLandCoverData.innerHTML = 'No information available';
     
-    document.querySelector('#landcover-data-control').append(noLandCoverData)
-    return
+    return document.querySelector('#landcover-data-control').append(noLandCoverData)
   }
 
 
@@ -2285,6 +2414,7 @@ const renderLandCoverGraph = (landCoverArray) => {
     .append('svg')
       .attr('height', 200)
       .attr('width',  360)
+      .style('margin-top', '20px')
       .attr('id', 'landcover-svg');
 
   svg;

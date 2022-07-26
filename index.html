@@ -13,7 +13,7 @@
   <link rel="stylesheet" type="text/css" href="https://js.arcgis.com/calcite-components/1.0.0-beta.77/calcite.css"/>
   <script src="https://d3js.org/d3.v7.min.js"></script>
 
-    <title> Wildfire Aware App</title>
+    <title> Wildfire Aware</title>
     
   </head>
   <body>
@@ -22,7 +22,7 @@
         <div id = "homeContainer" style="width: 2rem; height:2rem; background:rgb(17, 54, 81); color:  #ffffff; margin-left: 2.8rem; margin-top: -2.7rem;"> </div>
         <div id="searchContainer" style="width: 250px; margin-left: 5.7rem; margin-top: -4.57rem;">
         </div>
-        <div id="layerListContainer" style="width: 215px; max-height: 56vw; overflow-y: auto;
+        <div id="layerListContainer" style="width: 215px; max-height: 58vw; overflow-y: auto;
         position: absolute; 
         bottom: 0px; left: 0px;">
         <div id = "layer-List-Container-background" style = "margin: auto 0; background: none;">
@@ -176,7 +176,7 @@
                 <div id="population-points-legend" style="display:none; margin-top: 10px;">
                   <div class="population-legend-spacing" style="margin-bottom: 15px; margin-top: 15px;">
                     <div class="populationLegend-image-spacing">
-                      <img style="margin-top: -10px; min-width: 55px; height: 55px;"
+                      <img style="margin-top: -10px; min-width: 52px; height: 52px;"
                         src="https://arcgis-content.maps.arcgis.com/sharing/rest/content/items/6ef53e85458543e3bb7f78ad48972fba/data"
                         alt="&gt 200 people">
                     </div>
@@ -186,7 +186,7 @@
                   </div>
                   <div class="population-legend-spacing">
                     <div class="populationLegend-image-spacing">
-                      <img style="margin-top: -8px; width:46px; height: 46px;"
+                      <img style="margin-top: -8px; width:43px; height: 43px;"
                         src="https://arcgis-content.maps.arcgis.com/sharing/rest/content/items/6ef53e85458543e3bb7f78ad48972fba/data"
                         alt="160 people">
                     </div>
@@ -196,7 +196,7 @@
                   </div>
                   <div class="population-legend-spacing">
                     <div class="populationLegend-image-spacing">
-                      <img class="population-icon-legend" style="width:39px; height: 39px;"
+                      <img class="population-icon-legend" style="width:36px; height: 36px;"
                         src="https://arcgis-content.maps.arcgis.com/sharing/rest/content/items/6ef53e85458543e3bb7f78ad48972fba/data"
                         alt="120 people">
                     </div>
@@ -206,7 +206,7 @@
                   </div>
                   <div class="population-legend-spacing" style="margin-bottom: auto;">
                     <div class="populationLegend-image-spacing">
-                      <img class="population-icon-legend" style="width:32px; height: 32px;"
+                      <img class="population-icon-legend" style="width:31px; height: 31px;"
                         src="https://arcgis-content.maps.arcgis.com/sharing/rest/content/items/6ef53e85458543e3bb7f78ad48972fba/data"
                         alt="80 people">
                     </div>
@@ -216,7 +216,7 @@
                   </div>
                   <div class="population-legend-spacing" style="margin-top: auto;">
                     <div class="populationLegend-image-spacing">
-                      <img class="population-icon-legend" style="width:25px; height: 25px;"
+                      <img class="population-icon-legend" style="width:24px; height: 24px;"
                         src="https://arcgis-content.maps.arcgis.com/sharing/rest/content/items/6ef53e85458543e3bb7f78ad48972fba/data"
                         alt="&lt 40 people">
                     </div>
@@ -265,11 +265,67 @@
                   <span class="link">Esri</span>,
                   <span class="link">IRWIN</span>,
                   <span class="link">NIFC</span>,
-                  <a class="link">NatureServe</a>
+                  <span class="link">NatureServe</span>
                 </span>
                 <p class="trailer-0" style ="font-size: 14px">
                   For community awareness within the US about a wildfire, select from the list or click on the map.
                 </p>
+              </div>
+              <div id = 'side-bar-legend'>
+                <div id="fire-points-images" style="display: flex; justify-content: space-evenly; align-items: flex-end; position: relative; left: 9px;">
+                  
+                  <div class="legend-spacing" style = "position: relative; top: 5px; margin-right: 13px; margin-left: 6px;">
+                    <div class="side-bar-legend-image-spacing">
+                      <img class="fire-icon-legend"
+                        src="https://www.arcgis.com/sharing/rest/content/items/83e1078b2faf42309b73ba46bd86f1b8/data"
+                        alt="Prescribed burn icon">
+                    </div>
+                    
+                  </div>
+
+                  <div class="legend-spacing" style = "margin-left: 9px">
+                    <div class="side-bar-legend-image-spacing">
+                      <img class="fire-icon-legend"
+                        src="https://www.arcgis.com/sharing/rest/content/items/3ce2a29d3c794e288b24fcd39ed1f966/data"
+                        alt="fire less than 24hours old">
+                    </div>
+                    
+                  </div>
+
+                  <div class="legend-spacing" style = "margin-left: 20px">
+                    <div class="side-bar-legend-image-spacing">
+                      <img class="fire-icon-legend"
+                        src="https://www.arcgis.com/sharing/rest/content/items/f5ae5a1952d140f9b9c4c5c6ed9ad5da/data"
+                        alt="fires under 5,000 acres">
+                    </div>
+                    
+                  </div>
+
+                  <div class="legend-spacing">
+                    <div class="side-bar-legend-image-spacing">
+                      <img style="width:2rem; height: 2rem;"
+                        src="https://www.arcgis.com/sharing/rest/content/items/f5ae5a1952d140f9b9c4c5c6ed9ad5da/data"
+                        alt="fires between 5,000 and 50,000 acres or larger">
+                    </div>
+                    
+                  </div>
+
+                  <div class="legend-spacing">
+                    <div class="side-bar-legend-image-spacing">
+                      <img style="width: 3rem; height: 3rem;"
+                        src="https://www.arcgis.com/sharing/rest/content/items/f5ae5a1952d140f9b9c4c5c6ed9ad5da/data"
+                        alt="fires at 50,000 acres or larger">
+                    </div>
+                   
+                  </div>
+                </div>
+                <div id ='fire-points-lable-side-bar-text' style = 'display: flex; align-content: start; text-align: center;'>
+                  <div class="legend-text">Prescribed Fire</div>
+                  <div class="legend-text" style = "width: 141px;">New </br>(Past 24-hour)</div>
+                  <div class="legend-text"> 0-5,000 acres</div>
+                  <div class="legend-text" style = "width: 95px;">5,000-50,000 acres</div>
+                  <div class="legend-text">&gt 50,000 acres</div>
+                </div>
               </div>
             </div>
             <div id="sideBarContent" class="trailer-quarter" style="padding: 0rem 1rem 1rem">
@@ -381,7 +437,7 @@
                       <div id = 'landform'>
                       </div>
                       <div id='landcover-chart'>
-                        <p class="trailer-0" style = "margin-bottom: 10px;" >LANDCOVER</p>
+                        <p class="trailer-0" style = "margin-bottom: 0px;" >LANDCOVER</p>
                         <div id = "landcover-data-control">
                         
                         </div>
@@ -425,7 +481,7 @@
               National Weather Service – <a class="link" href="https://www.arcgis.com/home/item.html?id=0ae7cf18df0a4b4d9e7eea665f00500d" target="_blank">Temperature Forecast</a>, <a class="link" href="https://www.arcgis.com/home/item.html?id=47ed83c3b4f943118e848fbfc33d119e" target="_blank">Wind Speed</a>, <a class="link" href="https://www.arcgis.com/home/item.html?id=a6134ae01aad44c499d12feec782b386" target="_blank">Weather Watches and Warnings</a></br>
               US Department of Agriculture – <a class="link" href="https://www.arcgis.com/home/item.html?id=7d4cc55ecaef4ceb82c8d05b13e0d049" target="_blank">Drought Monitor</a></br>
               US Census – <a class="link" href="https://www.arcgis.com/home/item.html?id=b3642e91b49548f5af772394b0537681" target="_blank">Census 2020 Redistricting Blocks</a> and <a class="link" href="https://esri.maps.arcgis.com/home/group.html?id=16b3a5ac36834ed6b3f16261d9a988ea#overview" target="_blank">American Community Survey</a></br>
-              US Forest Service – <a class="link" href ="https://www.arcgis.com/home/item.html?id=c7dc5721f6ab42f5a515ae7f832115a9" target="_blank">Wildfire Burned Areas</a> and <a class="link" href="https://www.arcgis.com/home/item.html?id=9274dfe5318540d7a09f0117c0be0730" target="_blank">Wildfire Hazard Potential</a></br>
+              USDA Forest Service – <a class="link" href ="https://www.arcgis.com/home/item.html?id=c7dc5721f6ab42f5a515ae7f832115a9" target="_blank">Wildfire Burned Areas</a> and <a class="link" href="https://www.arcgis.com/home/item.html?id=9274dfe5318540d7a09f0117c0be0730" target="_blank">Wildfire Hazard Potential</a></br>
               US Forest Service FIA – <a class="link" href="https://www.arcgis.com/home/item.html?id=fe77a8a503ca4b9ba1ee2ef3c8ff7b19" target="_blank">Forest Type Groups</a> and <a class="link" href="https://www.arcgis.com/home/item.html?id=70aa58201e044303823a24a71a422d00" target="_blank">Predominant Major Forest Carbon Pools</a></br>
               US Fish and Wildlife Service – <a class="link" href = "https://www.arcgis.com/home/item.html?id=794de45b9d774d21aed3bf9b5313ee24" target ="_blank">Critical Habitat</a></br>
               US Geological Survey – <a class="link" href="https://www.arcgis.com/home/item.html?id=3ccf118ed80748909eb85c6d262b426f" target="_blank">National Land Cover Database</a> and <a class="link" href="https://www.arcgis.com/home/item.html?id=e20f27c6af5a49b289bea1ba05b4986b" target="_blank">Protected Areas Database</a></br>
