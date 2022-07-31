@@ -891,7 +891,7 @@ const goto = ({ mapPoint, fireInformation }) => {
         console.log(feature)
         console.log(feature.sourceLayer.title)
         feature.sourceLayer.title.includes('Current Incidents')
-        ? (selectedFireInfoQuery({hitTestResponse}), queryHub({ mapPoint }), newEcoQuery({ mapPoint }), censusBlockCentroidQuery({ mapPoint }))
+        ? (selectedFireInfoQuery({hitTestResponse}), queryHub({ mapPoint }))
         : (selectedFireInfoQuery({hitTestResponse}), queryHub({ mapPoint }));
         // Below is a function that will add a fireIcon to the map. Commented out for demo.
         //  fireGraphic(feature)
@@ -1446,7 +1446,9 @@ const goto = ({ mapPoint, fireInformation }) => {
     })
       .then((response) => {
         console.log(response)
-        addCircleGraphic({ fireLocation })
+        addCircleGraphic({ fireLocation });
+        newEcoQuery({ mapPoint });
+        censusBlockCentroidQuery({ mapPoint });
       })
   }
 
@@ -1571,10 +1573,9 @@ const goto = ({ mapPoint, fireInformation }) => {
     })
       .then((response) => {
         console.log('Wind Forecast')
-        
-        const windTime = response.data.features 
-                        ?response.data.features.sort((a, b) => {
-          return a.attributes.fromdate - b.attributes.fromdate})
+        console.log(response)
+        const windTime = response.data.features.length  
+                        ? response.data.features.sort((a, b) => a.attributes.fromdate - b.attributes.fromdate)
                         : null
 
         console.log(windTime)
