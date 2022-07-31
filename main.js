@@ -517,42 +517,6 @@ const circle = new Graphic({
 
 
 //RENDER CENSUS SELECTED TRACT
-  const renderCensusTract = async (censusTractGeometry) => {
-    console.log('this working?')
-    
-    await removeCensusTractGraphic();
-
-      console.log(mapView.graphics)
-
-    censusTractOutlineGraphic.geometry.rings = censusTractGeometry.rings
-      console.log(censusTractOutlineGraphic)
-    
-    // mapView.graphics.add(censusTractOutlineGraphic)
-      console.log(mapView.graphics)
-
-  }
-
-  const removeCensusTractGraphic = async () => {
-    mapView.graphics.remove(censusTractOutlineGraphic)
-    censusTractOutlineGraphic.geometry.rings = null 
-  };
-
-  const renderMapHexes = async (hexRings) => {
-    await removeMapHexes();
-
-    hexGraphic.geometry.rings = hexRings.rings
-    mapView.graphics.add(hexGraphic)
-    
-  };
- 
-  const removeMapHexes = async () => {
-    hexGraphic.geometry.rings = null 
-    await clearHexes(); 
-  };
-
-  const clearHexes = async () => {
-    mapView.graphics.remove(hexGraphic);
-  };
 
   const fireGraphic = async ({fireIconGraphicInfo, fireInformation}) => {
 
@@ -1232,7 +1196,7 @@ const goto = ({ mapPoint, fireInformation }) => {
         ? response.data.features[0].attributes.IncidentTypeCategory !== "RX"
           ? 'INCIDENT COMPLEX' : 'PERSCRIPTTION BURN'
         : 'WILDFIRE'
-        const fireLocation = response.data.features[0].geometry;
+        const mapPoint = response.data.features[0].geometry;
         const fireData = response.data.features[0]
           ? {
               irwinId: response.data.features[0].attributes.IrwinID,
@@ -1255,7 +1219,7 @@ const goto = ({ mapPoint, fireInformation }) => {
           }
           
         setFireContentInfo({ fireData })
-        populationAndEcologyPerimeterQuery({ irwinIdNumber,  fireLocation})
+        populationAndEcologyPerimeterQuery({ irwinIdNumber,  mapPoint})
         fireGraphic({ fireIconGraphicInfo })
       })
         .catch((error) => {
@@ -1263,7 +1227,7 @@ const goto = ({ mapPoint, fireInformation }) => {
         })
   };
 
-  const populationAndEcologyPerimeterQuery = async ({ irwinIdNumber, fireLocation }) => {
+  const populationAndEcologyPerimeterQuery = async ({ irwinIdNumber, mapPoint }) => {
     // await removeMapPointGraphic()
     
     const url ='https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/Wildfire_aggregated_v1/FeatureServer/1/query';
@@ -1412,7 +1376,7 @@ const goto = ({ mapPoint, fireInformation }) => {
         //   percentofPopulationWithDisability: NaN
         //   }
 
-        populationAndEcologyPointHexQuery({ irwinIdNumber, fireLocation })
+        populationAndEcologyPointHexQuery({ irwinIdNumber, mapPoint })
         // totalPopulationUIRender({ perimeterPopulation });
 
         }
@@ -1421,7 +1385,7 @@ const goto = ({ mapPoint, fireInformation }) => {
       })
   }
 
-    const populationAndEcologyPointHexQuery = ({ irwinIdNumber, fireLocation }) => {
+    const populationAndEcologyPointHexQuery = ({ irwinIdNumber, mapPoint }) => {
     
     
     const url ='https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/Wildfire_aggregated_v1/FeatureServer/0/query';
@@ -1446,7 +1410,8 @@ const goto = ({ mapPoint, fireInformation }) => {
     })
       .then((response) => {
         console.log(response)
-        addCircleGraphic({ fireLocation });
+        console.log(mapPoint)
+        addCircleGraphic({ mapPoint });
         newEcoQuery({ mapPoint });
         censusBlockCentroidQuery({ mapPoint });
       })
@@ -1780,7 +1745,7 @@ const goto = ({ mapPoint, fireInformation }) => {
 
     const params = {
       where: "1=1",
-      geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
+      geometry: fireInformation ? `${fireInformation[0]}` : mapPoint,
       geometryType: 'esriGeometryPoint',      
       spatialRelationship: 'intersects',
       distance: 2,
@@ -2162,7 +2127,7 @@ const goto = ({ mapPoint, fireInformation }) => {
 
     const params = {
       where: '1=1',
-      geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
+      geometry: fireInformation ? `${fireInformation[0]}` : mapPoint,
       geometryType: 'esriGeometryPoint',
       inSR: 4326,
       spatialRelationship: 'intersects',
@@ -3286,11 +3251,6 @@ const containmentBar =  (containment) => {
         return 'None present'
       }
     })();
-
-    
-    document.querySelector('#habitat-information').innerHTML = `
-      
-      `;
     
       document.querySelector('#ecoregion').innerHTML = `
      <div>
@@ -3364,6 +3324,24 @@ const containmentBar =  (containment) => {
         <p style = "margin-bottom: 2px;">PROTECTED AREAS, TRIBAL LANDS, </br>& WILDERNESS AREAS</p>
         <div class = "ecoregionInformation">
           <p>${protectedAreas}</p>
+        </div>
+      </div>
+      `;
+
+       document.querySelector('#forestType').innerHTML = `
+      <div>
+        <p style = "margin-bottom: 2px;">PREDOMINANT FOREST TYPE</p>
+        <div class = "ecoregionInformation">
+          <p>Forest information would go here. This is place holder.</p>
+        </div>
+      </div>
+      `;
+        
+      document.querySelector('#carbon').innerHTML = `
+      <div>
+        <p style = "margin-bottom: 2px;">POTENTIAL CARBON LOSS</p>
+        <div class = "ecoregionInformation">
+          <p>Carbon amount</p>
         </div>
       </div>
       `;
