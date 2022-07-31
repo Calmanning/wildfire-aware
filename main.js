@@ -2483,7 +2483,7 @@ const containmentBar =  (containment) => {
 
   const barColors = d3.scaleOrdinal()
                         .domain(data)
-                        .range(['#ffffff', '#021a26;',])
+                        .range(['#021a26', '#FFBA1F',])
 
     const barSVG = d3.select('#containment').append('svg')
       .attr('class', 'bar')
