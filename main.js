@@ -489,28 +489,14 @@ const circle = new Graphic({
     radiusUnit: "miles",
   });
 
-  circle.geometry = circleGeometry
-
-
-    // const circle = new Graphic({
-    //   geometry:circleGeometry,
-    //   symbol: {
-    //     type: 'simple-fill',
-    //     color: [0,0,0,0],
-    //     outline: new SimpleLineSymbol ({
-    //     color: 'white',
-    //     style: "long-dash",
-    //     width: 3
-    //     }),
-    //   }
-    // });
+    circle.geometry = circleGeometry
 
     mapView.graphics.add(circle);
     
     console.log(mapView.graphics)
   };
 
-  const removeMapPointGraphic = async () => {
+  const removeCircleGraphic = async () => {
     mapView.graphics.removeAll();
     
   }
@@ -804,7 +790,7 @@ const goto = ({ mapPoint, fireInformation }) => {
         const solidCircle = circle.clone()
         solidCircle.symbol.outline.style = "solid"
         
-        await removeMapPointGraphic()
+        await removeCircleGraphic()
 
         mapView.graphics.add(solidCircle)
         
@@ -812,7 +798,7 @@ const goto = ({ mapPoint, fireInformation }) => {
         const longDashCircle = circle.clone()
         longDashCircle.symbol.outline.style = "long-dash"
         
-        await removeMapPointGraphic()
+        await removeCircleGraphic()
 
         mapView.graphics.add(longDashCircle)
         
@@ -829,7 +815,7 @@ const goto = ({ mapPoint, fireInformation }) => {
 
   mapView.on('click', async (event) => {
     
-    await removeMapPointGraphic()
+    await removeCircleGraphic()
 
     await removePreviousFireIcon();
 
@@ -875,10 +861,10 @@ const goto = ({ mapPoint, fireInformation }) => {
 
   });
 
-  fireListBtn.addEventListener('click', () => {
+  fireListBtn.addEventListener('click', async () => {
     fireListDisplayToggle(); 
-    removeCensusTractGraphic();
-    removeMapPointGraphic();
+    
+    await removeCircleGraphic()
     
     resetFireList();
     removePreviousFireIcon();
@@ -1016,7 +1002,6 @@ const goto = ({ mapPoint, fireInformation }) => {
       
       goto({ mapPoint, fireInformation });
 
-      // removeCensusTractGraphic();
       
 
         renderWeatherHeader()
@@ -1027,16 +1012,16 @@ const goto = ({ mapPoint, fireInformation }) => {
         clearWeatherGrid()
 
         
-      // censusBlockCentroidQuery({ mapPoint, fireInformation });
+
 
       englishSpeakingAdults({ mapPoint, fireInformation });
 
       householdsWithVehicle({ mapPoint, fireInformation });
       
-        //renderHabitatHeader()
+
       landCoverQuery({ mapPoint, fireInformation });
 
-      // ecoregionQuery({ mapPoint, fireInformation });
+
 
       // newEcoQuery({ mapPoint, fireInformation });
 
@@ -1150,10 +1135,6 @@ const goto = ({ mapPoint, fireInformation }) => {
     item.addEventListener("click", (event) => {
       console.log(`fire clicked ${event.target.attributes.value.value}`)
 
-      //  if(queryPointGraphic){
-      //   removeMapPointGraphic();
-      // };
-
       const fireInformation = event.target.attributes.value.value.split(', ')
       
       const irwinID = fireInformation[1]; 
@@ -1228,7 +1209,6 @@ const goto = ({ mapPoint, fireInformation }) => {
   };
 
   const populationAndEcologyPerimeterQuery = async ({ irwinIdNumber, mapPoint }) => {
-    // await removeMapPointGraphic()
     
     const url ='https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/Wildfire_aggregated_v1/FeatureServer/1/query';
 
