@@ -20,10 +20,9 @@
     <main>
       <div id="viewDiv" style = "float: left;">
         <div id = "homeContainer" style="width: 2rem; height:2rem; background:rgb(17, 54, 81); color:  #ffffff; margin-left: 2.8rem; margin-top: -2.7rem;"> </div>
-        <div id="searchContainer" style="width: 250px; margin-left: 5.7rem; margin-top: -4.57rem;">
-        </div>
+        <div id="searchContainer" style="width: 250px; margin-left: 5.7rem; margin-top: -4.57rem;"></div>
         <div id="layerListContainer" style="width: 215px; max-height: 58vw; overflow-y: auto;
-        position: absolute; 
+        position: absolute; z-index: 1; 
         bottom: 0px; left: 0px;">
         <div id = "layer-List-Container-background" style = "margin: auto 0; background: none;">
           <div id="layers" class="animate-in-up js-animation" style = "display: none;"> 
@@ -237,7 +236,7 @@
         </div>
       </div>
 
-      <div class="" style="float:left">
+      <div class="" style="float:left; z-index: 2;">
         <aside id="sideBar"
           style=" width: 410px; height: 100%; background: rgba(17, 49, 73, 1); overflow: hidden auto;">
           <div stlye="display: block;">

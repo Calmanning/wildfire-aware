@@ -6,13 +6,14 @@ require([
           "esri/widgets/Search",
           "esri/widgets/Home",
           "esri/widgets/ScaleBar",
+          "esri/widgets/Measurement",
           "esri/Graphic",
           "esri/symbols/SimpleLineSymbol",
           "esri/layers/GraphicsLayer",
           "esri/core/reactiveUtils",
           "esri/geometry/Point",
           "esri/geometry/Circle"
-], (esriConfig, WebMap, MapView, Search, Home, ScaleBar, Graphic, SimpleLineSymbol, GraphicsLayer, reactiveUtils, Point, Circle) => {
+], (esriConfig, WebMap, MapView, Search, Home, ScaleBar, Measurement, Graphic, SimpleLineSymbol, GraphicsLayer, reactiveUtils, Point, Circle) => {
     
   'use strict';
 
@@ -22,6 +23,7 @@ require([
 
   //DOM VARIABLES
   const sideBarContainer = document.querySelector("#sideBar");
+  const searchWidgetContainer = document.querySelector("#searchContainer");
   const sideBarInformation = document.getElementById('sideBarInformation');
   const fireListEl = document.querySelector('#fire-list');
   const fireListBtn = document.querySelector('#fire-list-Btn');
@@ -98,7 +100,7 @@ require([
     view: mapView,
     resultGraphicEnabled: false,
     popupEnabled: false,
-    container: searchContainer
+    container: searchWidgetContainer
   });
   mapView.ui.add(searchWidget, "top-left");
 
@@ -109,7 +111,7 @@ require([
   mapView.ui.add(homeWidget, "top-left");
 
   homeWidget.goToOverride = () => {
-  console.log('homehome')
+  
   return mapView.goTo({ 
                       zoom: 5,
                       center: [260, 39]
@@ -3320,8 +3322,8 @@ const containmentBar =  (containment) => {
       document.querySelector('#carbon').innerHTML = `
       <div>
         <p style = "margin-bottom: 2px;">POTENTIAL CARBON LOSS</p>
-        <div class = "ecoregionInformation">
-          <p>Carbon amount</p>
+        <div class = "ecoregionInformation" style = "margin: auto; margin-top: 10px; width: 200px; height: 100px; background: saddlebrown; border-radius: 100px / 50px;">
+          <p style = "line-height: 100px; text-align: center;">Carbon amount</p>
         </div>
       </div>
       `;
