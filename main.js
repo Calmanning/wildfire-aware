@@ -3193,7 +3193,7 @@ const containmentBar =  (containment) => {
 
     const ecoRegion = (() => {
       if(aggragateEcoObj){
-        return aggragateEcoObj.L3EcoReg[0][0]  
+        return typeof(aggragateEcoObj.L3EcoReg) !== "string" ? aggragateEcoObj.L3EcoReg[0][0] : aggragateEcoObj.L3EcoReg;
       } else if(perimeterEcology){
         return perimeterEcology.L3EcoReg
       } else {
@@ -3203,7 +3203,7 @@ const containmentBar =  (containment) => {
 
     const landformType = (() => {
       if(aggragateEcoObj){
-        return aggragateEcoObj.LandForm[0][0]
+        return typeof(aggragateEcoObj.LandForm) !== "string" ? aggragateEcoObj.LandForm[0][0] : aggragateEcoObj.LandForm;
       } else if(perimeterEcology){
         return perimeterEcology.LandForm
       } else {
