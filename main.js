@@ -247,6 +247,7 @@ require([
   };
 
   const hideAllLegendDivs = () => {
+    satelliteHotSpotLegend.style.display = "none";
     aqiTodayLegend.style.display = "none";
     aqiTomorrowLegend.style.display = "none";
     watchesAndWarningsLegend.style.display = "none";
@@ -425,11 +426,10 @@ require([
     
     resetFirePointsAndPerimeters()
     
-
     document.querySelectorAll('.auto-checkbox').forEach(checkbox => {
       
       checkbox.checked = false;
-
+console.log(satelliteHotspotsLayer.visible)
       satelliteHotspotsLayer.visible = satelliteHotspotsCheckbox.checked
       AQITodayLayer.visible = checkbox.checked;
       AQITomorrowLayer.visible = checkbox.checked;
@@ -481,8 +481,6 @@ const circle = new Graphic({
 
     console.log('add a circle please')
     
-
-
     const circleGeometry = new Circle({
     center: mapPoint || fireLocation,
     geodesic: true,
@@ -490,8 +488,10 @@ const circle = new Graphic({
     radius: 2,
     radiusUnit: "miles",
   });
-
+    
+    circle.symbol.outline.style = mapView.zoom < 9 ? "solid" : "long-dash"
     circle.geometry = circleGeometry
+
 
     mapView.graphics.add(circle);
     
@@ -767,7 +767,7 @@ const goto = ({ mapPoint, fireInformation }) => {
       if(!(mapView.zoom >= 7)){
         disableMapLayer(satelliteHotspotsCheckbox)
         satelliteHotspotsLayer.visible = satelliteHotspotsCheckbox.checked
-        // satelliteHotspotsCheckbox.style.height = 0;
+        
       }else{
         enableMapLayer(satelliteHotspotsCheckbox)
       }
@@ -787,8 +787,8 @@ const goto = ({ mapPoint, fireInformation }) => {
         enableMapLayer(censusPointsCheckbox)
       }
       
-      if(mapView.zoom < 9 && mapView.graphics.items[0]){
-        
+      if(mapView.zoom < 9 && mapView.graphics.items.length > 0){
+        console.log(mapView.graphics)
         const solidCircle = circle.clone()
         solidCircle.symbol.outline.style = "solid"
         
@@ -796,7 +796,7 @@ const goto = ({ mapPoint, fireInformation }) => {
 
         mapView.graphics.add(solidCircle)
         
-      }else {
+      }else if(mapView.zoom > 9 && mapView.graphics.items.length > 0) {
         const longDashCircle = circle.clone()
         longDashCircle.symbol.outline.style = "long-dash"
         
@@ -1759,9 +1759,16 @@ const goto = ({ mapPoint, fireInformation }) => {
         },{})
 
         arr.sort((a, b) => a-b)
-        aggregatedPopulationBlockObject.WeightedMedianHomeValue = arr.length % 2 !== 0
-                                                                             ? (arr[Math.round(((arr.length)/2 +1))] + arr[Math.round(((arr.length)/2))]) / 2
-                                                                             : arr[((arr.length)/2)]
+        // aggregatedPopulationBlockObject.WeightedMedianHomeValue =
+        
+         if(arr.length === 1) {
+          aggregatedPopulationBlockObject.WeightedMedianHomeValue = arr[0]
+        } else if (arr.length % 2 !== 0){
+            aggregatedPopulationBlockObject.WeightedMedianHomeValue = (arr[Math.round(((arr.length)/2 +1))] + arr[Math.round(((arr.length)/2))]) / 2
+        } else {
+            aggregatedPopulationBlockObject.WeightedMedianHomeValue = arr[((arr.length)/2)]
+        };
+                  
         console.log(aggregatedPopulationBlockObject)
         
 
@@ -1860,8 +1867,8 @@ const goto = ({ mapPoint, fireInformation }) => {
       ? [{'data': underFourteenPop, name: '< 14'}, {'data': fifteenToSeventeenPop, name: '15-17'}, {'data': eightteenToSixtyfourPop, name: '18-64'},{'data': sixtyfiveToSeventynine, 'name': '65-79'},{'data': eightyPop, 'name': '+ 80'}]
       : null;
 
-      //renderCensusTract(censusTract)
-      //populationBarGraph({ populationData })
+      
+      
      //totalPopulationUIRender({ totalPopulation })
     })
     .catch((error) => {
@@ -3323,7 +3330,7 @@ const containmentBar =  (containment) => {
       <div>
         <p style = "margin-bottom: 2px;">POTENTIAL CARBON LOSS</p>
         <div class = "ecoregionInformation" style = "margin: auto; margin-top: 10px; width: 200px; height: 100px; background: saddlebrown; border-radius: 100px / 50px;">
-          <p style = "line-height: 100px; text-align: center;">Carbon amount</p>
+          <p style = "line-height: 100px; text-align: center;">CARBON AMOUNT</p>
         </div>
       </div>
       `;
