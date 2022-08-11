@@ -2682,7 +2682,7 @@ const containmentBar =  (containment) => {
       .data(data)
       .enter().append('rect')
         .attr('width', percentBar)
-        .attr('height', 30)
+        .attr('height', 30.01)
         .attr('fill', d => barColors(d));
 
     barSVG.append("text")
@@ -2757,7 +2757,7 @@ const containmentBar =  (containment) => {
       .data(data)
       .enter().append('rect')
         .attr('width', percentBar)
-        .attr('height', 30)
+        .attr('height', 30.01)
         .attr('fill', d => barColors(d));
 
 
