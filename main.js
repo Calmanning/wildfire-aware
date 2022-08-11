@@ -790,23 +790,28 @@ const goto = ({ mapPoint, fireInformation }) => {
         enableMapLayer(censusPointsCheckbox)
       }
       
-      if(mapView.zoom < 9 && mapView.graphics.items.length > 0){
+      if(mapView.zoom <= 9 && mapView.graphics.items.length > 0){
         console.log(mapView.graphics)
-        const solidCircle = circle.clone()
-        solidCircle.symbol.outline.style = "solid"
+        // const solidCircle = circle.clone()
+        // solidCircle.symbol.outline.style = "solid"
+        // solidCircle.symbol.outline.visible = false
         
-        await removeCircleGraphic()
+        // await removeCircleGraphic()
 
-        mapView.graphics.add(solidCircle)
+        // mapView.graphics.add(solidCircle)
+        mapView.graphics.items[0].symbol.outline.style = "solid"
+        mapView.graphics.items[0].visible = false
         
-      }else if(mapView.zoom > 9 && mapView.graphics.items.length > 0) {
-        const longDashCircle = circle.clone()
-        longDashCircle.symbol.outline.style = "long-dash"
+      }else if(mapView.zoom >= 9 && mapView.graphics.items.length > 0) {
+        // const longDashCircle = circle.clone()
+        // longDashCircle.symbol.outline.style = "long-dash"
+        // solidCircle.symbol.outline.visible = true
         
-        await removeCircleGraphic()
+        // await removeCircleGraphic()
 
-        mapView.graphics.add(longDashCircle)
-        
+        // mapView.graphics.add(longDashCircle)
+        mapView.graphics.items[0].symbol.outline.style = "long-dash"
+        mapView.graphics.items[0].visible = true
       }
     });
 
@@ -2129,7 +2134,7 @@ const goto = ({ mapPoint, fireInformation }) => {
 //NEW ECO QUERY
   const newEcoQuery = ({ mapPoint, fireInformation }) => {
 
-    const url = 'https://services.arcgis.com/jIL9msH9OI208GCb/ArcGIS/rest/services/ConusHexesFirstBatch220623output/FeatureServer/0/query'
+    const url = 'https://services.arcgis.com/jIL9msH9OI208GCb/ArcGIS/rest/services/AllHexesFromAgolAsPoints220811a/FeatureServer/22/query'
 
     const params = {
       where: '1=1',
@@ -2139,7 +2144,7 @@ const goto = ({ mapPoint, fireInformation }) => {
       spatialRelationship: 'intersects',
       distance: 2,
       units: 'esriSRUnit_StatuteMile',
-      outFields: ['L3EcoReg', 'LandForm', 'CritHab', 'OwnersPadus', 'RichClass', 'WHPClass', 'PctWater', 'PctSnowIce', 'PctDevelop', 'PctBarren', 'PctForest', 'PctShrub', 'PctGrass', 'PctCropland', 'PctWetlands'].join(','),
+      outFields: ['L3EcoReg', 'LandForm', 'CritHab', 'OwnersPadus', 'RichClass', 'WHPClass', 'PctWater', 'PctSnowIce', 'PctDevelop', 'PctBarren', 'PctForest', 'PctShrub', 'PctGrass', 'PctCropland', 'PctWetlands', 'SumCarbon', 'ForestTypeGroup  '].join(','),
       returnGeometry: true,
       returnQueryGeometry: true,
       outSR: 3857,
@@ -2211,6 +2216,20 @@ const goto = ({ mapPoint, fireInformation }) => {
         // const sortedAggragateEcoLandform = Object.entries(aggragateEcoObj.LandForm).sort((a, b) => b[0].localeCompare(a[0]))
         // aggragateEcoObj.LandForm = sortedAggragateEcoLandform.sort((a, b) => b[1] - a[1])        
 
+          //Creating an object of ForestType entries and their 'count' value from an array 
+        aggragateEcoObj.ForestTypeGroup
+        ? aggragateEcoObj.ForestTypeGroup = aggragateEcoObj.ForestTypeGroup.split(', ').filter(entry => !entry.includes(undefined) && !entry.includes(null)).reduce((ForestTypeGroupObj, ForestTypeGroupItem) => {
+            !ForestTypeGroupObj[ForestTypeGroupItem] 
+            ? ForestTypeGroupObj[ForestTypeGroupItem] = 1 
+            : ForestTypeGroupObj[ForestTypeGroupItem]++
+            return ForestTypeGroupObj
+          },{})
+        : null;
+        !aggragateEcoObj.ForestTypeGroup[Object.keys(aggragateEcoObj.ForestTypeGroup)[0]]
+        ? aggragateEcoObj.ForestTypeGroup = 'No information available'
+        : aggragateEcoObj.ForestTypeGroup = Object.entries(aggragateEcoObj.ForestTypeGroup).sort((a, b) => b[0].localeCompare(a[0])).sort((a, b) => b[1] - a[1])
+
+
         console.log(aggragateEcoObj.OwnersPadus)
         aggragateEcoObj.OwnersPadus
         ? aggragateEcoObj.OwnersPadus = aggragateEcoObj.OwnersPadus.split(', ').filter(entry => !entry.includes(undefined) && !entry === false).reduce((OwnersPadusObj, OwnersPadusItem) => {
@@ -2237,7 +2256,10 @@ const goto = ({ mapPoint, fireInformation }) => {
         ? aggragateEcoObj.RichClass = 'No data available'
         : aggragateEcoObj.RichClass = Object.entries(aggragateEcoObj.RichClass).sort((a, b) => b[0].localeCompare(a[0])).sort((a, b) => b[1] - a[1])
         
-
+        aggragateEcoObj.SumCarbon = aggragateEcoObj.SumCarbon !== null
+        ? Math.round(aggragateEcoObj.SumCarbon)
+        : 0;
+        
       //creating the WFHP object from the returned object
         console.log(aggragateEcoObj.WHPClass)
         aggragateEcoObj.WHPClass
