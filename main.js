@@ -23,6 +23,8 @@ require([
 
   //DOM VARIABLES
   const sideBarContainer = document.querySelector("#sideBar");
+  const sideBarTop  = document.querySelector('#sideBarTop');
+  const sideBarToggleArrow = document.querySelector('#sideBarToggleArrow');
   const searchWidgetContainer = document.querySelector("#searchContainer");
   const sideBarInformation = document.getElementById('sideBarInformation');
   const fireListEl = document.querySelector('#fire-list');
@@ -32,7 +34,8 @@ require([
   const infoItemContent = document.getElementsByClassName('item-content');
   const atRiskDiv = document.querySelector('#at-risk-population');
   const fireListDate  = document.getElementsByClassName('fire-list-date')
-  const fireListItem  = document.getElementsByClassName('fire-item')
+  const fireListItem  = document.getElementsByClassName('fire-item');
+  
   
   let dateSortedList = [];
   
@@ -669,8 +672,8 @@ const goto = ({ mapPoint, fireInformation }) => {
     const fireType = fireData.incidentType;
     
     const fireIcon = ({ fireType , fireAge }) => {
-
-      if(fireType == 'WILDFIRE' && fireAge == 'Less than 24 hours') {
+      console.log(fireAge)
+      if(fireType == 'WILDFIRE' && (fireAge>1)) {
       return "https://www.arcgis.com/sharing/rest/content/items/3ce2a29d3c794e288b24fcd39ed1f966/data"
      } else if (fireType === 'WILDFIRE') {
       return "https://www.arcgis.com/sharing/rest/content/items/f5ae5a1952d140f9b9c4c5c6ed9ad5da/data"
@@ -707,7 +710,7 @@ const goto = ({ mapPoint, fireInformation }) => {
           <div>
             <div class = "trailer-0 " style= "margin-top: 10px;"> 
               <span class = "" style = "vertical-align: 2px; margin: 0 5px 0px 103px"> DAY </span>
-              <h4 class = "bold trailer-0"> ${fireAge}</h4>
+              <h4 class = "bold trailer-0"> ${window.screen.width > 700 ? fireAge : '< 24 hours'}</h4>
             </div>
             <div class = "trailer-0" style = "margin: 5px auto;">
               <span style = "vertical-align: text-bottom; margin: 0 5px 0px 5px"> REPORTED ACRES </span> <h4 class = "bold trailer-0"> ${fireAcres ? fireAcres.toLocaleString() : 'Not reported'}</h4>
@@ -893,7 +896,22 @@ const goto = ({ mapPoint, fireInformation }) => {
   const scrollToTop = () => {
     sideBarContainer.scrollTo(0,0)
   }
-  
+
+  const sideBarToggleView = (() => {
+    sideBarTop.addEventListener('click', () => {
+      
+      if (sideBarContainer.style.height === '100%') {
+        sideBarContainer.style.height = '0'
+        sideBarToggleArrow.style.transform = 'rotate(0deg)'
+        console.log('toggle side bar down')
+      } else {
+        sideBarContainer.style.height = '100%'
+        sideBarToggleArrow.style.transform = 'rotate(180deg)'
+        console.log('toggle side bar up')
+      }
+    })
+  })()
+
   //Different Ways to sort the fire list
   const sortingOptions = ({ dateSorted, wildFires }) => {
     dateSortedList = dateSorted
@@ -1246,15 +1264,13 @@ const goto = ({ mapPoint, fireInformation }) => {
           console.log(consolidatedFirePerimeterData);
           
           const populationData =[{'data': consolidatedFirePerimeterData.sum_estimated0_14pop ? consolidatedFirePerimeterData.sum_estimated0_14pop : 0 , name: '< 14'}, {'data': consolidatedFirePerimeterData.sum_estimated15_17pop ? consolidatedFirePerimeterData.sum_estimated15_17pop : 0, name: '15-17'}, {'data': consolidatedFirePerimeterData.sum_estimated18to64pop ? consolidatedFirePerimeterData.sum_estimated18to64pop : 0, name: '18-64'},{'data': consolidatedFirePerimeterData.sum_estimated65_79pop ? consolidatedFirePerimeterData.sum_estimated65_79pop : 0, 'name': '65-79'},{'data': consolidatedFirePerimeterData.sum_estimated80pluspop ? consolidatedFirePerimeterData.sum_estimated80pluspop : 0 , 'name': '+ 80'}]; 
-          
           const perimeterPopulationWithVehicle = {value: parseFloat(100 - (consolidatedFirePerimeterData.sum_estpopwith0vehicles/consolidatedFirePerimeterData.sum_p0010001) * 100).toFixed(1)}
-          
           const perimeterPopulationSpeakingEnglish = {value: parseFloat(100 - (consolidatedFirePerimeterData.sum_estpopnoenglish/consolidatedFirePerimeterData.sum_p0010001)*100).toFixed(1)}
-          
+          const perimeterWeightedMedianHousing = Math.round(consolidatedFirePerimeterData.sum_weightedmedianhomevalue/consolidatedFirePerimeterData.sum_h0010001)
           
           const perimeterHousingData = {
             TotalHousingUnits: consolidatedFirePerimeterData.sum_h0010001 ? consolidatedFirePerimeterData.sum_h0010001.toLocaleString() : 'No housing data',
-            MedianValue: consolidatedFirePerimeterData.sum_weightedmedianhomevalue ? `$${consolidatedFirePerimeterData.sum_weightedmedianhomevalue.toLocaleString()}` : 'No housing data'
+            MedianValue: consolidatedFirePerimeterData.sum_weightedmedianhomevalue ? `$${perimeterWeightedMedianHousing.toLocaleString()}` : 'No housing data'
           }
 
           const perimeterPopulation = {
@@ -1745,29 +1761,29 @@ const goto = ({ mapPoint, fireInformation }) => {
       .then((response) => {
         console.log(response)
 
-        const arr = []
+        // const arr = []
 
     if(response.data.features){
       const aggregatedPopulationBlockObject = response.data.features.reduce((a,b) => {
           Object.keys(b.attributes).forEach(key => {
-            if(key === 'WeightedMedianHomeValue'){
-             arr.push(b.attributes[key]) 
-            }
+            // if(key === 'WeightedMedianHomeValue'){
+            //  arr.push(b.attributes[key]) 
+            // }
             a[key] = (a[key] || 0) + b.attributes[key];
         }), 0;
         return a
         },{})
 
-        arr.sort((a, b) => a-b)
-        // aggregatedPopulationBlockObject.WeightedMedianHomeValue =
+        // arr.sort((a, b) => a-b)
+        // // aggregatedPopulationBlockObject.WeightedMedianHomeValue =
         
-         if(arr.length === 1) {
-          aggregatedPopulationBlockObject.WeightedMedianHomeValue = arr[0]
-        } else if (arr.length % 2 !== 0){
-            aggregatedPopulationBlockObject.WeightedMedianHomeValue = (arr[Math.round(((arr.length)/2 +1))] + arr[Math.round(((arr.length)/2))]) / 2
-        } else {
-            aggregatedPopulationBlockObject.WeightedMedianHomeValue = arr[((arr.length)/2)]
-        };
+        //  if(arr.length === 1) {
+        //   aggregatedPopulationBlockObject.WeightedMedianHomeValue = arr[0]
+        // } else if (arr.length % 2 !== 0){
+        //     aggregatedPopulationBlockObject.WeightedMedianHomeValue = (arr[Math.round(((arr.length)/2 +1))] + arr[Math.round(((arr.length)/2))]) / 2
+        // } else {
+        //     aggregatedPopulationBlockObject.WeightedMedianHomeValue = arr[((arr.length)/2)]
+        // };
                   
         console.log(aggregatedPopulationBlockObject)
         
@@ -1776,10 +1792,11 @@ const goto = ({ mapPoint, fireInformation }) => {
       const populationData = [{'data': aggregatedPopulationBlockObject.Estimated0_14Pop, name: '< 14'}, {'data': aggregatedPopulationBlockObject.Estimated15_17Pop, name: '15-17'}, {'data': aggregatedPopulationBlockObject.Estimated18to64Pop, name: '18-64'},{'data': aggregatedPopulationBlockObject.Estimated65_79Pop, 'name': '65-79'},{'data': aggregatedPopulationBlockObject.Estimated80PlusPop, 'name': '+ 80'}];
       const englishSpeakingPopulation = {value: parseFloat(100 - (aggregatedPopulationBlockObject.EstPopNoEnglish/aggregatedPopulationBlockObject.P0010001)*100).toFixed(1)}
       const populationWithVehicle = {value: parseFloat(100 - (aggregatedPopulationBlockObject.EstPopWith0Vehicles/aggregatedPopulationBlockObject.P0010001)*100).toFixed(1)}
-      
+      const weightedMedianHomeValue = Math.round(aggregatedPopulationBlockObject.WeightedMedianHomeValue/aggregatedPopulationBlockObject.H0010001);
+
       const radiusHousingData = {
         TotalHousingUnits: aggregatedPopulationBlockObject.H0010001 ? aggregatedPopulationBlockObject.H0010001.toLocaleString() : 'No housing data',
-        MedianValue: aggregatedPopulationBlockObject.WeightedMedianHomeValue ? `$${aggregatedPopulationBlockObject.WeightedMedianHomeValue.toLocaleString()}` : 'No housing data'
+        MedianValue: aggregatedPopulationBlockObject.WeightedMedianHomeValue ? `$${weightedMedianHomeValue.toLocaleString()}` : 'No housing data'
       }
       const totalRadiusPopulation = {
         totalPopulation: aggregatedPopulationBlockObject.P0010001 ? aggregatedPopulationBlockObject.P0010001.toLocaleString() : 'No data',
@@ -2363,10 +2380,12 @@ const renderLandCoverGraph = (landCoverArray) => {
   const svg = d3.select('#landcover-chart')
     .append('div')
       .attr('id', 'landcover-graph')
+    .append('div')
     .append('svg')
       .attr('height', 200)
-      .attr('width',  360)
-      .style('margin-top', '20px')
+      .attr('width',  320)
+      .style('display', 'block')
+      .style('margin', '20px auto')
       .attr('id', 'landcover-svg');
 
   svg;
@@ -2379,8 +2398,7 @@ const renderLandCoverGraph = (landCoverArray) => {
   const g = landcoverSVG.append('g')
                         .attr('transform', `translate(${width / 2}, ${height / 2})`);
 
-  const bgColor = landcoverSVG.append('g')
-                        .attr('transform', `translate(${width / 2}, ${height / 2})`);
+  
   
                         
   const text = landcoverSVG.append('g')
@@ -2421,6 +2439,9 @@ const renderLandCoverGraph = (landCoverArray) => {
             text.select('.landcover').remove()
           });
 
+        const bgColor = landcoverSVG.append('g')
+                      .attr('transform', `translate(${width / 2}, ${height / 2})`)
+                      .attr('fill', 'blue');
 };
 
 //FIRE CONTAINMENT 
@@ -2434,23 +2455,34 @@ const containmentBar =  (containment) => {
     document.getElementById('containment-text').innerHTML =  `<h4 class = "bold trailer-0">${containment}</h4>`
   } else {
 
-  const data = [100.01, containment]
+    const data = [100.01, containment]
+    
+    
+    const barColors = d3.scaleOrdinal()
+    .domain(data)
+    .range(['#021a26', '#FFBA1F',])
+  
+    const SVGcontainer = d3.select('#containment').append('div')
+    .attr('id', 'svgContainer')
+  
+    const height = 60;
+    const width = 185;
 
-  const barColors = d3.scaleOrdinal()
-                        .domain(data)
-                        .range(['#021a26', '#FFBA1F',])
-
-    const barSVG = d3.select('#containment').append('svg')
+    const barSVG = d3.select('#svgContainer').append('svg')
       .attr('class', 'bar')
       .attr('id','containment-bar')
       .style('margin', '6px 5px 0')
-      .attr('width', 380)
-      .attr('height', 55)
-      .attr("x", 20);
+      .attr("width", '100%')
+      .attr("height", '85%')
+      .attr('viewBox',`0 0 ${width} 40` )
+      .attr('preserveAspectRatio', 'none')
+    .append("g")
+      .attr("transform", "translate( 0, -1.5 )");
+      
 
     const statusBar = d3.scaleLinear()
       .domain([0, d3.max(data)])
-      .range([0, 190]);
+      .range([0, (width)-30]);
 
     barSVG.selectAll('rect')
       .data(data)
@@ -2463,10 +2495,10 @@ const containmentBar =  (containment) => {
     barSVG.append("text")
       .attr("dy", "2em")
       .attr("dx", "1.5em")
-      .attr("x", containment*1.9)
+      .attr("x", containment*((width-35)/100))
       .attr('text-anchor', 'end')
       .attr('fill', '#ffb600')
-      .style('font-size', '1.414rem')
+      .style('font-size', '1.3rem')
       .style('font-weight', 'bold')
     .text(`${containment}%`)
      
@@ -2482,8 +2514,8 @@ const containmentBar =  (containment) => {
       
     )
 
-    const width = 260;
-    const height = 120;
+    const originalWidth = 220;
+    const originalHeight = 135;
     const margin = {
       top: 15,
       right: 10,
@@ -2497,44 +2529,50 @@ const containmentBar =  (containment) => {
       document.querySelector('#population-graph-data-control').innerText = '';
 
     if(!populationDataValue) {
-      document.querySelector('#population-graph-data-control').innerText = 'No available data'
+      document.querySelector('#population-graph-label').innerHTML = ''
+      document.querySelector('#population-graph-data-control').setAttribute('style', "margin: 50% 0; display: block; text-align: center;")
+      document.querySelector('#population-graph-data-control').innerText = `No available data`
       return
     };
 
     d3.select('#population-breakdown')
     .append('div',"div")
       .attr('id', 'population-graph')
-      .style('width', `${width}px`)
+      .style('width', `100%`)
+      .style('height', `100%`)
     .append('svg')
       .attr('id', 'population-svg');
 
-    //set up the svg container
-    
-    const svg = d3.select('#population-svg')
-      .attr('height', height)
-      .attr('width', width)
-      .style('overflow', 'visible')
-      .style('margin-top', '1.1865em')
-      .style('margin-bottom', margin.bottom);
+      
+      //set up the svg container
+      const svg = d3.select('#population-svg')
+      .attr('height', '100%')
+      .attr('width', '100%')
+      .attr('viewBox', "0 -28 220 188")
+      .attr('preserveAspectRatio', 'xMidYMax')
+      .append('g')
+      .attr("transform", "translate( 0, 0 )");
+      
+      
+      const g = svg.append('g');
 
-    const g = svg.append('g');
-    
+
     //set up the Scales
     const xScale = d3.scaleBand()
       .domain(populationData.map((d, i) => d.name))
-      .range([0, width])
+      .range([0, originalWidth])
       .padding(0.2);
 
     const yScale = d3.scaleLinear()
       .domain([0, d3.max(populationData, d => d.data)])
-      .range([height, 0]);
+      .range([originalHeight, 0]);
     
     //set up the axes
     const xAxis = d3.axisBottom(xScale)
     const yAxis = d3.axisLeft(yScale)
 
     g.call(xAxis)
-      .attr('transform', `translate(0, ${height})`);
+      .attr('transform', `translate(0, ${originalHeight})`);
     
     //set up the svg data
     svg.selectAll('.bar')
@@ -2544,7 +2582,7 @@ const containmentBar =  (containment) => {
         .attr('x', (d, i) => xScale(d.name, i))
         .attr('y', d => yScale(d.data))
         .attr('width', xScale.bandwidth())
-        .attr('height', d => height - yScale(d.data))
+        .attr('height', d => originalHeight - yScale(d.data))
         .attr('fill', '#07698C')
       .on('mouseover', (e, d) => {
         svg.append('text')
@@ -2562,11 +2600,27 @@ const containmentBar =  (containment) => {
         svg.select('.pop').remove()
       })
       
-      const populationGraphLabel = document.createElement('p')
-      populationGraphLabel.setAttribute('style', 'text-align: center; font-size: 0.875rem;')
-      populationGraphLabel.append('AGE IN YEARS')
+      // const populationGraphLabel = document.createElement('p');
+      // populationGraphLabel.setAttribute('style', 'text-align: center; font-size: 0.875rem; margin: 0 auto; width: 75%; ');
+      // populationGraphLabel.setAttribute('id', 'population-graph-label');
+      // populationGraphLabel.append('AGE IN YEARS');
+      
+      // const spacer = document.createElement('p');
+      //  spacer.setAttribute('style', 'width: 25%;');
+      
 
-    document.querySelector('#population-graph').append(populationGraphLabel)
+      document.querySelector('#population-graph-spacer').innerHTML = ''
+      document.querySelector('#population-graph-label').innerHTML = ''
+      
+      document.querySelector('#population-graph-spacer').setAttribute('style', 'width: 25%;'); 
+      // document.querySelector('#population-graph-spacer').innerHTML = `<div style = 'width: 25%;'></div>`
+      document.querySelector('#population-graph-label').setAttribute('style', 'text-align: center; font-size: 0.875rem; margin: 0 auto; width: 75%;'); 
+      document.querySelector('#population-graph-label').innerHTML = `AGE IN YEARS`
+
+    // document.querySelector('#label-spacer') ? document.querySelector('#people-container').remove(spacer) : null;
+    // document.querySelector('#people-container').append(spacer);
+    // document.querySelector('#population-graph-label') ? document.querySelector('#population-graph-label').remove(populationGraphLabel) : null;
+    // document.querySelector('#people-container').append(populationGraphLabel)
 
   }
 
@@ -2595,6 +2649,8 @@ const containmentBar =  (containment) => {
   d3.select('#english-pop-percentage')
     .insert('div',"div")
       .attr('id', 'english-percent-bar')
+      .attr('width', '100%')
+      .attr('height', '100%')
     .append('svg')
       .attr('id', 'english-speaking-svg');
 
@@ -2608,9 +2664,11 @@ const containmentBar =  (containment) => {
 
     const barSVG = d3.select('#english-speaking-svg')
       .attr('class', 'bar')
-      .attr('width', width)
-      .attr('height', height)
-      .attr("x", 20);
+      .attr('width', '100%')
+      .attr('height', '100%')
+      .attr('viewBox',`0 0 ${width} ${height}` )
+      .attr('preserveAspectRatio', 'none')
+      
 
   const g = barSVG.append('g')
           .attr('transform', `translate(${width / 2}, ${height / 2})`);
@@ -2645,6 +2703,7 @@ const containmentBar =  (containment) => {
       .attr('fill', '#efefef');
   }
 
+//Population that has a vehicle
   const vehiclePercentageBar = ( populationWithVehicle ) => {
 
     d3.select('#vehicle-percent-bar')
@@ -2667,6 +2726,8 @@ const containmentBar =  (containment) => {
   d3.select('#vehicle-pop-percentage')
     .insert('div',"div")
       .attr('id', 'vehicle-percent-bar')
+        .attr('width', '100%')
+        .attr('height', '100%')
     .append('svg')
       .attr('id', 'vehicle-svg');
 
@@ -2680,10 +2741,10 @@ const containmentBar =  (containment) => {
 
     const barSVG = d3.select('#vehicle-svg')
       .attr('class', 'bar')
-      .attr('width', `100%`)
-      .attr('height', height)
-      .attr('width', width)
-      .attr("x", 20);
+      .attr('width', '100%')
+      .attr('height', '100%')
+      .attr('viewBox',`0 0 ${width} ${height}` )
+      .attr('preserveAspectRatio', 'none')
       
     const g = barSVG.append('g')
         .attr('transform', `translate(${width / 2}, ${height / 2})`);
@@ -2752,25 +2813,28 @@ const containmentBar =  (containment) => {
     }
 
   
-      const width = 290;
+      const width = 340;
       const height = 170;
       const margin = {
         top: 15,
-        right: 25,
+        right: 5,
         left: 45,
         bottom: 10
       };
 
-      const innerWidth = width - margin.left - margin.right;
+      
       const innerHeight = height - margin.top - margin.bottom;
 
       d3.select('#wildfire-risk')
 	    .append('div',"div")
         .attr('id', 'wildfire-risk-graph')
-        .style('width', `$${width+margin.right}px`)
-        .style('margin-left', `${margin.left}px`)
+        .attr('width', '100%')
+        .attr('height', '100%')
+        // .style('margin-left', `${margin.left}px`)
+        // .style('margin-right', `${margin.left}px`)
       .append('svg')
-        .attr('id', 'wildfire-risk-graph-svg');
+        .attr('id', 'wildfire-risk-graph-svg')
+        .attr('transform', `translate(${margin.left}, 0 )`)
 
   const barColors = d3.scaleOrdinal()
                         .domain(data)
@@ -2778,8 +2842,10 @@ const containmentBar =  (containment) => {
 
       //set up the svg container
       const svg = d3.select('#wildfire-risk-graph-svg')
-        .attr('height', height)
-        .attr('width', width)
+        .attr('height', '100%')
+        .attr('width', '100%')
+        .attr('viewBox',`0 0 ${width} ${height}` )
+        .attr('preserveAspectRatio', 'none')
         .style('overflow', 'visible');        
       
       //set up the group for the barGraph
@@ -2821,7 +2887,7 @@ const containmentBar =  (containment) => {
         .append('rect')
           .attr('class', 'fire-rect-bar')
           .attr('y', (d, i) => yScale(d.name, i))
-          .attr('width', d => (d.value > 0 ? (d.value*210) : (0.02*210)))
+          .attr('width', d => (d.value > 0 ? (d.value*200) : (0.02*200)))
           .attr('height', "20px")
           .attr('fill', d => barColors(d.name));
         
@@ -2831,7 +2897,7 @@ const containmentBar =  (containment) => {
         .append('text')
         .attr('transform', `translate(${margin.left + 10}, 38)`)
             .attr('class', 'riskPercent')
-            .attr('x', (d) => (d.value)*210)
+            .attr('x', (d) => (d.value)*195)
             .attr('y', (d, i) => yScale(d.name, i))
             .attr('fill', '#a5927c')
             .style('font-weight', '600')
@@ -2913,15 +2979,16 @@ const containmentBar =  (containment) => {
                     gap: 0px;
                     margin: auto;">
                         <div class="item-1" style = "margin: 15px 0 10px -5px; text-align: center;">
-                          <span class = "unit-conversion" style = "margin: 0 8px 0 0; text-decoration: underline #FFBA1F 3px; text-underline-position: under; text-underline-offset: 2px; cursor: default; cursor: pointer;">&degF MPH
+                          <span class = "unit-conversion" style = "margin: 0 0 0 0; text-decoration: underline #FFBA1F 3px; text-underline-position: under; text-underline-offset: 2px; cursor: default; cursor: pointer;">&degF MPH
                           </span>
+                          </br>
                           <span class = "unit-conversion" style = "cursor: pointer; ">&degC KM/H
                           </span>
                         </div>
-                        <div class="item-2" style = "margin: 15px 0 10px 0; text-align: center;">
+                        <div class="item-2" style = "padding: 25px 0; text-align: center;">
                           <span>TODAY</span>
                         </div>
-                        <div class="item-3" style = "margin: 15px 0 10px 0; text-align: center;">
+                        <div class="item-3" style = "padding: 25px 0; text-align: center;">
                           <span>TOMORROW</span>
                         </div>
                         <div class="item-4">
@@ -3263,36 +3330,36 @@ const containmentBar =  (containment) => {
           <div>
           <p class = "trailer-0">BIODIVERSITY</p>
         </div>
-        <div style ="width: 100%; display: flex">
+        <div style ="width: 100%; display: flex; text-align: center;">
           <div style = "width: 50%; text-align: center; align-self: center;">
           <h4 class = "bold">${biodiversity}</h4>
               <p style ="margin-bottom: 5px; margin-top: 5px;">Imperiled Species Biodiversity</p>
           </div>
           <div style = "width: 50%;"> 
             <img src="https://www.arcgis.com/sharing/rest/content/items/668bf6e91edd49d1bb8b3f00d677b315/data"
-              style="width:70px; height:70px;
-              margin-right: 10px; 
+              style="width:60px; height:60px;
+              // margin-right: 10px; 
               display: inline-flex;" 
-              viewbox="0 0 32 32" 
+              viewbox="0 0 70 70" 
               class="svg-icon" 
               type="image/svg+xml">
             <img src="https://www.arcgis.com/sharing/rest/content/items/bc5dc73ad7d345de840c128cc42cc938/data"
-              style="width:70px; height:70px; 
+              style="width:60px; height:60px; 
               display: inline-flex;" 
-              viewbox="0 0 32 32" 
+              viewbox="0 0 70 70" 
               class="svg-icon" 
               type="image/svg+xml">
             <img src="https://www.arcgis.com/sharing/rest/content/items/96a4af6a248b4da48f1b7bd703f88485/data"
-              style="width:70px; height:70px;
-              margin-right: 7px;
+              style="width:60px; height:60px;
+              // margin-right: 7px;
               display: inline-flex;" 
-              viewbox="0 0 32 32" 
+              viewbox="0 0 70 70" 
               class="svg-icon" 
               type="image/svg+xml">
             <img src="https://www.arcgis.com/sharing/rest/content/items/3c9e63f9173a463ba4e5765c08cf7238/data"
-              style="width:70px; height:70px; 
+              style="width:60px; height:60px; 
               display: inline-flex;" 
-              viewbox="0 0 32 32" 
+              viewbox="0 0 70 70" 
               class="svg-icon" 
               type="image/svg+xml">
           </div>
@@ -3303,7 +3370,7 @@ const containmentBar =  (containment) => {
       <div style = margin-top: 10px>
         <p style = "margin-bottom: 2px;">CRITICAL HABITAT DESIGNATION</p>
         <div class = "ecoregionInformation">
-          <p>${criticalHabitat}</p>
+          <h4 class = "bold">${criticalHabitat}</h4>
         </div>
       </div>
       `;
@@ -3317,21 +3384,24 @@ const containmentBar =  (containment) => {
       </div>
       `;
 
-       document.querySelector('#forestType').innerHTML = `
+      document.querySelector('#forestType').innerHTML = `
       <div>
-        <p style = "margin-bottom: 2px;">PREDOMINANT FOREST TYPE</p>
+        <p style = "margin-bottom: 2px;">PREDOMINANT FOREST TYPE GROUPS</p>
         <div class = "ecoregionInformation">
-          <p>Forest information would go here. This is place holder.</p>
+          <h4 class = "bold">Forest information would go here. This is place holder.</h4>
         </div>
       </div>
       `;
         
       document.querySelector('#carbon').innerHTML = `
-      <div>
+      <div  style="margin-top: 15px;>
         <p style = "margin-bottom: 2px;">POTENTIAL CARBON LOSS</p>
-        <div class = "ecoregionInformation" style = "margin: auto; margin-top: 10px; width: 200px; height: 100px; background: saddlebrown; border-radius: 100px / 50px;">
-          <p style = "line-height: 100px; text-align: center;">CARBON AMOUNT</p>
-        </div>
+        <div class = "ecoregionInformation">
+          <div style = "position: relative;">            
+            <h4 class = "bold">XXX,XXX tons</h4>
+            </div>
+          </div>
+          
       </div>
       `;
     }

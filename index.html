@@ -20,10 +20,10 @@
     <main>
       <div id="viewDiv" style = "float: left;">
         <div id = "homeContainer" style="width: 2rem; height:2rem; background:rgb(17, 54, 81); color:  #ffffff; margin-left: 2.8rem; margin-top: -2.7rem;"> </div>
-        <div id="searchContainer" style="width: 250px; margin-left: 5.7rem; margin-top: -4.57rem;"></div>
+        <div id="searchContainer"></div>
         <div id="layerListContainer" style="width: 215px; max-height: 58vw; overflow-y: auto;
         position: absolute; z-index: 1; 
-        bottom: 0px; left: 0px;">
+        bottom: 1rem; left: 0px;">
         <div id = "layer-List-Container-background" style = "margin: auto 0; background: none;">
           <div id="layers" class="animate-in-up js-animation" style = "display: none;"> 
             <ul class="animate-in-up js-animation" style = "margin-left: 5px;">
@@ -228,7 +228,6 @@
             </ul>
           </div>
           <button class="btn modifier-class btn-fill" id = "layer-list-button"
-            style="background: #FFBA1F; color: #14273d; width: 160px; margin-left: 20px; margin-bottom: 17px; font-weight: 900; border: none;"
             tab-index="2" aria-haspopup="false" aria-expanded="false">
             MAP LAYERS
           </button>
@@ -236,11 +235,13 @@
         </div>
       </div>
 
-      <div class="" style="float:left; z-index: 2;">
-        <aside id="sideBar"
-          style=" width: 410px; height: 100%; background: rgba(17, 49, 73, 1); overflow: hidden auto;">
+      <div id="sideBar" style="float:left; z-index: 2;">
+        <div id="sideBarTop"><span id="sideBarToggleArrow"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" class="svg-icon">
+          <path d="M4 23v-5L16 6l12 12v5L16 11 4 23z" />
+        </svg></span></div>
+        <aside id = "infoBar">
           <div stlye="display: block;">
-            <div style="background-color: rgb(17, 49, 73); padding: 0.5rem 1rem;">
+            <div>
               <div class="trailer-0">
                 <span class = 'bold' style = "color: #FFBA1F; font-size: 1.8rem;">WILDFIRE AWARE</span>
                 <span id="modal-btn" class="right btn cursor-pointer js-modal-toggle" href="#"
@@ -327,12 +328,12 @@
                 </div>
               </div> -->
             </div>
-            <div id="sideBarContent" class="trailer-quarter" style="padding: 0rem 1rem 1rem">
+            <div id="sideBarContent" class="trailer-quarter">
              
               <hr class="divider">
               <div id="activeFiresDropdown" class="dropdown js-dropdown" style="width: 100%;">
                 <p id="fireSorting"
-                  style="display: initial;width: 100%; margin-bottom: 0.5rem;">
+                  style="display: initial; width: 100%; margin-bottom: 0.5rem;">
                   <span class=" sortClass padding-right-1" id="fire-date"
                     style="text-decoration: underline #FFBA1F 3px; text-underline-position: under; text-underline-offset: 2px; cursor: default;">
                     DATE
@@ -347,7 +348,7 @@
                 </p>
                 <div style="text-align: center;">
                   <button id="fire-list-Btn" class="btn modifier-class btn-fill"
-                    style="display: none; background: #FFBA1F; color: #14273d; color: rgb(17, 54, 81); width: auto;font-weight: 900; margin: 17px 50px 0 50px; border: none;"
+                    style="display: none; background: #FFBA1F; color: #14273d; color: rgb(17, 54, 81); width: auto;font-weight: 900; margin: 17px auto 0; border: none;"
                     tab-index="0" aria-haspopup="false" aria-expanded="false">
                     RETURN TO WILDFIRE LIST
                   </button>
@@ -386,31 +387,27 @@
                   <div class="item-content">
                     
                     
-                    <div id="people-container" style="display: flex; margin-bottom: 15px;">
+                    <div id="people-container" style="display: flex; flex-flow: row wrap; margin-bottom: 25px;">
                       
-                      <div id="total-population">
-                        <div id="general-population">
-                        </div>
-                        <div id="at-risk-population">
-                            <div id="disability"></div>
-                            <div id="poverty"></div>
-                        </div>
+                      <div id="total-population" style = "width: 25%; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0 0">
+                        <div id="general-population"></div>
+                        <div id="disability"></div>
+                        <div id="poverty"></div>
                       </div>
 
-                      <div id="population-breakdown" style="margin-top: 20px;">
+                      <div id="population-breakdown" style="width: 75%; height: 100%; margin: 0px auto 0;">
                         <div style="width: 100%;">
-                          <!-- <p style="width: 100%; margin-bottom: 0;">WILDFIRE HAZARD POTENTIAL</p> -->
                           <div style = 'margin: 0 40px'>
                             <h4 id="population-graph-data-control" class="bold"></h4>
                           </div>
                         </div>
                       </div>
+                      <div id = "population-graph-spacer"></div>
+                      <div id = "population-graph-label"></div>
                     </div>
                    
-                    <div id="percentages-container" style="margin: 0 auto; width: 350px; text-align:center;">
+                    <div id="percentages-container" style="margin: 0 auto; width: 100%; text-align:center;">
                       <div id="english-pop-percentage"></div>
-                      <div id="smartphone-pop-percentage"></div>
-                      <div id="internet-pop-percentage"></div>
                       <div id="vehicle-pop-percentage"></div>
                     </div>
                   </div>
@@ -420,8 +417,8 @@
                   </div>
                   <div class="item-content">
                     <div id="housing-container" style='display: flex;'>
-                      <div style="width: 40%;">
-                        <img src="https://www.arcgis.com/sharing/rest/content/items/e1e519abf84542c1b4557697bcb7984b/data" style="width:100%; height:106%; 
+                      <div style="width: 44%;">
+                        <img src="https://www.arcgis.com/sharing/rest/content/items/e1e519abf84542c1b4557697bcb7984b/data" style="width:100%; height:100%; 
                            display: inline-flex;
                            margin: -11px 0 0 0 " class="svg-icon" type="image/svg+xml">
                       </div>
@@ -450,9 +447,12 @@
                       </div>
                       <div id='landcover-chart'>
                         <p class="trailer-0" style = "margin-bottom: 0px;" >LANDCOVER</p>
-                        <div id = "landcover-data-control">
-                        
+                        <div id = "landcover-data-control">  
                         </div>
+                      </div>
+                      <div id='forestType'>
+                      </div>
+                      <div id='carbon'>
                       </div>
                       <div id = 'biodiversity' style = "margin-top: 10px;">
                       </div>
@@ -460,17 +460,14 @@
                       </div>
                       <div id='protectedAreas'>
                       </div>
-                      <div id='forestType'>
-                      </div>
-                      <div id='carbon'>
-                      </div>
+                      
                     </div>
                   </div>
                 </div>
                 <div style = "margin: 30px 0;">
                   <div style="text-align: center;">
                     <button id="return-top-Btn" class="btn modifier-class btn-fill"
-                      style="background: #FFBA1F; color: rgb(17, 54, 81); width: 223.08px; font-weight: 900; margin: 0 50px; border: none;"
+                      style="background: #FFBA1F; color: rgb(17, 54, 81); width: 223.08px; font-weight: 900; margin: 0 auto; display: block; border: none;"
                       tab-index="2" aria-haspopup="false" aria-expanded="false">
                       RETURN TO TOP
                     </button>
