@@ -22,6 +22,7 @@ require([
 // GLOBAL VARIABLES
 
   //DOM VARIABLES
+  const ViewURL = new URL(window.location.href)
   const sideBarContainer = document.querySelector("#sideBar");
   const sideBarTop  = document.querySelector('#sideBarTop');
   const sideBarToggleArrow = document.querySelector('#sideBarToggleArrow');
@@ -114,7 +115,7 @@ require([
   mapView.ui.add(homeWidget, "top-left");
 
   homeWidget.goToOverride = () => {
-  
+  window.location.hash = ""
   return mapView.goTo({ 
                       zoom: 5,
                       center: [260, 39]
@@ -129,6 +130,7 @@ require([
   position: "bottom-right"
   });
 
+//ON MAP LOAD
   const loadMapview = (() => {
     mapView.when()
       .then(() => {
@@ -200,10 +202,15 @@ require([
 
       })
       .then(() => {
-        mapView.goTo({
-                    zoom: 5,
-                    center: [260, 39]
-                  });
+      //setting up view -- if url-information is relevant have the view reflect that information, otherwise set center on continental US.
+        console.log(window.location)  
+      if(window.location.hash){
+          const newDefaultLocation = window.location.hash.substring(3)
+          parseURLHash({newDefaultLocation})
+          return
+        }
+        initialMapExtent()
+
       })
       .then(() => {
         layerListBtn.addEventListener('click', (event) => {
@@ -330,7 +337,6 @@ require([
     });
   })()
 
-//NOTE: Make the watches and warning layer toggles with the AQ layers; they cannont be on at the same time.
   const toggleAQITodayVisibility =( () => {
     
     AQITodayCheckbox.addEventListener('change', (event) => {
@@ -432,7 +438,7 @@ require([
     document.querySelectorAll('.auto-checkbox').forEach(checkbox => {
       
       checkbox.checked = false;
-console.log(satelliteHotspotsLayer.visible)
+
       satelliteHotspotsLayer.visible = satelliteHotspotsCheckbox.checked
       AQITodayLayer.visible = checkbox.checked;
       AQITomorrowLayer.visible = checkbox.checked;
@@ -459,6 +465,51 @@ console.log(satelliteHotspotsLayer.visible)
 
   }
 
+
+//SETTING THE CENTER OF MAP VIEW ON PAGE LOAD. NOTE: is there a better placement in the code for this function?
+  const initialMapExtent = () => {
+    mapView.goTo({
+                    zoom: 5,
+                    center: [260, 39]
+                  });
+  }
+
+  const parseURLHash  = async ({newDefaultLocation}) => {
+    console.log('time to make some hash.')
+    
+    
+    const URLLocationParams = newDefaultLocation.split(',')
+    console.log(URLLocationParams)
+
+    const URLLocationCoordinates = {
+      x: URLLocationParams[0],
+      y: URLLocationParams[1]
+    }
+    
+    const mapPoint = new Point(
+      URLLocationCoordinates
+    )
+    
+      console.log(URLLocationParams[3].length)
+
+    if(URLLocationParams[3] && URLLocationParams[3] === 'loc'){
+      //use URLLocationCoordinates to query location info
+        queryHub({ mapPoint });
+        newEcoQuery({ mapPoint });
+        censusBlockCentroidQuery({ mapPoint });
+        addCircleGraphic({mapPoint})
+        // updateURLParams({mapPoint})
+    } else if (URLLocationParams[3] && URLLocationParams[3].length >= 35){
+      //use irwinID to collect fire info and use that to collect the surrounding information.
+      const irwinID = URLLocationParams[3]
+      selectedFireInfoQuery({irwinID})
+    } else{   
+      await goto({ mapPoint })
+
+      setTimeout(() => {URLLocationParams[2] !== '12' ? mapView.zoom = URLLocationParams[2] : null;}, 1000)
+    }
+  }
+
 //MAP GRAPHIC(S)
   
   
@@ -468,9 +519,9 @@ const circle = new Graphic({
         type: 'simple-fill',
         color: [0,0,0,0],
         outline: new SimpleLineSymbol ({
-        color: 'white',
+        color: [255, 186, 31, 1],
         style: "long-dash",
-        width: 3
+        width: 2
         }),
       }
     });
@@ -492,7 +543,7 @@ const circle = new Graphic({
     radiusUnit: "miles",
   });
     
-    circle.symbol.outline.style = mapView.zoom < 9 ? "solid" : "long-dash"
+    circle.symbol.outline.style = mapView.zoom < 8 ? "solid" : "long-dash"
     circle.geometry = circleGeometry
 
 
@@ -553,6 +604,7 @@ const circle = new Graphic({
      
     webmap.layers.reorder(graphicsLayer, 12)
     graphicsLayer.graphics.push(fireIconGraphic);
+    console.log(graphicsLayer)
     
   }
   
@@ -563,30 +615,26 @@ const circle = new Graphic({
 
   }
 
-const goto = ({ mapPoint, fireInformation }) => {
-    fireInformation ? console.log(fireInformation) : console.log(mapPoint);
+const goto = async ({ mapPoint }) => {
+  console.log('ADJUSTING MAP EXTENT')
+  console.log(mapPoint);
 
     if (mapView.zoom >= 8 ) {
       return
     }
     
-    let point = null;
-    
-    if(fireInformation){
-    const fireLocation = fireInformation[0].split(',');
-    
-    point = new Point(
+    const point = new Point(
       {
-        x: fireLocation[0], 
-        y: fireLocation[1],
+        x:  mapPoint.x, 
+        y:  mapPoint.y
       }
     )
-  };
- 
+  
+  console.log(point)
   mapView.goTo(
     {
       zoom: 12,
-      target: point ? point : mapPoint,
+      target: mapPoint
     },
     {
       duration: 1000
@@ -702,15 +750,14 @@ const goto = ({ mapPoint, fireInformation }) => {
                 type="image/svg+xml"/>
               <div>
                 <h4 class = "bold trailer-0" style= "line-height: 0px;"><b>${fireName}</b></h4>
-                <p style = "font-size: 0.875rem;" class = "trailer-0">INCIDENT TYPE: ${fireType}</p>
-                <p style = "font-size: 0.875rem;" class = "trailer-0">START: ${fireDate.toUpperCase()}</p>
+                <p class = "trailer-0" style = "font-size: 0.875rem;" >INCIDENT TYPE: ${fireType}</p>
+                <p class = "trailer-0" style = "font-size: 0.875rem; white-space:nowrap" >START: ${fireDate.toUpperCase()}</p>
               </div>
           </div>
           
           <div>
             <div class = "trailer-0 " style= "margin-top: 10px;"> 
-              <span class = "" style = "vertical-align: 2px; margin: 0 5px 0px 103px"> DAY </span>
-              <h4 class = "bold trailer-0"> ${window.screen.width > 700 ? fireAge : '< 24 hours'}</h4>
+              <span style = "vertical-align: 2px; margin: 0 5px 0px 103px"> DAY </span> <h4 class = "bold trailer-0" style = "white-space: nowrap;"> ${window.screen.width > 700 ? fireAge : '< 24 hours'}</h4>
             </div>
             <div class = "trailer-0" style = "margin: 5px auto;">
               <span style = "vertical-align: text-bottom; margin: 0 5px 0px 5px"> REPORTED ACRES </span> <h4 class = "bold trailer-0"> ${fireAcres ? fireAcres.toLocaleString() : 'Not reported'}</h4>
@@ -737,7 +784,9 @@ const goto = ({ mapPoint, fireInformation }) => {
     () => mapView?.stationary, 
     () => {
       const extentGeometry = mapView.extent
+      console.log(extentGeometry)
       getFiresByExtent({ extentGeometry })
+
     }
   )
 
@@ -790,29 +839,48 @@ const goto = ({ mapPoint, fireInformation }) => {
         enableMapLayer(censusPointsCheckbox)
       }
       
-      if(mapView.zoom <= 9 && mapView.graphics.items.length > 0){
+      if(mapView.zoom <= 9 && mapView.graphics.items.length > 0 && graphicsLayer.graphics.items.length > 0){
         console.log(mapView.graphics)
-        // const solidCircle = circle.clone()
-        // solidCircle.symbol.outline.style = "solid"
+        console.log(graphicsLayer)
+        const solidCircle = circle.clone()
+        solidCircle.symbol.outline.style = "solid"
         // solidCircle.symbol.outline.visible = false
         
-        // await removeCircleGraphic()
+        await removeCircleGraphic()
 
-        // mapView.graphics.add(solidCircle)
-        mapView.graphics.items[0].symbol.outline.style = "solid"
+        mapView.graphics.add(solidCircle)
         mapView.graphics.items[0].visible = false
         
-      }else if(mapView.zoom >= 9 && mapView.graphics.items.length > 0) {
-        // const longDashCircle = circle.clone()
-        // longDashCircle.symbol.outline.style = "long-dash"
-        // solidCircle.symbol.outline.visible = true
+      }else if(mapView.zoom >= 10 && mapView.graphics.items.length > 0 && graphicsLayer.graphics.items.length > 0) {
+        console.log('make long dash')
+         const longDashCircle = circle.clone()
+         longDashCircle.symbol.outline.style = "long-dash"
+        //  solidCircle.symbol.outline.visible = true
         
-        // await removeCircleGraphic()
+         await removeCircleGraphic()
 
-        // mapView.graphics.add(longDashCircle)
+        mapView.graphics.add(longDashCircle)
         mapView.graphics.items[0].symbol.outline.style = "long-dash"
         mapView.graphics.items[0].visible = true
-      }
+      } else if (mapView.zoom <= 8 && mapView.graphics.items.length > 0 && graphicsLayer.graphics.items.length === 0){
+        
+        const solidCircle = circle.clone()
+        solidCircle.symbol.outline.style = "solid"
+        // solidCircle.symbol.outline.visible = false
+        
+        await removeCircleGraphic()
+
+        mapView.graphics.add(solidCircle)
+      } else if (mapView.zoom >= 9 && mapView.graphics.items.length > 0 && graphicsLayer.graphics.items.length === 0){
+        
+        const longDashCircle = circle.clone()
+        longDashCircle.symbol.outline.style = "long-dash"
+        // longDashCircle.symbol.outline.visible = false
+        
+        await removeCircleGraphic()
+
+        mapView.graphics.add(longDashCircle)
+      } 
     });
 
 
@@ -829,13 +897,19 @@ const goto = ({ mapPoint, fireInformation }) => {
 
     await removePreviousFireIcon();
 
+    console.log(event)
+
+    mapHitTest(event)
+
+  });
+
+  const mapHitTest = (event) => {
 
     let feature;
     
     mapView.hitTest(event, { include: [firePoints, fireArea, firePerimeter]}).then((hitResponse) => {
       console.log('hitTest')
-    
-
+      console.log(event)
       if(hitResponse.results.length) {
         feature = hitResponse.results.filter((result) => {
           console.log(result)
@@ -845,31 +919,40 @@ const goto = ({ mapPoint, fireInformation }) => {
         const mapPoint = feature.geometry.centroid 
                        ? event.mapPoint 
                        : feature.geometry;
-        
         const hitTestResponse = feature.attributes
 
         console.log(feature)
         console.log(feature.sourceLayer.title)
         feature.sourceLayer.title.includes('Current Incidents')
-        ? (selectedFireInfoQuery({hitTestResponse}), queryHub({ mapPoint }))
-        : (selectedFireInfoQuery({hitTestResponse}), queryHub({ mapPoint }));
-        // Below is a function that will add a fireIcon to the map. Commented out for demo.
-        //  fireGraphic(feature)
+        ? (selectedFireInfoQuery({hitTestResponse}))
+        : (selectedFireInfoQuery({hitTestResponse}));
         
       } else {
         infoItemHeader[0].innerHTML = '';
         infoItemContent[0].innerHTML = '';
         const mapPoint = event.mapPoint;
+        console.log(mapPoint)
         queryHub({ mapPoint });
         newEcoQuery({ mapPoint });
         censusBlockCentroidQuery({ mapPoint });
         addCircleGraphic({mapPoint})
-
+        updateURLParams({mapPoint})
       };
 
     })
+  }
 
-  });
+  const updateURLParams = ({mapPoint, irwinIdNumber}) => {
+    console.log('URL stuff')
+    console.log(mapPoint)
+    
+    // ViewURL.searchParams.set(`@`, `${mapPoint.x}, ${mapPoint.y}`)
+    ViewURL.hash = `@=${mapPoint.longitude.toFixed(3)},${mapPoint.latitude.toFixed(3)},${mapView.zoom <= 8 ? 12 : mapView.zoom},${irwinIdNumber ? irwinIdNumber :'loc'}`
+    console.log(ViewURL)
+    console.log(ViewURL.hash)
+    console.log(document.URL)
+    return window.location.href = ViewURL.hash.toString()
+  }
 
   fireListBtn.addEventListener('click', async () => {
     fireListDisplayToggle(); 
@@ -893,13 +976,13 @@ const goto = ({ mapPoint, fireInformation }) => {
 
   const returnToTopBtnClick = (() => {
     document.querySelector('#return-top-Btn').addEventListener('click', () => {
-      console.log('to the top')
+    
       scrollToTop()
     })
   })()
 
   const scrollToTop = () => {
-    sideBarContainer.scrollTo(0,0)
+    document.querySelector('#infoBar').scrollTo(0,0)
   }
 
   const sideBarToggleView = (() => {
@@ -1018,33 +1101,33 @@ const goto = ({ mapPoint, fireInformation }) => {
 
 //Functions Hub for REST calls 
 //querys called from Map click
-  const queryHub = ({ mapPoint, fireInformation }) => {
+  const queryHub = ({ mapPoint }) => {
       mapPoint ? console.log(mapPoint) : console.log(fireInformation)
 
       mapPoint 
       ? fireListDisplayToggle(mapPoint)
       : fireListDisplayToggle(); 
       
-      goto({ mapPoint, fireInformation });
+      goto({ mapPoint });
 
       
 
         renderWeatherHeader()
         
-      currentDroughtQuery({ mapPoint, fireInformation });
+      currentDroughtQuery({ mapPoint });
 
-      weatherCollection({ mapPoint, fireInformation })
+      weatherCollection({ mapPoint })
         clearWeatherGrid()
 
         
 
 
-      englishSpeakingAdults({ mapPoint, fireInformation });
+      // englishSpeakingAdults({ mapPoint, fireInformation });
 
-      householdsWithVehicle({ mapPoint, fireInformation });
+      // householdsWithVehicle({ mapPoint, fireInformation });
       
 
-      landCoverQuery({ mapPoint, fireInformation });
+      // landCoverQuery({ mapPoint, fireInformation });
 
 
 
@@ -1166,7 +1249,7 @@ const goto = ({ mapPoint, fireInformation }) => {
       
       selectedFireInfoQuery({irwinID}); //collects the selected fires information and ALSO renders it to the sidebar 
 
-      queryHub({ fireInformation });
+      // queryHub({ fireInformation });
       
       });
     });
@@ -1187,6 +1270,7 @@ const goto = ({ mapPoint, fireInformation }) => {
       time: null,
       outFields: ['IrwinID', 'IncidentName', 'ModifiedOnDateTime', 'FireDiscoveryDateTime', 'FireDiscoveryAge ', 'IncidentTypeCategory', 'DailyAcres', 'PercentContained'].join(","),
       returnGeometry: true,
+      outSR: 4326,
       f: 'json'
     };
 
@@ -1202,7 +1286,12 @@ const goto = ({ mapPoint, fireInformation }) => {
         ? response.data.features[0].attributes.IncidentTypeCategory !== "RX"
           ? 'INCIDENT COMPLEX' : 'PERSCRIPTTION BURN'
         : 'WILDFIRE'
-        const mapPoint = response.data.features[0].geometry;
+        const mapPoint = new Point(
+        
+          response.data.features[0].geometry
+        )
+        
+        console.log(mapPoint)
         const fireData = response.data.features[0]
           ? {
               irwinId: response.data.features[0].attributes.IrwinID,
@@ -1225,8 +1314,10 @@ const goto = ({ mapPoint, fireInformation }) => {
           }
           
         setFireContentInfo({ fireData })
+        queryHub({ mapPoint })
         populationAndEcologyPerimeterQuery({ irwinIdNumber,  mapPoint})
         fireGraphic({ fireIconGraphicInfo })
+        updateURLParams({mapPoint, irwinIdNumber})
       })
         .catch((error) => {
           console.log(error)
@@ -1330,58 +1421,9 @@ const goto = ({ mapPoint, fireInformation }) => {
           landCoverDataFormatting({ perimeterLandCover });
           habitatInfoRender({ perimeterEcology })
         }else{
-          
-        //   const consolidatedFirePerimeterData = {
-        //   CritHab: 'None present',
-        //   L3EcoReg: 'No information available',
-        //   LandForm: 'No information available',
-        //   OwnersPadus: 'None present',
-        //   RichClass: 'No information available',
-        //   PctBarren: 0,
-        //   PctCropland: 0,
-        //   PctDevelop: 0,
-        //   PctForest: 0,
-        //   PctGrass: 0,
-        //   PctShrub: 0,
-        //   PctSnowIce: 0,
-        //   PctWater: 0,
-        //   PctWetlands: 0,
-        //   WHPClass: {
-        //     'Very High': 0,
-        //     'High': 0,
-        //     'Moderate': 0,
-        //     'Low': 0,
-        //     'Very Low': 0
-        //   },
-        //   sum_estimated0_14pop: 0,
-        //   sum_estimated15_17pop: 0,
-        //   sum_estimated18to64pop: 0,
-        //   sum_estimated65_79pop: 0,
-        //   sum_estimated65pluspop: 0,
-        //   sum_estimated80pluspop: 0,
-        //   sum_estimatedownerhousingunits: 0,
-        //   sum_estimatedrenterhousingunits: 0,
-        //   sum_estimatedunder18pop: 0,
-        //   sum_estimatedvacanthousingunits: 0,
-        //   sum_estpopinpoverty: 0,
-        //   sum_estpopnoenglish: 0,
-        //   sum_estpopwith0vehicles: 0,
-        //   sum_estpopwithdisability: 0,
-        //   sum_h0010001: 0,
-        //   sum_medincweighted: 0,
-        //   sum_p0010001: 0,
-        //   sum_weightedmedianhomevalue: 0,
-        // }
-
-        // const perimeterPopulation = {
-        //   totalPopulation: NaN,
-        //   percentofPopulationInPoverty: NaN,
-        //   percentofPopulationWithDisability: NaN
-        //   }
-
+        //If there is no return with that IrwinID, then it must be a fire-point. Not a perimeter.
         populationAndEcologyPointHexQuery({ irwinIdNumber, mapPoint })
-        // totalPopulationUIRender({ perimeterPopulation });
-
+        
         }
 
 
@@ -1426,7 +1468,7 @@ const goto = ({ mapPoint, fireInformation }) => {
 
     const params = {
      where: '1=1',
-      geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
+      geometry: fireInformation ? `${fireInformation[0]}` : mapPoint,
       geometryType: 'esriGeometryPoint',      
       inSR: fireInformation ? 4326 : 4326,
       spatialRelationship: 'intersects',
@@ -1452,13 +1494,13 @@ const goto = ({ mapPoint, fireInformation }) => {
           if(droughtCondition === 0) {
             return 'Abnormally dry'
           } else if (droughtCondition === 1){
-              return 'Moderate drought'
+              return 'Moderate'
           } else if (droughtCondition === 2) {
-              return 'Severe drought'
+              return 'Severe'
           } else if (droughtCondition === 3) {
-              return 'Extreme drought'
+              return 'Extreme'
           } else if (droughtCondition === 4) {
-              return ' Exceptional drought'
+              return ' Exceptional'
           } else if (droughtCondition === 'Drought conditions not reported') {
             return 'Not reported'
           }
@@ -1487,7 +1529,7 @@ const goto = ({ mapPoint, fireInformation }) => {
       
       const params = {
         where: '1=1',
-        geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
+        geometry: fireInformation ? `${fireInformation[0]}` : mapPoint,
         geometryType: 'esriGeometryPoint',      
         inSR: 4326,
         spatialRelationship: 'intersects',
@@ -1528,7 +1570,7 @@ const goto = ({ mapPoint, fireInformation }) => {
 
     const params = {
       where: '1=1',
-      geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
+      geometry: fireInformation ? `${fireInformation[0]}` : mapPoint,
       geometryType: 'esriGeometryPoint',      
       inSR: 4326,
       outFields: ['fromdate', 'todate', 'force', 'label'].join(','),
@@ -1646,7 +1688,7 @@ const goto = ({ mapPoint, fireInformation }) => {
 
       const params = {
         where: '1=1',
-        geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
+        geometry: fireInformation ? `${fireInformation[0]}` : mapPoint,
         geometryType: 'esriGeometryPoint',      
         inSR: 4326,
         outFields: 'gridcode',
@@ -1698,7 +1740,7 @@ const goto = ({ mapPoint, fireInformation }) => {
 
       const params = {
         where: '1=1',
-        geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
+        geometry: fireInformation ? `${fireInformation[0]}` : mapPoint,
         geometryType: 'esriGeometryPoint',      
         inSR: 4326,
         outFields: 'gridcode',
@@ -1766,29 +1808,13 @@ const goto = ({ mapPoint, fireInformation }) => {
       .then((response) => {
         console.log(response)
 
-        // const arr = []
-
     if(response.data.features){
       const aggregatedPopulationBlockObject = response.data.features.reduce((a,b) => {
           Object.keys(b.attributes).forEach(key => {
-            // if(key === 'WeightedMedianHomeValue'){
-            //  arr.push(b.attributes[key]) 
-            // }
             a[key] = (a[key] || 0) + b.attributes[key];
         }), 0;
         return a
         },{})
-
-        // arr.sort((a, b) => a-b)
-        // // aggregatedPopulationBlockObject.WeightedMedianHomeValue =
-        
-        //  if(arr.length === 1) {
-        //   aggregatedPopulationBlockObject.WeightedMedianHomeValue = arr[0]
-        // } else if (arr.length % 2 !== 0){
-        //     aggregatedPopulationBlockObject.WeightedMedianHomeValue = (arr[Math.round(((arr.length)/2 +1))] + arr[Math.round(((arr.length)/2))]) / 2
-        // } else {
-        //     aggregatedPopulationBlockObject.WeightedMedianHomeValue = arr[((arr.length)/2)]
-        // };
                   
         console.log(aggregatedPopulationBlockObject)
         
@@ -1837,299 +1863,299 @@ const goto = ({ mapPoint, fireInformation }) => {
    });
   };
 
-  const populationAgeByYear = ({ mapPoint, fireInformation }) => {
+  // const populationAgeByYear = ({ mapPoint, fireInformation }) => {
 
-    const url = 'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/ACS_Total_Population_Boundaries/FeatureServer/2/query'
+  //   const url = 'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/ACS_Total_Population_Boundaries/FeatureServer/2/query'
 
-    const params = {
-      where: '1=1',
-      geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
-      geometryType: 'esriGeometryPoint',      
-      inSR: 4326,
-      outFields: ['B01001_001E', 'B01001_003E', 'B01001_004E', 'B01001_027E', 'B01001_028E', 'B01001_005E', 'B01001_006E', 'B01001_029E', 'B01001_030E', 'B01001_049E', 'B01001_048E', 'B01001_025E', 'B01001_024E', 'B01001_calc_pctLT18E', 'B01001_calc_numLT18E', 'B01001_calc_numGE65E', 'B01001_calc_numGE65E'].join(','),
-      returnGeometry: true,
-      returnQueryGeometry: true,
-      f: 'json'
-    }
+  //   const params = {
+  //     where: '1=1',
+  //     geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
+  //     geometryType: 'esriGeometryPoint',      
+  //     inSR: 4326,
+  //     outFields: ['B01001_001E', 'B01001_003E', 'B01001_004E', 'B01001_027E', 'B01001_028E', 'B01001_005E', 'B01001_006E', 'B01001_029E', 'B01001_030E', 'B01001_049E', 'B01001_048E', 'B01001_025E', 'B01001_024E', 'B01001_calc_pctLT18E', 'B01001_calc_numLT18E', 'B01001_calc_numGE65E', 'B01001_calc_numGE65E'].join(','),
+  //     returnGeometry: true,
+  //     returnQueryGeometry: true,
+  //     f: 'json'
+  //   }
 
-    axios.get(url, {
-      params
-    })
-    .then((response) => {
+  //   axios.get(url, {
+  //     params
+  //   })
+  //   .then((response) => {
 
-      const underFourteenPop = response.data.features[0] 
-      ? response.data.features[0].attributes.B01001_003E + response.data.features[0].attributes.B01001_004E + response.data.features[0].attributes.B01001_005E + response.data.features[0].attributes.B01001_027E + response.data.features[0].attributes.B01001_028E + response.data.features[0].attributes.B01001_029E
-      : 'No information available';
+  //     const underFourteenPop = response.data.features[0] 
+  //     ? response.data.features[0].attributes.B01001_003E + response.data.features[0].attributes.B01001_004E + response.data.features[0].attributes.B01001_005E + response.data.features[0].attributes.B01001_027E + response.data.features[0].attributes.B01001_028E + response.data.features[0].attributes.B01001_029E
+  //     : 'No information available';
 
-      const fifteenToSeventeenPop = response.data.features[0]
-      ? response.data.features[0].attributes.B01001_006E + response.data.features[0].attributes.B01001_030E
-      : 'No information available';
+  //     const fifteenToSeventeenPop = response.data.features[0]
+  //     ? response.data.features[0].attributes.B01001_006E + response.data.features[0].attributes.B01001_030E
+  //     : 'No information available';
 
-      const eightteenToSixtyfourPop = response.data.features[0] 
-      ? response.data.features[0].attributes.B01001_001E -  response.data.features[0].attributes.B01001_calc_numLT18E - response.data.features[0].attributes.B01001_calc_numGE65E
-      : 'No information available';
+  //     const eightteenToSixtyfourPop = response.data.features[0] 
+  //     ? response.data.features[0].attributes.B01001_001E -  response.data.features[0].attributes.B01001_calc_numLT18E - response.data.features[0].attributes.B01001_calc_numGE65E
+  //     : 'No information available';
 
-      const eightyPop = response.data.features[0]
-      ? response.data.features[0].attributes.B01001_024E + response.data.features[0].attributes.B01001_025E + response.data.features[0].attributes.B01001_048E + response.data.features[0].attributes.B01001_049E
-      : 'No information available';
+  //     const eightyPop = response.data.features[0]
+  //     ? response.data.features[0].attributes.B01001_024E + response.data.features[0].attributes.B01001_025E + response.data.features[0].attributes.B01001_048E + response.data.features[0].attributes.B01001_049E
+  //     : 'No information available';
 
-      const sixtyfiveToSeventynine = response.data.features[0]
-      ? response.data.features[0].attributes.B01001_calc_numGE65E - eightyPop
-      : 'No information available';
+  //     const sixtyfiveToSeventynine = response.data.features[0]
+  //     ? response.data.features[0].attributes.B01001_calc_numGE65E - eightyPop
+  //     : 'No information available';
 
-      const censusTract = response.data.features[0]
-      ? response.data.features[0].geometry
-      : 'geometry unavailable'; 
+  //     const censusTract = response.data.features[0]
+  //     ? response.data.features[0].geometry
+  //     : 'geometry unavailable'; 
 
-      const totalPopulation = response.data.features[0] 
-      ? response.data.features[0].attributes.B01001_001E
-      : 'No information available';
+  //     const totalPopulation = response.data.features[0] 
+  //     ? response.data.features[0].attributes.B01001_001E
+  //     : 'No information available';
 
-      const populationData = response.data.features[0] 
-      ? [{'data': underFourteenPop, name: '< 14'}, {'data': fifteenToSeventeenPop, name: '15-17'}, {'data': eightteenToSixtyfourPop, name: '18-64'},{'data': sixtyfiveToSeventynine, 'name': '65-79'},{'data': eightyPop, 'name': '+ 80'}]
-      : null;
+  //     const populationData = response.data.features[0] 
+  //     ? [{'data': underFourteenPop, name: '< 14'}, {'data': fifteenToSeventeenPop, name: '15-17'}, {'data': eightteenToSixtyfourPop, name: '18-64'},{'data': sixtyfiveToSeventynine, 'name': '65-79'},{'data': eightyPop, 'name': '+ 80'}]
+  //     : null;
 
       
       
-     //totalPopulationUIRender({ totalPopulation })
-    })
-    .catch((error) => {
-      console.error(error)
-    })
-  };
+  //    //totalPopulationUIRender({ totalPopulation })
+  //   })
+  //   .catch((error) => {
+  //     console.error(error)
+  //   })
+  // };
 
-  const disabledPopulationQuery = ({ mapPoint, fireInformation }) => {
+  // const disabledPopulationQuery = ({ mapPoint, fireInformation }) => {
 
-  const url = 'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/ACS_Disability_by_Type_Boundaries/FeatureServer/2/query';
+  // const url = 'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/ACS_Disability_by_Type_Boundaries/FeatureServer/2/query';
 
-  const params = {
-     where: '1=1',
-       geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
-      geometryType: 'esriGeometryPoint',      
-      inSR: 4326,
-      outFields: 'C18108_calc_pctDE',
-      returnQueryGeometry: true,
-      f: 'json'
-    }
+  // const params = {
+  //    where: '1=1',
+  //      geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
+  //     geometryType: 'esriGeometryPoint',      
+  //     inSR: 4326,
+  //     outFields: 'C18108_calc_pctDE',
+  //     returnQueryGeometry: true,
+  //     f: 'json'
+  //   }
 
-    axios.get(url, {
-      params
-    })
-      .then((response) => {
-        const disabledPopulation = response.data.features[0]
-        ? `${response.data.features[0].attributes.C18108_calc_pctDE}`
-        : null; 
-        console.log('disabled population:')
-        console.log(disabledPopulation);
-        //disabledPopulationRender(disabledPopulation);
-      })
-      .catch((error) => {
-        console.error(error);
-      })
-  }
+  //   axios.get(url, {
+  //     params
+  //   })
+  //     .then((response) => {
+  //       const disabledPopulation = response.data.features[0]
+  //       ? `${response.data.features[0].attributes.C18108_calc_pctDE}`
+  //       : null; 
+  //       console.log('disabled population:')
+  //       console.log(disabledPopulation);
+  //       //disabledPopulationRender(disabledPopulation);
+  //     })
+  //     .catch((error) => {
+  //       console.error(error);
+  //     })
+  // }
 
-  const povertyPopulationQuery = ({ mapPoint, fireInformation }) => {
+  // const povertyPopulationQuery = ({ mapPoint, fireInformation }) => {
 
-    const url = 'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/ACS_Poverty_by_Age_Boundaries/FeatureServer/2/query';
+  //   const url = 'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/ACS_Poverty_by_Age_Boundaries/FeatureServer/2/query';
 
-    const params = {
-      where: '1=1',
-       geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
-      geometryType: 'esriGeometryPoint',      
-      inSR: 4326,
-      outFields: 'B17020_calc_pctPovE',
-      f:'json'
-    }
+  //   const params = {
+  //     where: '1=1',
+  //      geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
+  //     geometryType: 'esriGeometryPoint',      
+  //     inSR: 4326,
+  //     outFields: 'B17020_calc_pctPovE',
+  //     f:'json'
+  //   }
 
-    axios.get(url, {
-      params
-    })
-      .then((response) => {
-        const povertyPopulation = response.data.features[0]
-        ? `${response.data.features[0].attributes.B17020_calc_pctPovE}`
-        : null;
-        console.log('poverty population')
-        console.log(povertyPopulation)
+  //   axios.get(url, {
+  //     params
+  //   })
+  //     .then((response) => {
+  //       const povertyPopulation = response.data.features[0]
+  //       ? `${response.data.features[0].attributes.B17020_calc_pctPovE}`
+  //       : null;
+  //       console.log('poverty population')
+  //       console.log(povertyPopulation)
 
-        // povertyPopulationRender(povertyPopulation)
-      })
+  //       // povertyPopulationRender(povertyPopulation)
+  //     })
 
-  }
+  // }
 
   
 
-  const englishSpeakingAdults = ({ mapPoint, fireInformation }) => {
+  // const englishSpeakingAdults = ({ mapPoint, fireInformation }) => {
 
-    const url = 'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/ACS_English_Ability_and_Lingusitic_Isolation_Households_Boundaries/FeatureServer/2/query'
+  //   const url = 'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/ACS_English_Ability_and_Lingusitic_Isolation_Households_Boundaries/FeatureServer/2/query'
 
-    const params = {
-      where: '1=1',
-       geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
-      geometryType: 'esriGeometryPoint',      
-      inSR: 4326,
-      outFields: '100 - B16004_calc_pctGE18LEAE',
-      f: 'json'
-    }
+  //   const params = {
+  //     where: '1=1',
+  //      geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
+  //     geometryType: 'esriGeometryPoint',      
+  //     inSR: 4326,
+  //     outFields: '100 - B16004_calc_pctGE18LEAE',
+  //     f: 'json'
+  //   }
 
-    axios.get(url, {
-      params
-    })
-      .then((response) => {
-        const englishSpeakingPopulation = {value: response.data.features[0].attributes.FIELD_EXP_0}
+  //   axios.get(url, {
+  //     params
+  //   })
+  //     .then((response) => {
+  //       const englishSpeakingPopulation = {value: response.data.features[0].attributes.FIELD_EXP_0}
         
         
-      })
-  }
+  //     })
+  // }
 
-  const householdsWithVehicle = ({ mapPoint, fireInformation }) => {
+  // const householdsWithVehicle = ({ mapPoint, fireInformation }) => {
 
-    const url = 'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/ACS_Vehicle_Availability_Boundaries/FeatureServer/2/query';
+  //   const url = 'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/ACS_Vehicle_Availability_Boundaries/FeatureServer/2/query';
 
-    const params = {
-      where: '1=1',
-       geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
-      geometryType: 'esriGeometryPoint',      
-      inSR: 4326,
-      outFields: '100 - B08201_calc_pctNoVehE',
-      f: 'json'
-    }
+  //   const params = {
+  //     where: '1=1',
+  //      geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
+  //     geometryType: 'esriGeometryPoint',      
+  //     inSR: 4326,
+  //     outFields: '100 - B08201_calc_pctNoVehE',
+  //     f: 'json'
+  //   }
 
-    axios.get(url, {
-      params
-    })
-      .then((response) => {
-        const concentrationOfVehicles = response.data.features[0].attributes.FIELD_EXP_0
-        console.log(`Households with a vehicle: ${response.data.features[0].attributes.FIELD_EXP_0}%`)
+  //   axios.get(url, {
+  //     params
+  //   })
+  //     .then((response) => {
+  //       const concentrationOfVehicles = response.data.features[0].attributes.FIELD_EXP_0
+  //       console.log(`Households with a vehicle: ${response.data.features[0].attributes.FIELD_EXP_0}%`)
         
-      })
-  }
+  //     })
+  // }
 
-  const landCoverQuery = ({ mapPoint, fireInformation }) => {
-    console.log('landCover Called')
+  // const landCoverQuery = ({ mapPoint, fireInformation }) => {
+  //   console.log('landCover Called')
     
-    const url = 'https://services.arcgis.com/jIL9msH9OI208GCb/ArcGIS/rest/services/Nlcd_Simplified_By_Census_Tract_220412a/FeatureServer/0/query'
+  //   const url = 'https://services.arcgis.com/jIL9msH9OI208GCb/ArcGIS/rest/services/Nlcd_Simplified_By_Census_Tract_220412a/FeatureServer/0/query'
 
-    const params = {
-      where: '1=1',
-      geometry: fireInformation ? `${fireInformation[0]}` : mapPoint,
-      geometryType: 'esriGeometryPoint',
-      inSR: 4326,
-      outFields: ['PctWater', 'PctSnowIce', 'PctDeveloped', 'PctBarren', 'PctForest', 'PctShrubScrub', 'PctGrassHerb', 'PctCropPasture', 'PctWetlands'].join(','),
-      f:'json',
-    }
+  //   const params = {
+  //     where: '1=1',
+  //     geometry: fireInformation ? `${fireInformation[0]}` : mapPoint,
+  //     geometryType: 'esriGeometryPoint',
+  //     inSR: 4326,
+  //     outFields: ['PctWater', 'PctSnowIce', 'PctDeveloped', 'PctBarren', 'PctForest', 'PctShrubScrub', 'PctGrassHerb', 'PctCropPasture', 'PctWetlands'].join(','),
+  //     f:'json',
+  //   }
 
-    axios.get(url, {
-      params
-    })
-      .then((response) => {
-        console.log(response)
-        const landCoverPercentage = response.data.features[0].attributes
-        console.log('Land Cover')
-        console.log(landCoverPercentage)
-        //landCoverDataFormatting({ landCoverPercentage })
-      })
-  }
+  //   axios.get(url, {
+  //     params
+  //   })
+  //     .then((response) => {
+  //       console.log(response)
+  //       const landCoverPercentage = response.data.features[0].attributes
+  //       console.log('Land Cover')
+  //       console.log(landCoverPercentage)
+  //       //landCoverDataFormatting({ landCoverPercentage })
+  //     })
+  // }
 
-  const ecoregionQuery = ({ mapPoint, fireInformation }) => {
+  // const ecoregionQuery = ({ mapPoint, fireInformation }) => {
 
-    const url = 'https://services2.arcgis.com/FiaPA4ga0iQKduv3/ArcGIS/rest/services/EPA_Level_III_Ecoregions/FeatureServer/0/query'
+  //   const url = 'https://services2.arcgis.com/FiaPA4ga0iQKduv3/ArcGIS/rest/services/EPA_Level_III_Ecoregions/FeatureServer/0/query'
 
-    const params = {
-      where: '1=1',
-       geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
-      geometryType: 'esriGeometryPoint',      
-      inSR: 4326,
-      outFields: 'NA_L3NAME',
-      f: 'json'
-    }
+  //   const params = {
+  //     where: '1=1',
+  //      geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
+  //     geometryType: 'esriGeometryPoint',      
+  //     inSR: 4326,
+  //     outFields: 'NA_L3NAME',
+  //     f: 'json'
+  //   }
 
-    axios.get(url, {
-      params
-    })
-      .then((response) => {
-        console.log(`Ecoregion: ${response.data.features[0].attributes.NA_L3NAME}`)
-      })
-  }
+  //   axios.get(url, {
+  //     params
+  //   })
+  //     .then((response) => {
+  //       console.log(`Ecoregion: ${response.data.features[0].attributes.NA_L3NAME}`)
+  //     })
+  // }
 
-  const criticalHabitatQuery = ({ mapPoint, fireInformation }) => {
+  // const criticalHabitatQuery = ({ mapPoint, fireInformation }) => {
 
-    const url = 'https://services.arcgis.com/jIL9msH9OI208GCb/ArcGIS/rest/services/Environmental_Information_by_Tract/FeatureServer/0/query?'
+  //   const url = 'https://services.arcgis.com/jIL9msH9OI208GCb/ArcGIS/rest/services/Environmental_Information_by_Tract/FeatureServer/0/query?'
 
-    const params = {
-      where: '1=1',
-      geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
-      geometryType: 'esriGeometryPoint',      
-      inSR: 4326,
-      outFields: '*',
-      f: 'json'
-    }
+  //   const params = {
+  //     where: '1=1',
+  //     geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
+  //     geometryType: 'esriGeometryPoint',      
+  //     inSR: 4326,
+  //     outFields: '*',
+  //     f: 'json'
+  //   }
 
-    axios.get(url, {
-      params
-    })
-      .then((response) => {
+  //   axios.get(url, {
+  //     params
+  //   })
+  //     .then((response) => {
         
-        const uneditedProtectedLandsList = response.data.features[0].attributes.OwnersPadus
-                                        ? response.data.features[0].attributes.OwnersPadus.split(', ')
-                                        : 'None present';
+  //       const uneditedProtectedLandsList = response.data.features[0].attributes.OwnersPadus
+  //                                       ? response.data.features[0].attributes.OwnersPadus.split(', ')
+  //                                       : 'None present';
 
-          uneditedProtectedLandsList[0] === uneditedProtectedLandsList[1]
-          ? uneditedProtectedLandsList.shift()
-          : null;
+  //         uneditedProtectedLandsList[0] === uneditedProtectedLandsList[1]
+  //         ? uneditedProtectedLandsList.shift()
+  //         : null;
 
        
-        const editedCritList = response.data.features[0].attributes.CritHab.replace(/ *\([^)]*\) */g, " ")
+  //       const editedCritList = response.data.features[0].attributes.CritHab.replace(/ *\([^)]*\) */g, " ")
 
-        const habitatDetails = {
-          bioDiversity: response.data.features[0].attributes.RichClass,
-          ecoregion: response.data.features[0].attributes.L3EcoReg
-                   ? response.data.features[0].attributes.L3EcoReg
-                   : 'No information available',
-          landformType: response.data.features[0].attributes.LandForm
-                      ? response.data.features[0].attributes.LandForm
-                      : 'No information available',
-          criticalHabitat: response.data.features[0].attributes.CritHab
-                         ? editedCritList
-                         : 'None present',
-          protectedAreas: typeof(uneditedProtectedLandsList ) === "object"
-                          ? uneditedProtectedLandsList.join(', ')
-                          : 'None present',
-          tractRanking: response.data.features[0].attributes.RichRank,
-          totalTracts: response.data.features[0].attributes.TotalTracts,
-          state: response.data.features[0].attributes.State.toUpperCase()
-        }
-        console.log(habitatDetails)
-        habitatInfoRender({ habitatDetails })
-      })
-      .catch((error) => {
-        console.error(error)
-      })
-  }
+  //       const habitatDetails = {
+  //         bioDiversity: response.data.features[0].attributes.RichClass,
+  //         ecoregion: response.data.features[0].attributes.L3EcoReg
+  //                  ? response.data.features[0].attributes.L3EcoReg
+  //                  : 'No information available',
+  //         landformType: response.data.features[0].attributes.LandForm
+  //                     ? response.data.features[0].attributes.LandForm
+  //                     : 'No information available',
+  //         criticalHabitat: response.data.features[0].attributes.CritHab
+  //                        ? editedCritList
+  //                        : 'None present',
+  //         protectedAreas: typeof(uneditedProtectedLandsList ) === "object"
+  //                         ? uneditedProtectedLandsList.join(', ')
+  //                         : 'None present',
+  //         tractRanking: response.data.features[0].attributes.RichRank,
+  //         totalTracts: response.data.features[0].attributes.TotalTracts,
+  //         state: response.data.features[0].attributes.State.toUpperCase()
+  //       }
+  //       console.log(habitatDetails)
+  //       habitatInfoRender({ habitatDetails })
+  //     })
+  //     .catch((error) => {
+  //       console.error(error)
+  //     })
+  // }
 
-  const fireRiskQuery = ({ mapPoint, fireInformation }) => {
-    fireInformation ? console.log(fireInformation) : console.log(mapPoint)
+  // const fireRiskQuery = ({ mapPoint, fireInformation }) => {
+  //   fireInformation ? console.log(fireInformation) : console.log(mapPoint)
 
-    const url = 'https://services.arcgis.com/XG15cJAlne2vxtgt/ArcGIS/rest/services/National_Risk_Index_Census_Tracts/FeatureServer/0/query'
+  //   const url = 'https://services.arcgis.com/XG15cJAlne2vxtgt/ArcGIS/rest/services/National_Risk_Index_Census_Tracts/FeatureServer/0/query'
 
-    const params = {
-      where: '1=1',
-      geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
-      geometryType: 'esriGeometryPoint',      
-      inSR: 4326,
-      outFields: ['STATE','WFIR_RISKR'].join(','),
-      f: 'json'
-    }
+  //   const params = {
+  //     where: '1=1',
+  //     geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
+  //     geometryType: 'esriGeometryPoint',      
+  //     inSR: 4326,
+  //     outFields: ['STATE','WFIR_RISKR'].join(','),
+  //     f: 'json'
+  //   }
 
-    axios.get(url, {
-      params
-    })
-      .then((response) => {
-        console.log(response.data.features[0])
-        const fireRiskRating = response.data.features[0].attributes.WFIR_RISKR
-        console.log(fireRiskRating)
-        renderRisk(fireRiskRating)
-      })
-  }
+  //   axios.get(url, {
+  //     params
+  //   })
+  //     .then((response) => {
+  //       console.log(response.data.features[0])
+  //       const fireRiskRating = response.data.features[0].attributes.WFIR_RISKR
+  //       console.log(fireRiskRating)
+  //       renderRisk(fireRiskRating)
+  //     })
+  // }
 
 //NEW ECO QUERY
   const newEcoQuery = ({ mapPoint, fireInformation }) => {
@@ -2218,7 +2244,7 @@ const goto = ({ mapPoint, fireInformation }) => {
 
           //Creating an object of ForestType entries and their 'count' value from an array 
         aggragateEcoObj.ForestTypeGroup
-        ? aggragateEcoObj.ForestTypeGroup = aggragateEcoObj.ForestTypeGroup.split(', ').filter(entry => !entry.includes(undefined) && !entry.includes(null)).reduce((ForestTypeGroupObj, ForestTypeGroupItem) => {
+        ? aggragateEcoObj.ForestTypeGroup = aggragateEcoObj.ForestTypeGroup.split(',').filter(entry => !entry.includes(undefined) && !entry.includes(null)).reduce((ForestTypeGroupObj, ForestTypeGroupItem) => {
             !ForestTypeGroupObj[ForestTypeGroupItem] 
             ? ForestTypeGroupObj[ForestTypeGroupItem] = 1 
             : ForestTypeGroupObj[ForestTypeGroupItem]++
@@ -2712,7 +2738,7 @@ const containmentBar =  (containment) => {
       .attr("dx", "1.5em")
       .attr("x", (range/2))
       .attr('text-anchor', 'end')
-      .style('fill', 'white')
+      .style('fill', `${barText.length > 6 ? '#07698C' : 'white'}`)
       .style('font-weight', 'bold')
     .text(barText);
     
@@ -2788,7 +2814,7 @@ const containmentBar =  (containment) => {
       .attr("dx", "1.5em")
       .attr("x", (range/2))
       .attr('text-anchor', 'end')
-      .style('fill', 'white')
+      .style('fill', `${barText.length > 6 ? '#07698C' : 'white'}`)
       .style('font-weight', 'bold')
     .text(barText);
 
@@ -2921,7 +2947,7 @@ const containmentBar =  (containment) => {
             .attr('class', 'riskPercent')
             .attr('x', (d) => (d.value)*195)
             .attr('y', (d, i) => yScale(d.name, i))
-            .attr('fill', '#a5927c')
+            .attr('fill', '#EFEFEF')
             .style('font-weight', '600')
           .text(d => (d.value > 0 ? `${Math.round(d.value*100)}%` : '0%'))
   }
@@ -3329,6 +3355,26 @@ const containmentBar =  (containment) => {
         return 'None present'
       }
     })();
+
+    const forestGroup = (() => {
+      if(aggragateEcoObj){
+        return typeof(aggragateEcoObj.ForestTypeGroup) !== "string" ? aggragateEcoObj.ForestTypeGroup[0][0] : aggragateEcoObj.ForestTypeGroup;
+      } else if(perimeterEcology){
+        return perimeterEcology.ForestTypeGroup
+      } else {
+        return 'No data'
+      }
+    })();
+
+    const potentialCarbon = (() => {
+      if(aggragateEcoObj){
+        return aggragateEcoObj.SumCarbon
+      } else if(perimeterEcology){
+        return perimeterEcology.SumCarbon  
+      } else {
+        return 'None present'
+      }
+    })();
     
       document.querySelector('#ecoregion').innerHTML = `
      <div>
@@ -3410,7 +3456,7 @@ const containmentBar =  (containment) => {
       <div>
         <p style = "margin-bottom: 2px;">PREDOMINANT FOREST TYPE GROUPS</p>
         <div class = "ecoregionInformation">
-          <h4 class = "bold">Forest information would go here. This is place holder.</h4>
+          <h4 class = "bold">${forestGroup}</h4>
         </div>
       </div>
       `;
@@ -3420,7 +3466,7 @@ const containmentBar =  (containment) => {
         <p style = "margin-bottom: 2px;">POTENTIAL CARBON LOSS</p>
         <div class = "ecoregionInformation">
           <div style = "position: relative;">            
-            <h4 class = "bold">XXX,XXX tons</h4>
+            <h4 class = "bold">${potentialCarbon.toLocaleString()} tons</h4>
             </div>
           </div>
           

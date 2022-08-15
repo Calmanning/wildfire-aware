@@ -42,7 +42,7 @@ img {
 }
 
 #infoBar {
-  width: 410px;
+  width: 416px;
   height: 100%;
   padding: 0.5rem 1rem;
   overflow: hidden auto;
@@ -234,7 +234,7 @@ img {
 }
 
 .sectionSubHeader {
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   margin-top: -5px;
 }
 
