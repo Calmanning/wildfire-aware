@@ -85,7 +85,7 @@ require([
 
   const mapView = new MapView({
     container: "viewDiv",
-    map: webmap,
+    // map: webmap,
     spatialReference: 102100,
     popup: {
       popup: null,
@@ -96,8 +96,18 @@ require([
   const graphicsLayer = new GraphicsLayer({
     graphics:[]
   })
-  webmap.add(graphicsLayer);
-  webmap.layers.reorder(graphicsLayer, 11)
+
+  webmap.load()
+    .then(() => {
+      webmap.basemap.load();
+    })
+    .then(() => {
+      mapView.map = webmap;
+    })
+    .catch((error) => {
+      console.log(error)
+    })
+  
 
 //WIDGETS
   const searchWidget = new Search({
@@ -106,35 +116,35 @@ require([
     popupEnabled: false,
     container: searchWidgetContainer
   });
-  mapView.ui.add(searchWidget, "top-left");
 
   const homeWidget = new Home({
   view: mapView,
   container: homeContainer
   });
-  mapView.ui.add(homeWidget, "top-left");
 
   homeWidget.goToOverride = () => {
-  window.location.hash = ""
+  resetURLParams()
   return mapView.goTo({ 
                       zoom: 5,
                       center: [260, 39]
                     });
-};
-
+  };
+  
   const scaleBar = new ScaleBar({
     view: mapView
   });
 
-  mapView.ui.add(scaleBar, {
-  position: "bottom-right"
-  });
+const resetURLParams = () => {
+  window.location.hash = ""
+}
 
 //ON MAP LOAD
   const loadMapview = (() => {
     mapView.when()
       .then(() => {
         console.log('mapView loaded')
+      })
+      .then(() => {
 
         firePoints = webmap.allLayers.find((layer) => {
           return layer.title === 'Current Incidents'
@@ -202,13 +212,21 @@ require([
 
       })
       .then(() => {
+      //ADD WIDGETS
+        mapView.ui.add(searchWidget, "top-left");
+        mapView.ui.add(homeWidget, "top-left");
+        mapView.ui.add(scaleBar, {position: "bottom-right"});
+        webmap.add(graphicsLayer);
+
+      })
+      .then(() => {
       //setting up view -- if url-information is relevant have the view reflect that information, otherwise set center on continental US.
-        console.log(window.location)  
-      if(window.location.hash){
-          const newDefaultLocation = window.location.hash.substring(3)
-          parseURLHash({newDefaultLocation})
-          return
-        }
+          console.log(window.location)  
+        if(window.location.hash){
+            const newDefaultLocation = window.location.hash.substring(3)
+            parseURLHash({newDefaultLocation})
+            return
+          } 
         initialMapExtent()
 
       })
@@ -221,8 +239,8 @@ require([
       .catch((error) => {
         console.error(error)
       })
-  })();
 
+  })();
 
   const addLayerList = (event) => {   
     layerList.style.display === 'none'
@@ -959,6 +977,7 @@ const goto = async ({ mapPoint }) => {
     
     await removeCircleGraphic()
     
+    resetURLParams()
     resetFireList();
     removePreviousFireIcon();
     sideBarInformation.style.display = 'none'
@@ -1002,6 +1021,7 @@ const goto = async ({ mapPoint }) => {
 
   //Different Ways to sort the fire list
   const sortingOptions = ({ dateSorted, wildFires }) => {
+    console.log(wildFires)
     dateSortedList = dateSorted
 
     let sortingAcrage = [];
@@ -1022,9 +1042,18 @@ const goto = async ({ mapPoint }) => {
       
       let acreSorted = []
       acreSorted = sortingAcrage.sort((a,b) => {
-        let fireAcres = b.acreSorting - a.acreSorting ;
+        let fireAcres = b.acreSorting - a.acreSorting;
         return  fireAcres
       });
+
+      let significanceSorted = [];
+      significanceSorted = wildFires.sort((a,b) => {
+        const personnelAssigned = b.attributes.TotalIncidentPersonnel - a.attributes.TotalIncidentPersonnel;
+        return personnelAssigned
+      })
+      significanceSorted.map((fire) => {
+        console.log(fire.attributes.TotalIncidentPersonnel)
+      })
 
     const sorting = document.querySelectorAll('.sortClass')
     
@@ -1161,7 +1190,8 @@ const goto = async ({ mapPoint }) => {
               'FireDiscoveryAge', 
               'IncidentTypeCategory', 
               'DailyAcres', 
-              'PercentContained'
+              'PercentContained',
+              'TotalIncidentPersonnel' 
             ].join(','),
             f:'json'
       }
@@ -2429,6 +2459,7 @@ const renderLandCoverGraph = (landCoverArray) => {
     .append('div')
       .attr('id', 'landcover-graph')
     .append('div')
+      .style('position', 'relative')
     .append('svg')
       .attr('height', 200)
       .attr('width',  320)
@@ -2436,7 +2467,19 @@ const renderLandCoverGraph = (landCoverArray) => {
       .style('margin', '20px auto')
       .attr('id', 'landcover-svg');
 
+  const svgBackground = d3.select('#landcover-graph div')
+    .insert('div','svg')
+    .style('position', 'absolute')
+    .style('top', '13%')
+    .style('left', '28%')
+    .style('width', '150px')
+    .style('height', '150px')
+    .style('border-radius', '50%')
+    .style('background-color', 'rgb(17, 54, 81)')
+    .style('z-index', -1);
+
   svg;
+  svgBackground;
 
   const landcoverSVG = d3.select('#landcover-svg'),
         width = landcoverSVG.attr("width"),
@@ -2487,9 +2530,7 @@ const renderLandCoverGraph = (landCoverArray) => {
             text.select('.landcover').remove()
           });
 
-        const bgColor = landcoverSVG.append('g')
-                      .attr('transform', `translate(${width / 2}, ${height / 2})`)
-                      .attr('fill', 'blue');
+        
 };
 
 //FIRE CONTAINMENT 
@@ -2641,7 +2682,7 @@ const containmentBar =  (containment) => {
           .attr('dx', `${d.data < 10 ? '0.7em' :'0.25em'}`)
           .attr('transform', `translate(${d.data > 999 ? -6 : 0}, 0)`)
           .attr('fill', '#ffb600')
-          .style('font-weight', '600')
+          .style('font-weight', 'bold')
         .text(d.data.toLocaleString())
       })
       .on('mouseout', () => {
@@ -2948,7 +2989,7 @@ const containmentBar =  (containment) => {
             .attr('x', (d) => (d.value)*195)
             .attr('y', (d, i) => yScale(d.name, i))
             .attr('fill', '#EFEFEF')
-            .style('font-weight', '600')
+            .style('font-weight', 'bold')
           .text(d => (d.value > 0 ? `${Math.round(d.value*100)}%` : '0%'))
   }
 

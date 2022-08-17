@@ -153,7 +153,7 @@ img {
   color: #ffffff;
   white-space: nowrap;
   padding: 0 7px;
-  font-weight: 600;
+  font-weight: bold;
 }
 
 #viewDiv .esri-scale-bar__line--bottom:before{
@@ -185,7 +185,7 @@ img {
   width: 160px;
   margin-left: 20px;
   margin-bottom: 17px;
-  font-weight: 900;
+  font-weight:bolder;
   border: none;
 }
 /* GRAPH & SVG */
@@ -207,7 +207,7 @@ img {
   margin-bottom: 15px;
   font-size: 0.9375rem;
   color: #6aa067;
-  font-weight: 500;
+  font-weight: bold;
 }
 
 .divider {
@@ -240,7 +240,7 @@ img {
 
 .bold {
   font-family: Avenir Next LT Pro;
-  font-weight: 600;
+  font-weight: bold;
   color: #ffba1f;
   display: inline;
 }
