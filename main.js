@@ -38,7 +38,10 @@ require([
   const fireListItem  = document.getElementsByClassName('fire-item');
   
   
-  let dateSortedList = [];
+  //FireList variables
+  const dateSortedList = [];
+  let personnelSorted = [];
+  const sorting = document.querySelectorAll('.sortClass')
   
   //Layer list and associated elements
   const layerList = document.querySelector('#layers');
@@ -61,7 +64,7 @@ require([
   const censusPointsCheckbox = document.querySelector('#census-points');
   const censusPointLegend = document.querySelector('#population-points-legend');
 
-  //NOTE: Change this. Take the variable names and create function using the layer declaration from the when() instance. See if that's doable.
+  
   let firePoints = {};
   let fireArea = {};
   let firePerimeter = {};
@@ -493,8 +496,6 @@ const resetURLParams = () => {
   }
 
   const parseURLHash  = async ({newDefaultLocation}) => {
-    console.log('time to make some hash.')
-    
     
     const URLLocationParams = newDefaultLocation.split(',')
     console.log(URLLocationParams)
@@ -579,24 +580,28 @@ const circle = new Graphic({
 //RENDER CENSUS SELECTED TRACT
 
   const fireGraphic = async ({fireIconGraphicInfo, fireInformation}) => {
-
+    console.log(fireIconGraphicInfo ? 'fire object' : 'array with coordinates')
+    console.log(fireIconGraphicInfo || fireInformation)
     const fireLocation = fireInformation 
                          ? fireInformation[0].split(',')
                          : fireIconGraphicInfo.geometry;
+console.log(fireLocation)                         
                          
     const fireType = fireInformation
                    ? fireInformation[2]
                    : fireIconGraphicInfo.attributes.incidentType;
 
-    const fireSize = fireInformation    
-                   ? fireInformation[3]
-                   : fireIconGraphicInfo.attributes.DailyAcres;
-
+    const firePersonnelSize = fireInformation    
+                   ? fireInformation[3].split(' ')[0]
+                   : fireIconGraphicInfo.attributes.TotalIncidentPersonnel;
+console.log(firePersonnelSize)                   
+await removePreviousFireIcon()
+setTimeout(() => {
     const fireIconGraphic =  new Graphic ({
       geometry: {
         type: 'point',
-        x: fireLocation.x || fireLocation[0],
-        y: fireLocation.y || fireLocation[1],
+        x: fireLocation.x || +fireLocation[0],
+        y: fireLocation.y || +fireLocation[1],
       },
       symbol: {
       type: "simple-marker",
@@ -609,24 +614,27 @@ const circle = new Graphic({
       }
   });
 
-  await removePreviousFireIcon()
-
-    if(fireType !== 'RX' || 'PERSCRIPTTION BURN') {
-      fireIconGraphic.symbol.size = 30
-        if(fireSize > 50000){
+  
+  // if(fireType !== 'RX' || 'PERSCRIPTTION BURN') {
+  //     fireIconGraphic.symbol.size = 30
+      if(firePersonnelSize > 500){
           fireIconGraphic.symbol.size = 40
-        } else if (fireSize < 5000 || fireSize === 'Unreported'){
-          fireIconGraphic.symbol.size = 22
-        } 
-    }
-     
+        } else if (firePersonnelSize < 500){
+          fireIconGraphic.symbol.size = 30
+        } else if (firePersonnelSize < 50 || NaN){
+          fireIconGraphic.symbol.size = 17
+        }
+    // }
+    
     webmap.layers.reorder(graphicsLayer, 12)
     graphicsLayer.graphics.push(fireIconGraphic);
     console.log(graphicsLayer)
+  },0.1)
     
   }
   
   const removePreviousFireIcon = async () => {
+    console.log('remove grphic called')
     graphicsLayer.graphics
     ? graphicsLayer.graphics.pop()
     : null;
@@ -672,7 +680,10 @@ const goto = async ({ mapPoint }) => {
 //List of fires in dropdown
   const formatActiveFires = (sortedFireList) => {
     // console.log(sortedFireList)
-    
+  
+  // const personnelSubheader =  while(sorting[0].style.textDecoration){
+  //   return 'personnel'
+  // }
 
   const fires = sortedFireList.map(fire => {
     
@@ -686,8 +697,11 @@ const goto = async ({ mapPoint }) => {
               ? fire[0].attributes.IrwinID
               : fire.attributes.IrwinID,
       fireAcres: fire[0]
-              ? fire[0].attributes.DailyAcres
-              : fire.attributes.DailyAcres,
+              ? `${fire[0].attributes.DailyAcres.toLocaleString()} acres`
+              : `${fire.attributes.DailyAcres.toLocaleString()} acres`,
+      firePersonnel: fire[0]
+              ? fire[0].attributes.TotalIncidentPersonnel
+              : fire.attributes.TotalIncidentPersonnel,
       fireLocation: fire[0]
               ? [fire[0].geometry.x, fire[0].geometry.y]
               : [fire.geometry.x, fire.geometry.y],
@@ -695,13 +709,16 @@ const goto = async ({ mapPoint }) => {
               ? fire[0].attributes.IncidentTypeCategory
               : fire.attributes.IncidentTypeCategory,
     }
+
+    // const acreSubheader = `{fireListItem.fireAcres.toLocaleString()} acres`;
+    // const personnelSubheader = `{fireListItem.firePersonnel.toLocaleString()} personnel`
     
     return  (
       `
-      <div class = "fire-item padding-left-2" style = "margin-bottom: 15px; cursor: pointer;" value="${fireListItem.fireLocation}, ${fireListItem.fireId}, ${fireListItem.fireType}, ${fireListItem.fireAcres}" > 
-        <h5 style ="font-weight: bold; margin-bottom: -4px; color: #ffb600; line-height: 21px;" value="${fireListItem.fireLocation}, ${fireListItem.fireId}, ${fireListItem.fireType}, ${fireListItem.fireAcres}">${fireListItem.fireName} </h5>
+      <div class = "fire-item padding-left-2" style = "margin-bottom: 15px; cursor: pointer;" value="${fireListItem.fireLocation}, ${fireListItem.fireId}, ${fireListItem.fireType}, ${fireListItem.firePersonnel}" > 
+        <h5 style ="font-weight: bold; margin-bottom: -4px; color: #ffb600; line-height: 21px;" value="${fireListItem.fireLocation}, ${fireListItem.fireId}, ${fireListItem.fireType}, ${fireListItem.firePersonnel}">${fireListItem.fireName} </h5>
         
-        <p value="${fireListItem.fireLocation}, ${fireListItem.fireId}, ${fireListItem.fireType}, ${fireListItem.fireAcres}">${fireListItem.fireAcres.toLocaleString()} acres</p>
+        <p value="${fireListItem.fireLocation}, ${fireListItem.fireId}, ${fireListItem.fireType}, ${fireListItem.firePersonnel}">${sorting[0].style.textDecoration ? fireListItem.firePersonnel : fireListItem.fireAcres}</p>
         
       </div>
       `
@@ -714,8 +731,8 @@ const goto = async ({ mapPoint }) => {
 
   document.getElementById('fire-list').innerHTML = [...fires].join("");
 
-    fireListItemClickEvent() 
-    fireItemHoverHighlight()     
+    // fireListItemClickEvent() 
+    fireItemEvents()     
     // fireDateEdit()
 };
 
@@ -734,6 +751,8 @@ const goto = async ({ mapPoint }) => {
     const fireName = fireData.incidentName.toUpperCase();
 
     const fireAcres = fireData.dailyAcres;
+
+    const firePersonnel = fireData.personnelAssigned.toLocaleString()
     
     const fireType = fireData.incidentType;
     
@@ -776,6 +795,9 @@ const goto = async ({ mapPoint }) => {
           <div>
             <div class = "trailer-0 " style= "margin-top: 10px;"> 
               <span style = "vertical-align: 2px; margin: 0 5px 0px 103px"> DAY </span> <h4 class = "bold trailer-0" style = "white-space: nowrap;"> ${window.screen.width > 700 ? fireAge : '< 24 hours'}</h4>
+            </div>
+            <div class = "trailer-0 " style= "margin-top: 10px;"> 
+              <span style = "vertical-align: 2px; margin: 0 5px 0px 45px;"> PERSONNEL </span> <h4 class = "bold trailer-0" style = "white-space: nowrap;"> ${firePersonnel}</h4>
             </div>
             <div class = "trailer-0" style = "margin: 5px auto;">
               <span style = "vertical-align: text-bottom; margin: 0 5px 0px 5px"> REPORTED ACRES </span> <h4 class = "bold trailer-0"> ${fireAcres ? fireAcres.toLocaleString() : 'Not reported'}</h4>
@@ -976,20 +998,18 @@ const goto = async ({ mapPoint }) => {
     fireListDisplayToggle(); 
     
     await removeCircleGraphic()
+    await removePreviousFireIcon();
     
     resetURLParams()
     resetFireList();
-    removePreviousFireIcon();
     sideBarInformation.style.display = 'none'
   })
 
   const fireListDisplayToggle = (mapPoint) => {
-    console.log(mapPoint)
-    console.log(fireListEl.style.display)
+    
     fireListEl.style.display === 'initial' || (mapPoint && fireListEl.style.display)
     ? (fireListEl.style.display = 'none', fireListBtn.style.display = 'initial', sideBarInformation.style.display = 'initial', scrollToTop(), fireListSorting.style.display = 'none')
     : (fireListEl.style.display = 'initial', fireListBtn.style.display = 'none', sideBarInformation.style.display = 'none', fireListSorting.style.display = 'initial');
-    console.log(fireListBtn.style.display)
     
   }
 
@@ -1021,8 +1041,9 @@ const goto = async ({ mapPoint }) => {
 
   //Different Ways to sort the fire list
   const sortingOptions = ({ dateSorted, wildFires }) => {
+    const wildFiresToSort = wildFires
     console.log(wildFires)
-    dateSortedList = dateSorted
+    dateSortedList.push(dateSorted)
 
     let sortingAcrage = [];
     [...sortingAcrage] = wildFires.map(fire => (
@@ -1033,53 +1054,55 @@ const goto = async ({ mapPoint }) => {
       
       ))
       
-      let nameSorted = []
-      nameSorted = wildFires.sort((a,b) => {
-        let fireNames = a.attributes.IncidentName.localeCompare(b.attributes.IncidentName.trim());
+      let nameSorted = [...wildFiresToSort]
+      nameSorted = nameSorted.sort((a,b) => {
+        let fireNames = a.attributes.IncidentName.trim().localeCompare(b.attributes.IncidentName.trim());
         return fireNames
       });
       
       
-      let acreSorted = []
+      let acreSorted = [...wildFiresToSort]
       acreSorted = sortingAcrage.sort((a,b) => {
         let fireAcres = b.acreSorting - a.acreSorting;
         return  fireAcres
       });
 
-      let significanceSorted = [];
-      significanceSorted = wildFires.sort((a,b) => {
+      personnelSorted = [...wildFiresToSort];
+      personnelSorted = wildFiresToSort.sort((a,b) => {
         const personnelAssigned = b.attributes.TotalIncidentPersonnel - a.attributes.TotalIncidentPersonnel;
         return personnelAssigned
       })
-      significanceSorted.map((fire) => {
-        console.log(fire.attributes.TotalIncidentPersonnel)
+      personnelSorted.map((personnelFire) => {
+        personnelFire.attributes.TotalIncidentPersonnel = !personnelFire.attributes.TotalIncidentPersonnel || null ? 'Not reported' : `${personnelFire.attributes.TotalIncidentPersonnel.toLocaleString()} personnel`;
+        console.log(personnelFire.attributes.TotalIncidentPersonnel)
       })
-
-    const sorting = document.querySelectorAll('.sortClass')
     
     sorting.forEach((sortCategory) => {
-      
-      if(sortCategory.innerText.includes('DATE') && sortCategory.style.textDecoration){
+      if(sortCategory.innerText.includes('PERSONNEL') && sortCategory.style.textDecoration){
+          formatActiveFires(personnelSorted)
+          formatFirstFireItem()
+      }else if(sortCategory.innerText.includes('DATE') && sortCategory.style.textDecoration){
           formatActiveFires(dateSorted)
-        } else if (sortCategory.innerText.includes('NAME') && sortCategory.style.textDecoration){
+      } else if (sortCategory.innerText.includes('NAME') && sortCategory.style.textDecoration){
             formatActiveFires(nameSorted)
             formatFirstFireItem()
-        } else if (sortCategory.innerText.includes('SIZE') && sortCategory.style.textDecoration){
+      } else if (sortCategory.innerText.includes('SIZE') && sortCategory.style.textDecoration){
             formatActiveFires(acreSorted)
             formatFirstFireItem()
         }
     })
 
-    renderFireListClickEvent({ sorting, dateSorted, nameSorted, acreSorted })
+    renderFireListClickEvent({personnelSorted, dateSorted, nameSorted, acreSorted })
 
   }
 
   //click event to re-render list in new order
-  const renderFireListClickEvent = ({ sorting, dateSorted, nameSorted, acreSorted }) => {
+  const renderFireListClickEvent = ({personnelSorted, dateSorted, nameSorted, acreSorted }) => {
       
     sorting.forEach((sortCategory) => {
       sortCategory.addEventListener('click', (event) => {
         console.log(event)
+        console.log(event.target.innerText)
         !event.target.style.textDecoration
         ? (sorting.forEach((item) => {
                                       item.style.textDecoration = '', 
@@ -1090,10 +1113,12 @@ const goto = async ({ mapPoint }) => {
           )
         : null;
 
-        if(event.target.innerText.includes('DATE')) {
+        if(event.target.innerText.includes('PERSONNEL')){
+          formatActiveFires(personnelSorted)
+          formatFirstFireItem()
+        }else if(event.target.innerText.includes('DATE')) {
           formatActiveFires(dateSorted)
         } else if (event.target.innerText.includes('NAME')) {
-            
             formatActiveFires(nameSorted)
             formatFirstFireItem()
         } else if (event.target.innerText.includes('SIZE')) {
@@ -1110,11 +1135,12 @@ const goto = async ({ mapPoint }) => {
       sortCategory.style.textDecoration = '', sortCategory.style.color = '#efefef'
     })
 
-    document.querySelector('#fire-date').style.textDecoration = 'underline'
-    document.querySelector('#fire-date').style.textUnderlinePosition = 'under'
-    document.querySelector('#fire-date').style.color='#ffb600'
+    document.querySelector('#fire-personnel').style.textDecoration = 'underline'
+    document.querySelector('#fire-personnel').style.textUnderlinePosition = 'under'
+    document.querySelector('#fire-personnel').style.color='#ffb600'
 
-    formatActiveFires(dateSortedList)
+    formatActiveFires(personnelSorted)
+    formatFirstFireItem()
   }
 
   const firesInView = (number) => {
@@ -1123,9 +1149,7 @@ const goto = async ({ mapPoint }) => {
 
     const fireSpan = `<span style="font-size: 1rem; font-weight: bold; color: #FFBA1F; margin-right: 5px;"> ${number} </span> <span>FIRES IN VIEW</span>`;
 
-    firesInViewEl.innerHTML = ""
-
-    firesInViewEl.insertAdjacentHTML('afterbegin', fireSpan)
+    firesInViewEl.innerHTML = fireSpan
   }
 
 //Functions Hub for REST calls 
@@ -1139,34 +1163,13 @@ const goto = async ({ mapPoint }) => {
       
       goto({ mapPoint });
 
-      
-
-        renderWeatherHeader()
+      renderWeatherHeader()
         
       currentDroughtQuery({ mapPoint });
 
       weatherCollection({ mapPoint })
         clearWeatherGrid()
 
-        
-
-
-      // englishSpeakingAdults({ mapPoint, fireInformation });
-
-      // householdsWithVehicle({ mapPoint, fireInformation });
-      
-
-      // landCoverQuery({ mapPoint, fireInformation });
-
-
-
-      // newEcoQuery({ mapPoint, fireInformation });
-
-      //criticalHabitatQuery({ mapPoint, fireInformation });
-
-      // fireRiskQuery({ mapPoint, fireInformation });
-
-      // wildfirePotentialGraph(wildfireTestData)
   }
 
   const getFiresByExtent = ({ extentGeometry }) => {
@@ -1250,8 +1253,19 @@ const goto = async ({ mapPoint }) => {
       });
     };
 
-    const fireItemHoverHighlight = () => {
+    const fireItemEvents = () => {
       document.querySelectorAll('.fire-item').forEach(item => {
+         item.addEventListener("click", (event) => {
+
+      console.log(`fire clicked ${event.target.attributes.value.value}`)
+      const fireInformation = event.target.attributes.value.value.split(', ')
+      
+      const irwinID = fireInformation[1]; 
+      
+      selectedFireInfoQuery({irwinID}); //collects the selected fires information and ALSO renders it to the sidebar 
+      
+      });
+        
         item.addEventListener("mouseenter", (event) => {
           console.log(`fire hover ${event.target.attributes.value.value}`)    
           
@@ -1261,6 +1275,7 @@ const goto = async ({ mapPoint }) => {
         }),
 
         item.addEventListener("mouseleave", (event) => {
+          console.log('mouseout')
           removePreviousFireIcon();
         })
       });
@@ -1268,22 +1283,23 @@ const goto = async ({ mapPoint }) => {
 
 
  //query calls from clicking on a list of active fires
-  const fireListItemClickEvent = async () => { 
-  document.querySelectorAll(".fire-item").forEach(item => {
-    item.addEventListener("click", (event) => {
-      console.log(`fire clicked ${event.target.attributes.value.value}`)
+  // const fireListItemClickEvent = async () => { 
+  // document.querySelectorAll(".fire-item").forEach(item => {
+  //   item.addEventListener("click", (event) => {
 
-      const fireInformation = event.target.attributes.value.value.split(', ')
+  //     console.log(`fire clicked ${event.target.attributes.value.value}`)
+  //     // removePreviousFireIcon();
+  //     const fireInformation = event.target.attributes.value.value.split(', ')
       
-      const irwinID = fireInformation[1]; 
+  //     const irwinID = fireInformation[1]; 
       
-      selectedFireInfoQuery({irwinID}); //collects the selected fires information and ALSO renders it to the sidebar 
+  //     selectedFireInfoQuery({irwinID}); //collects the selected fires information and ALSO renders it to the sidebar 
 
-      // queryHub({ fireInformation });
+  //     // queryHub({ fireInformation });
       
-      });
-    });
-  }; 
+  //     });
+  //   });
+  // }; 
    
   const selectedFireInfoQuery = ({hitTestResponse, irwinID}) => {
     
@@ -1298,7 +1314,7 @@ const goto = async ({ mapPoint }) => {
     const params = {
       where: `IrwinId ='${irwinIdNumber}'`,
       time: null,
-      outFields: ['IrwinID', 'IncidentName', 'ModifiedOnDateTime', 'FireDiscoveryDateTime', 'FireDiscoveryAge ', 'IncidentTypeCategory', 'DailyAcres', 'PercentContained'].join(","),
+      outFields: ['IrwinID', 'IncidentName', 'ModifiedOnDateTime', 'FireDiscoveryDateTime', 'FireDiscoveryAge ', 'IncidentTypeCategory', 'DailyAcres', 'TotalIncidentPersonnel','PercentContained'].join(","),
       returnGeometry: true,
       outSR: 4326,
       f: 'json'
@@ -1331,15 +1347,18 @@ const goto = async ({ mapPoint }) => {
               modifiedOnDateTime: response.data.features[0].attributes.ModifiedOnDateTime,
               incidentType: incidentType,
               dailyAcres: response.data.features[0].attributes.DailyAcres === null ? 'Not reported': response.data.features[0].attributes.DailyAcres,
+              personnelAssigned: !response.data.features[0].attributes.TotalIncidentPersonnel ? 'Not reported': response.data.features[0].attributes.TotalIncidentPersonnel,
               percentContained: response.data.features[0].attributes.PercentContained === null ? 'Not reported' : response.data.features[0].attributes.PercentContained
             }
+        //DO I NEED THIS ANY MORE? I'M NOT RELYING ON HITTEST INFO, Right?
           : {
             irwinId: hitTestResponse.IrwinID,
             incidentName: hitTestResponse.IncidentName,
             fireDiscovery: hitTestResponse.CurrentDateAge,
             fireDiscoveryDateTime: hitTestResponse.CreateDate,
             modifiedOnDateTime: hitTestResponse.DateCurrent,
-            incidentType: incidentType,
+            incidentType: hitTestResponse.incidentType,
+            personnelAssigned: DailyAcres === null ? 'Not reported': response.data.features[0].attributes.TotalIncidentPersonnel,
             percentContained: 'Not reported'
           }
           
@@ -1532,7 +1551,7 @@ const goto = async ({ mapPoint }) => {
           } else if (droughtCondition === 4) {
               return ' Exceptional'
           } else if (droughtCondition === 'Drought conditions not reported') {
-            return 'Not reported'
+            return 'None present'
           }
         }
         console.log(droughtStatus(droughtCondition))
@@ -2475,7 +2494,7 @@ const renderLandCoverGraph = (landCoverArray) => {
     .style('width', '150px')
     .style('height', '150px')
     .style('border-radius', '50%')
-    .style('background-color', 'rgb(17, 54, 81)')
+    .style('background-color', 'rgb(03, 34, 53)')
     .style('z-index', -1);
 
   svg;
@@ -3009,29 +3028,6 @@ const containmentBar =  (containment) => {
 
     weatherContentHeader
   };
-
-  // const renderPeopleHeader = async () => {
-  //   const poepleContentHeader = infoItemHeader[2].innerHTML = `<p class = "trailer-0 sectionHeader">POPULATION</p>
-  //                                                              <p class = "trailer-0 sectionSubHeader">CENSUS BLOCK</p>`;
-
-  //   poepleContentHeader
-  // };
-  
-  // //NOTE: I don't have the HTML set up for this. Maybe just add all the needed markup in the HTML file?
-  // const renderHousingHeader = async () => {
-  // const poepleContentHeader = infoItemHeader[3].innerHTML = `<p class = "trailer-0 sectionHeader">HOUSING</p>
-  //                                                             <p class = "trailer-0 sectionSubHeader">CENSUS BLOCK</p>`;
-
-  // poepleContentHeader
-  // };
-
-  // const renderHabitatHeader = () => {
-
-  //   const habitatContentHeader = infoItemHeader[4].innerHTML = `<p class = "trailer-0 sectionHeader">ECOSYSTEM</p>
-  //                                                               <p class = "trailer-0 sectionSubHeader">HIGHLIGHTED SUMMARY</p>`;
-
-  //   habitatContentHeader
-  // };
 
   const renderDroughtStatus = ( droughtStatus ) => {
 

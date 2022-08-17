@@ -8,13 +8,25 @@ html,
 body,
 main {
   display: flex;
-  font-family: Avenir Next;
+  font-family: 'Avenir Next', 'Avenir Next Bold';
   color: #efefef;
   font-size: 0.9375rem;
   height: 100%;
   width: 100%;
   overflow: hidden;
 }
+/* 
+@font-face {
+  font-family: 'Avenir Next Bold';
+  font-weight: bold;
+  font-style: normal;
+  font-variant: normal;
+  src: url('./fonts/AvenirNext-Bold/AvenirNext-Bold.eot?#iefix') format('eot'),
+    url('./fonts/AvenirNext-Bold/AvenirNext-Bold.otf') format('opentype'),
+    url('./fonts/AvenirNext-Bold/AvenirNext-Bold.woff') format('woff'),
+    url('./fonts/AvenirNext-Bold/AvenirNext-Bold.ttf') format('truetype'),
+    url('./fonts/AvenirNext-Bold/AvenirNext-Bold.svg#AvenirNext-Bold') format('svg');
+} */
 
 img {
   object-fit: cover;

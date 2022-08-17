@@ -253,7 +253,7 @@
                 </span>
               </div>
               <div class="trailer-0" style = "margin-top: -8px;">
-                <span style="color: #FFBA1F; font-size: 14px;"> Sources:
+                <!-- <span style="color: #FFBA1F; font-size: 14px;"> Sources:
                   <span class="link">Census</span>,
                   <span class="link">EPA</span>,
                   <span class="link">NASA</span>,
@@ -266,7 +266,7 @@
                   <span class="link">IRWIN</span>,
                   <span class="link">NIFC</span>,
                   <span class="link">NatureServe</span>
-                </span>
+                </span> -->
                 <p class="trailer-0" style ="font-size: 14px">
                   For community awareness within the US about a wildfire, select from the list or click on the map.
                 </p>
@@ -334,8 +334,13 @@
               <div id="activeFiresDropdown" class="dropdown js-dropdown" style="width: 100%;">
                 <p id="fireSorting"
                   style="display: initial; width: 100%; margin-bottom: 0.5rem;">
-                  <span class=" sortClass padding-right-1" id="fire-date"
+                  <span id="firesInView" style = "margin-bottom: 5px;"> </span>
+              </br>
+                  <span class=" sortClass padding-right-1" id="fire-personnel"
                     style="text-decoration: underline #FFBA1F 3px; text-underline-position: under; text-underline-offset: 2px; cursor: default;">
+                    PERSONNEL
+                  </span>
+                  <span class=" sortClass padding-right-1" style="cursor: default;" id="fire-date">
                     DATE
                   </span>
                   <span class=" sortClass padding-right-1" style = "cursor: default" id="fire-name">
@@ -344,7 +349,7 @@
                   <span class=" sortClass padding-right-1" style = "cursor: default" id="fire-size">
                     SIZE 
                   </span>
-                  <span class="right" id="firesInView"> </span>
+                  
                 </p>
                 <div style="text-align: center;">
                   <button id="fire-list-Btn" class="btn modifier-class btn-fill"
