@@ -16,17 +16,14 @@ main {
   overflow: hidden;
 }
 
-@font-face {
+/* @font-face {
   font-family: 'Avenir Next Bold';
   font-weight: bold;
   font-style: normal;
   font-variant: normal;
-  src: url('./fonts/AvenirNext-Bold/AvenirNext-Bold.eot?#iefix') format('eot'),
-    url('./fonts/AvenirNext-Bold/AvenirNext-Bold.otf') format('opentype'),
-    url('./fonts/AvenirNext-Bold/AvenirNext-Bold.woff') format('woff'),
-    url('./fonts/AvenirNext-Bold/AvenirNext-Bold.ttf') format('truetype'),
-    url('./fonts/AvenirNext-Bold/AvenirNext-Bold.svg#AvenirNext-Bold') format('svg');
-}
+  src: url('./fonts/AvenirNext-Bold/AvenirNext-Bold.pbf') format('eot');
+    
+} */
 
 b,
 strong,
@@ -35,7 +32,7 @@ h2,
 h3,
 h4,
 h5 {
-  font-family: 'Avenir Next Bold';
+  font-family: Avenir Next;
 }
 
 img {
@@ -262,7 +259,7 @@ img {
 
 .bold {
   font-family: Avenir Next LT Pro;
-  font-weight: bold;
+  font-weight: 600;
   color: #ffba1f;
   display: inline;
 }
