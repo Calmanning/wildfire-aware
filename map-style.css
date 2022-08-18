@@ -258,8 +258,8 @@ img {
 }
 
 .bold {
-  font-family: Avenir Next LT Pro;
-  font-weight: 600;
+  font-family: Avenir Next;
+  font-weight: bold;
   color: #ffba1f;
   display: inline;
 }
