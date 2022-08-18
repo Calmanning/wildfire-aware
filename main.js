@@ -600,7 +600,8 @@ console.log(fireLocation)
     const firePersonnelSize = fireInformation    
                    ? fireInformation[3].split(' ')[0]
                    : fireIconGraphicInfo.attributes.TotalIncidentPersonnel;
-console.log(firePersonnelSize)                   
+console.log(firePersonnelSize)   
+console.log(typeof(firePersonnelSize))                
 await removePreviousFireIcon()
 setTimeout(() => {
     const fireIconGraphic =  new Graphic ({
@@ -623,11 +624,11 @@ setTimeout(() => {
   
   // if(fireType !== 'RX' || 'PERSCRIPTTION BURN') {
   //     fireIconGraphic.symbol.size = 30
-      if(firePersonnelSize > 500){
+      if(parseInt(firePersonnelSize) > 500){
           fireIconGraphic.symbol.size = 40
-        } else if (firePersonnelSize < 500){
+        } else if (parseInt(firePersonnelSize) < 500){
           fireIconGraphic.symbol.size = 30
-        } else if (firePersonnelSize < 50 || NaN){
+        } else if (parseInt(firePersonnelSize) < 50 || NaN){
           fireIconGraphic.symbol.size = 17
         }
     // }
@@ -3182,15 +3183,16 @@ const containmentBar =  (containment) => {
 
     poepleContentHeader
     
-    const populationObject = totalRadiusPopulation || perimeterPopulation
+    // const populationObject = totalRadiusPopulation || perimeterPopulation
 
     const population = (() => {
-      if(populationObject.totalPopulation){
+      if(totalRadiusPopulation){
         return totalRadiusPopulation.totalPopulation
       } else if(perimeterPopulation){
+        console.log(perimeterPopulation.totalPopulation )
         return perimeterPopulation.totalPopulation  
       } else {
-        return '0'
+        return 'No data'
       }
     })();
     

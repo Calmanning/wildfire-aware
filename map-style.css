@@ -561,6 +561,7 @@ img {
 
   #layerListContainer {
     bottom: 2rem;
+    max-height: 200vw;
   }
 }
 
