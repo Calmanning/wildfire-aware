@@ -718,7 +718,7 @@ const goto = async ({ mapPoint }) => {
       <div class = "fire-item padding-left-2" style = "margin-bottom: 15px; cursor: pointer;" value="${fireListItem.fireLocation}, ${fireListItem.fireId}, ${fireListItem.fireType}, ${fireListItem.firePersonnel}" > 
         <h5 style ="font-weight: bold; margin-bottom: -4px; color: #ffb600; line-height: 21px;" value="${fireListItem.fireLocation}, ${fireListItem.fireId}, ${fireListItem.fireType}, ${fireListItem.firePersonnel}">${fireListItem.fireName} </h5>
         
-        <p value="${fireListItem.fireLocation}, ${fireListItem.fireId}, ${fireListItem.fireType}, ${fireListItem.firePersonnel}">${sorting[0].style.textDecoration ? fireListItem.firePersonnel : fireListItem.fireAcres}</p>
+        <p value="${fireListItem.fireLocation}, ${fireListItem.fireId}, ${fireListItem.fireType}, ${fireListItem.firePersonnel}">${sorting[0].classList.contains('underline') ? fireListItem.firePersonnel : fireListItem.fireAcres}</p>
         
       </div>
       `
@@ -1078,15 +1078,15 @@ const goto = async ({ mapPoint }) => {
       })
     
     sorting.forEach((sortCategory) => {
-      if(sortCategory.innerText.includes('PERSONNEL') && sortCategory.style.textDecoration){
+            if(sortCategory.innerText.includes('PERSONNEL') && sortCategory.classList.contains('underline')){
           formatActiveFires(personnelSorted)
           formatFirstFireItem()
-      }else if(sortCategory.innerText.includes('DATE') && sortCategory.style.textDecoration){
+      }else if(sortCategory.innerText.includes('DATE') && sortCategory.classList.contains('underline')){
           formatActiveFires(dateSorted)
-      } else if (sortCategory.innerText.includes('NAME') && sortCategory.style.textDecoration){
+      } else if (sortCategory.innerText.includes('NAME') && sortCategory.classList.contains('underline')){
             formatActiveFires(nameSorted)
             formatFirstFireItem()
-      } else if (sortCategory.innerText.includes('SIZE') && sortCategory.style.textDecoration){
+      } else if (sortCategory.innerText.includes('SIZE') && sortCategory.classList.contains('underline')){
             formatActiveFires(acreSorted)
             formatFirstFireItem()
         }
@@ -1103,13 +1103,10 @@ const goto = async ({ mapPoint }) => {
       sortCategory.addEventListener('click', (event) => {
         console.log(event)
         console.log(event.target.innerText)
-        !event.target.style.textDecoration
+        !event.target.classList.contains('underline')
         ? (sorting.forEach((item) => {
-                                      item.style.textDecoration = '', 
-                                      item.style.color=''}), 
-                                      event.target.style.textDecoration = 'underline #ffb600 3px', 
-                                      event.target.style.textUnderlinePosition = 'under',
-                                      event.target.style.textUnderlineOffset = '2px'
+                                      item.classList.remove('underline')}), 
+                                      event.target.classList.add('underline')
           )
         : null;
 
@@ -1132,12 +1129,10 @@ const goto = async ({ mapPoint }) => {
 
   const resetFireList = () => {
     document.querySelectorAll('.sortClass').forEach((sortCategory) => {
-      sortCategory.style.textDecoration = '', sortCategory.style.color = '#efefef'
+      sortCategory.classList.remove('underline')
     })
 
-    document.querySelector('#fire-personnel').style.textDecoration = 'underline'
-    document.querySelector('#fire-personnel').style.textUnderlinePosition = 'under'
-    document.querySelector('#fire-personnel').style.color='#ffb600'
+    document.querySelector('#fire-personnel').classList.add('underline')
 
     formatActiveFires(personnelSorted)
     formatFirstFireItem()
@@ -3064,7 +3059,7 @@ const containmentBar =  (containment) => {
                     gap: 0px;
                     margin: auto;">
                         <div class="item-1" style = "margin: 15px 0 10px -5px; text-align: center;">
-                          <span class = "unit-conversion" style = "margin: 0 0 0 0; text-decoration: underline #FFBA1F 3px; text-underline-position: under; text-underline-offset: 2px; cursor: default; cursor: pointer;">&degF MPH
+                          <span class = "unit-conversion underline" style = "margin: 0 0 0 0;">&degF MPH
                           </span>
                           </br>
                           <span class = "unit-conversion" style = "cursor: pointer; ">&degC KM/H
@@ -3141,8 +3136,8 @@ const containmentBar =  (containment) => {
       metric.forEach((item) => {
         item.addEventListener('click', (event) => {
           
-          !event.target.style.textDecoration
-          ? (metric.forEach((item) => {item.style.textDecoration = ''}), event.target.style.textDecoration = 'underline #FFBA1F 3px', event.target.style.textUnderlinePosition = 'under', event.target.style.textUnderlineOffset = '2px')
+          !event.target.classList.contains('underline')
+          ? (metric.forEach((item) => {item.classList.remove('underline')}), event.target.classList.add('underline'))
           : null;
           
           event.target.innerText.includes('F')

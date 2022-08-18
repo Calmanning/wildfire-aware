@@ -43,6 +43,15 @@ img {
   color: #ffba1f;
 }
 
+.underline {
+  text-decoration-line: underline;
+    text-decoration-color: #FFBA1F;
+    text-decoration-thickness: 3px;
+    text-underline-position: under;
+    text-underline-offset: 2px;
+    cursor: default;
+}
+
 #viewDiv {
   height: 100%;
   width: 100%;
