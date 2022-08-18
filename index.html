@@ -21,9 +21,13 @@
       <div id="viewDiv" style = "float: left;">
         <div id = "homeContainer" style="width: 2rem; height:2rem; background:rgb(17, 54, 81); color:  #ffffff; margin-left: 2.8rem; margin-top: -2.7rem;"> </div>
         <div id="searchContainer"></div>
-        <div id="layerListContainer" style="width: 215px; max-height: 58vw; overflow-y: auto;
-        position: absolute; z-index: 1; 
-        bottom: 1rem; left: 0px;">
+        
+        <div class="loader is-active padding-leader-3 padding-trailer-3" style = "display: inital; position: absolute; top: 35%; left: 27%;" >
+          <div class="loader-bars"></div>
+          <div class="loader-text">Loading...</div>
+        </div>
+        
+        <div id="layerListContainer">
         <div id = "layer-List-Container-background" style = "margin: auto 0; background: none;">
           <div id="layers" class="animate-in-up js-animation" style = "display: none;"> 
             <ul class="animate-in-up js-animation" style = "margin-left: 5px;">
@@ -328,12 +332,12 @@
                 </div>
               </div> -->
             </div>
+            <hr class="divider">
             <div id="sideBarContent" class="trailer-quarter">
              
-              <hr class="divider">
               <div id="activeFiresDropdown" class="dropdown js-dropdown" style="width: 100%;">
                 <p id="fireSorting"
-                  style="display: initial; width: 100%; margin-bottom: 0.5rem;">
+                  style="display: initial; width: 100%; margin-bottom: 0.5rem; white-space: nowrap">
                   <span id="firesInView" style = "margin-bottom: 5px;"> </span>
               </br>
                   <span class=" sortClass underline padding-right-1" id="fire-personnel">

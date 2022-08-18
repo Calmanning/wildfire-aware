@@ -106,6 +106,7 @@ require([
     })
     .then(() => {
       mapView.map = webmap;
+      document.querySelector('.loader').classList.remove('is-active')
     })
     .catch((error) => {
       console.log(error)
@@ -127,6 +128,11 @@ require([
 
   homeWidget.goToOverride = () => {
   resetURLParams()
+  fireListEl.style.display = 'initial', 
+  fireListBtn.style.display = 'none', 
+  sideBarInformation.style.display = 'none', 
+  fireListSorting.style.display = 'initial',
+  scrollToTop();
   return mapView.goTo({ 
                       zoom: 5,
                       center: [260, 39]
@@ -933,6 +939,7 @@ const goto = async ({ mapPoint }) => {
 
   mapView.on('click', async (event) => {
     
+    window.screen.width <= 720 ? sideBarContainer.style.height = '100%' : null;
     await removeCircleGraphic()
 
     await removePreviousFireIcon();
@@ -1009,7 +1016,7 @@ const goto = async ({ mapPoint }) => {
     
     fireListEl.style.display === 'initial' || (mapPoint && fireListEl.style.display)
     ? (fireListEl.style.display = 'none', fireListBtn.style.display = 'initial', sideBarInformation.style.display = 'initial', scrollToTop(), fireListSorting.style.display = 'none')
-    : (fireListEl.style.display = 'initial', fireListBtn.style.display = 'none', sideBarInformation.style.display = 'none', fireListSorting.style.display = 'initial');
+    : (fireListEl.style.display = 'initial', fireListBtn.style.display = 'none', sideBarInformation.style.display = 'none', fireListSorting.style.display = 'initial', scrollToTop());
     
   }
 
@@ -3042,7 +3049,11 @@ const containmentBar =  (containment) => {
   }
 
   const clearWeatherGrid = () => {
-    document.querySelector('#temp-wind-aq').innerHTML = '';
+    document.querySelector('#temp-wind-aq').innerHTML = `
+      <div class="loader is-active padding-leader-3 padding-trailer-3">
+        <div class="loader-bars"></div>
+        <div class="loader-text">Loading...</div>
+      </div>`;
   }
 
   const renderWeatherInformation = ({ temp, wind, airQualityToday, airQualityTomorrow }) => {
@@ -3171,14 +3182,15 @@ const containmentBar =  (containment) => {
 
     poepleContentHeader
     
-    
+    const populationObject = totalRadiusPopulation || perimeterPopulation
+
     const population = (() => {
-      if(totalRadiusPopulation){
+      if(populationObject.totalPopulation){
         return totalRadiusPopulation.totalPopulation
       } else if(perimeterPopulation){
         return perimeterPopulation.totalPopulation  
       } else {
-        return 'No data'
+        return '0'
       }
     })();
     
@@ -3338,6 +3350,8 @@ const containmentBar =  (containment) => {
 
     habitatContentHeader
 
+    //TODO CHANGE ALL CONDITIONALS TO USE THE 'ecoObject' VARIABLE
+    const ecoObject = aggregateEcoObj || perimeterEcology
     const nonePresentText = `<h4 class = "bold">None present</h4>`
 
     const ecoRegion = (() => {
@@ -3361,10 +3375,8 @@ const containmentBar =  (containment) => {
     })();
 
     const biodiversity = (() => {
-      if(aggregateEcoObj){
-        return typeof(aggregateEcoObj.RichClass) !== "string" ? aggregateEcoObj.RichClass[0][0] : aggregateEcoObj.RichClass;
-      } else if(perimeterEcology){
-        return perimeterEcology.RichClass 
+      if(ecoObject.RichClass){
+        return typeof(ecoObject.RichClass) !== "string" ? ecoObject.RichClass[0][0] : ecoObject.RichClass;
       } else {
         return 'No data available'
       }
@@ -3381,16 +3393,14 @@ const containmentBar =  (containment) => {
     })();
 
     const protectedAreas = (() => {
-      if(aggregateEcoObj.OwnersPadus){
-        
+      if(ecoObject.OwnersPadus){
         const shortPadusList = `<h4 class = "bold">${aggregateEcoObj.OwnersPadus.join(', ')}</h4>`
         const longPadusList = `<p class = "bold">${aggregateEcoObj.OwnersPadus.join(', ')}</p>`
         
-        return aggregateEcoObj.OwnersPadus.length < 4 ? shortPadusList : longPadusList
-      } else if(perimeterEcology.OwnersPadus){
-        return perimeterEcology.OwnersPadus  
+        return aggregateEcoObj.OwnersPadus.length < 4 ? shortPadusList : longPadusList;
+      
       } else {
-        console.log(nonePresentText)
+        
         return nonePresentText
       }
     })();

@@ -206,7 +206,16 @@ img {
     border-right: 1px solid #ffffff;
 }
 
-/* map layer button */
+/* MAP LAYERS CONTAINER & BUTTON */
+#layerListContainer {
+  width: 215px;
+  max-height: 58vw;
+  overflow-y: auto;
+  position: absolute;
+  z-index: 1;
+  bottom: 1rem;
+  left: 0px;
+}
 #layer-list-button {
   background: #FFBA1F;
   color: #14273d;
@@ -239,7 +248,7 @@ img {
 }
 
 .divider {
-  margin: 0rem 0rem 0.5rem;
+  margin: 0.5rem 0rem;
   border: none;
   border-top: 2px solid hsl(0, 0%, 70%);
 }
@@ -490,18 +499,6 @@ img {
   display: block;
 }
 
-/* .disable input~.checkmark::after {
-  left: 7px;
-  top: 2px;
-  width: 5px;
-  height: 10px;
-  border: solid #FFBA1F;
-  border-width: 0 3px 3px 0;
-  -webkit-transform: rotate(45deg);
-  -ms-transform: rotate(45deg);
-  transform: rotate(45deg);
-} */
-
 @media screen and (max-width: 770px) {
   #searchContainer {
     width: 150px;
@@ -521,7 +518,7 @@ img {
     position: absolute;
     bottom: 0;
     width: 100%;
-    height: 0;
+    height: 33%;
     padding: 40px 170px 0;
     background: rgba(17, 49, 73, 0.85);
     border-radius: 25px 25px 0 0;
@@ -550,12 +547,20 @@ img {
     margin: 0 47%
   }
   .divider {
-    margin: 0rem -1rem 0.5rem;
+    margin: 0.5rem -1rem;
   }
 
   #infoBar {
     width: 100%;
     overscroll-behavior: contain;
+  }
+
+  #viewDiv .esri-ui-bottom-right {
+    bottom: 1.5rem;
+  }
+
+  #layerListContainer {
+    bottom: 2rem;
   }
 }
 
