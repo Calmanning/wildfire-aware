@@ -1440,8 +1440,8 @@ const goto = async ({ mapPoint }) => {
             L3EcoReg: consolidatedFirePerimeterData.L3EcoReg ? consolidatedFirePerimeterData.L3EcoReg : 'No information',
             LandForm: consolidatedFirePerimeterData.LandForm ? consolidatedFirePerimeterData.LandForm : 'No information',
             RichClass: consolidatedFirePerimeterData.RichClass ? consolidatedFirePerimeterData.RichClass : 'No data',
-            CritHab:  consolidatedFirePerimeterData.CritHab ? consolidatedFirePerimeterData.CritHab : 'None present',
-            OwnersPadus: consolidatedFirePerimeterData.OwnersPadus ? consolidatedFirePerimeterData.OwnersPadus : 'None present'
+            CritHab:  consolidatedFirePerimeterData.CritHab ? consolidatedFirePerimeterData.CritHab : null,
+            OwnersPadus: consolidatedFirePerimeterData.OwnersPadus ? consolidatedFirePerimeterData.OwnersPadus.split(',') : null
           }
 
            try {
@@ -2235,7 +2235,7 @@ const goto = async ({ mapPoint }) => {
         const ecoResponse = response.data.features;
         
         if(response.data.features){
-        const aggragateEcoObj = ecoResponse.reduce((a,b) => {
+        const aggregateEcoObj = ecoResponse.reduce((a,b) => {
           Object.keys(b.attributes).forEach(key => {
             
             if(typeof(b.attributes[key]) === 'string' || typeof(b.attributes[key]) === 'object'){  
@@ -2248,8 +2248,8 @@ const goto = async ({ mapPoint }) => {
         }, {})
 
       //Creating a list from from the CritHabitat obj. Taking only the keys listed.
-        aggragateEcoObj.CritHab
-        ?  aggragateEcoObj.CritHab = aggragateEcoObj.CritHab.split(', ').filter(entry => !entry.includes(undefined) && !entry === false).reduce((CritHabObj, CritHabItem) => {
+        aggregateEcoObj.CritHab
+        ?  aggregateEcoObj.CritHab = aggregateEcoObj.CritHab.split(', ').filter(entry => !entry.includes(undefined) && !entry === false).reduce((CritHabObj, CritHabItem) => {
             !CritHabObj[CritHabItem] 
             ? CritHabObj[CritHabItem] = 1 
             : CritHabObj[CritHabItem]++
@@ -2257,26 +2257,26 @@ const goto = async ({ mapPoint }) => {
             },{})
         : null;
         //if there are no keys return a string, otherwise join the array together.
-        !aggragateEcoObj.CritHab[Object.keys(aggragateEcoObj.CritHab)[0]]
-        ? aggragateEcoObj.CritHab = 'None present'
-        : aggragateEcoObj.CritHab = Object.keys(aggragateEcoObj.CritHab).join(', ');
+        !aggregateEcoObj.CritHab[Object.keys(aggregateEcoObj.CritHab)[0]]
+        ? aggregateEcoObj.CritHab = 'None present'
+        : aggregateEcoObj.CritHab = Object.keys(aggregateEcoObj.CritHab).join(', ');
         
         //Creating an object of EcoRegion entries and their 'count' value from an array 
-        aggragateEcoObj.L3EcoReg
-        ? aggragateEcoObj.L3EcoReg = aggragateEcoObj.L3EcoReg.split(', ').filter(entry => !entry.includes(undefined)).reduce((L3EcoRegObj, L3EcoRegItem) => {
+        aggregateEcoObj.L3EcoReg
+        ? aggregateEcoObj.L3EcoReg = aggregateEcoObj.L3EcoReg.split(', ').filter(entry => !entry.includes(undefined)).reduce((L3EcoRegObj, L3EcoRegItem) => {
             !L3EcoRegObj[L3EcoRegItem] 
             ? L3EcoRegObj[L3EcoRegItem] = 1 
             : L3EcoRegObj[L3EcoRegItem]++
             return L3EcoRegObj
           },{})
         : null;
-        // console.log(aggragateEcoObj.L3EcoReg)
-        !aggragateEcoObj.L3EcoReg[Object.keys(aggragateEcoObj.L3EcoReg)[0]]
-        ? aggragateEcoObj.L3EcoReg = 'No information available'
-        : aggragateEcoObj.L3EcoReg = Object.entries(aggragateEcoObj.L3EcoReg).sort((a, b) => b[0].localeCompare(a[0])).sort((a, b) => b[1] - a[1])
+        // console.log(aggregateEcoObj.L3EcoReg)
+        !aggregateEcoObj.L3EcoReg[Object.keys(aggregateEcoObj.L3EcoReg)[0]]
+        ? aggregateEcoObj.L3EcoReg = 'No information available'
+        : aggregateEcoObj.L3EcoReg = Object.entries(aggregateEcoObj.L3EcoReg).sort((a, b) => b[0].localeCompare(a[0])).sort((a, b) => b[1] - a[1])
 
-        aggragateEcoObj.LandForm
-        ? aggragateEcoObj.LandForm = aggragateEcoObj.LandForm.split(', ').filter(entry => !entry.includes(undefined)).reduce((landformObj, landformItem) => {
+        aggregateEcoObj.LandForm
+        ? aggregateEcoObj.LandForm = aggregateEcoObj.LandForm.split(', ').filter(entry => !entry.includes(undefined)).reduce((landformObj, landformItem) => {
             !landformObj[landformItem] 
             ? landformObj[landformItem] = 1 
             : landformObj[landformItem]++
@@ -2284,61 +2284,61 @@ const goto = async ({ mapPoint }) => {
             },{})
         : null;
         
-        !aggragateEcoObj.LandForm[Object.keys(aggragateEcoObj.LandForm)[0]]
-        ? aggragateEcoObj.LandForm = 'No information available'
-        : aggragateEcoObj.LandForm = Object.entries(aggragateEcoObj.LandForm).sort((a, b) => b[0].localeCompare(a[0])).sort((a, b) => b[1] - a[1])
+        !aggregateEcoObj.LandForm[Object.keys(aggregateEcoObj.LandForm)[0]]
+        ? aggregateEcoObj.LandForm = 'No information available'
+        : aggregateEcoObj.LandForm = Object.entries(aggregateEcoObj.LandForm).sort((a, b) => b[0].localeCompare(a[0])).sort((a, b) => b[1] - a[1])
 
-        // const sortedAggragateEcoLandform = Object.entries(aggragateEcoObj.LandForm).sort((a, b) => b[0].localeCompare(a[0]))
-        // aggragateEcoObj.LandForm = sortedAggragateEcoLandform.sort((a, b) => b[1] - a[1])        
+        // const sortedAggragateEcoLandform = Object.entries(aggregateEcoObj.LandForm).sort((a, b) => b[0].localeCompare(a[0]))
+        // aggregateEcoObj.LandForm = sortedAggragateEcoLandform.sort((a, b) => b[1] - a[1])        
 
           //Creating an object of ForestType entries and their 'count' value from an array 
-        aggragateEcoObj.ForestTypeGroup
-        ? aggragateEcoObj.ForestTypeGroup = aggragateEcoObj.ForestTypeGroup.split(',').filter(entry => !entry.includes(undefined) && !entry.includes(null)).reduce((ForestTypeGroupObj, ForestTypeGroupItem) => {
+        aggregateEcoObj.ForestTypeGroup
+        ? aggregateEcoObj.ForestTypeGroup = aggregateEcoObj.ForestTypeGroup.split(',').filter(entry => !entry.includes(undefined) && !entry.includes(null)).reduce((ForestTypeGroupObj, ForestTypeGroupItem) => {
             !ForestTypeGroupObj[ForestTypeGroupItem] 
             ? ForestTypeGroupObj[ForestTypeGroupItem] = 1 
             : ForestTypeGroupObj[ForestTypeGroupItem]++
             return ForestTypeGroupObj
           },{})
         : null;
-        !aggragateEcoObj.ForestTypeGroup[Object.keys(aggragateEcoObj.ForestTypeGroup)[0]]
-        ? aggragateEcoObj.ForestTypeGroup = 'No information available'
-        : aggragateEcoObj.ForestTypeGroup = Object.entries(aggragateEcoObj.ForestTypeGroup).sort((a, b) => b[0].localeCompare(a[0])).sort((a, b) => b[1] - a[1])
+        !aggregateEcoObj.ForestTypeGroup[Object.keys(aggregateEcoObj.ForestTypeGroup)[0]]
+        ? aggregateEcoObj.ForestTypeGroup = 'No information available'
+        : aggregateEcoObj.ForestTypeGroup = Object.entries(aggregateEcoObj.ForestTypeGroup).sort((a, b) => b[0].localeCompare(a[0])).sort((a, b) => b[1] - a[1])
 
 
-        console.log(aggragateEcoObj.OwnersPadus)
-        aggragateEcoObj.OwnersPadus
-        ? aggragateEcoObj.OwnersPadus = aggragateEcoObj.OwnersPadus.split(', ').filter(entry => !entry.includes(undefined) && !entry === false).reduce((OwnersPadusObj, OwnersPadusItem) => {
+        console.log(aggregateEcoObj.OwnersPadus)
+        aggregateEcoObj.OwnersPadus
+        ? aggregateEcoObj.OwnersPadus = aggregateEcoObj.OwnersPadus.split(', ').filter(entry => !entry.includes(undefined) && !entry === false).reduce((OwnersPadusObj, OwnersPadusItem) => {
             !OwnersPadusObj[OwnersPadusItem] 
             ? OwnersPadusObj[OwnersPadusItem] = 1 
             : OwnersPadusObj[OwnersPadusItem]++
             return OwnersPadusObj
           },{})
         : null;
-        !aggragateEcoObj.OwnersPadus[Object.keys(aggragateEcoObj.OwnersPadus)[0]]
-        ? aggragateEcoObj.OwnersPadus = 'None present'
-        : aggragateEcoObj.OwnersPadus = Object.keys(aggragateEcoObj.OwnersPadus).join(', ');
+        !aggregateEcoObj.OwnersPadus[Object.keys(aggregateEcoObj.OwnersPadus)[0]]
+        ? aggregateEcoObj.OwnersPadus = null
+        : aggregateEcoObj.OwnersPadus = Object.keys(aggregateEcoObj.OwnersPadus).join(', ').split(', ');
         
       //creating the Biodeversity richness class from the return object
-        aggragateEcoObj.RichClass
-        ? aggragateEcoObj.RichClass = aggragateEcoObj.RichClass.split(', ').filter(entry => !entry.includes(undefined) && !entry.includes(null)).reduce((RichClassObj, RichClassItem) => {
+        aggregateEcoObj.RichClass
+        ? aggregateEcoObj.RichClass = aggregateEcoObj.RichClass.split(', ').filter(entry => !entry.includes(undefined) && !entry.includes(null)).reduce((RichClassObj, RichClassItem) => {
             !RichClassObj[RichClassItem] 
             ? RichClassObj[RichClassItem] = 1 
             : RichClassObj[RichClassItem]++
             return RichClassObj
           },{})
         : null;
-        !aggragateEcoObj.RichClass[Object.keys(aggragateEcoObj.RichClass)[0]]
-        ? aggragateEcoObj.RichClass = 'No data available'
-        : aggragateEcoObj.RichClass = Object.entries(aggragateEcoObj.RichClass).sort((a, b) => b[0].localeCompare(a[0])).sort((a, b) => b[1] - a[1])
+        !aggregateEcoObj.RichClass[Object.keys(aggregateEcoObj.RichClass)[0]]
+        ? aggregateEcoObj.RichClass = 'No data available'
+        : aggregateEcoObj.RichClass = Object.entries(aggregateEcoObj.RichClass).sort((a, b) => b[0].localeCompare(a[0])).sort((a, b) => b[1] - a[1])
         
-        aggragateEcoObj.SumCarbon = aggragateEcoObj.SumCarbon !== null
-        ? Math.round(aggragateEcoObj.SumCarbon)
+        aggregateEcoObj.SumCarbon = aggregateEcoObj.SumCarbon !== null
+        ? Math.round(aggregateEcoObj.SumCarbon)
         : 0;
         
       //creating the WFHP object from the returned object
-        console.log(aggragateEcoObj.WHPClass)
-        aggragateEcoObj.WHPClass
-        ? aggragateEcoObj.WHPClass = aggragateEcoObj.WHPClass.split(', ').filter(entry => !entry.includes(undefined)).reduce((WHPClassObj, WHPClassItem) => {
+        console.log(aggregateEcoObj.WHPClass)
+        aggregateEcoObj.WHPClass
+        ? aggregateEcoObj.WHPClass = aggregateEcoObj.WHPClass.split(', ').filter(entry => !entry.includes(undefined)).reduce((WHPClassObj, WHPClassItem) => {
             !WHPClassObj[WHPClassItem] 
             ? WHPClassObj[WHPClassItem] = 1 
             : WHPClassObj[WHPClassItem]++
@@ -2348,36 +2348,36 @@ const goto = async ({ mapPoint }) => {
         
         
       //Adjusting the percentages
-        aggragateEcoObj.PctBarren = aggragateEcoObj.PctBarren/ecoResponse.length
-        aggragateEcoObj.PctCropland = aggragateEcoObj.PctCropland/ecoResponse.length
-        aggragateEcoObj.PctDevelop = aggragateEcoObj.PctDevelop/ecoResponse.length
-        aggragateEcoObj.PctForest = aggragateEcoObj.PctForest/ecoResponse.length
-        aggragateEcoObj.PctGrass = aggragateEcoObj.PctGrass/ecoResponse.length
-        aggragateEcoObj.PctShrub = aggragateEcoObj.PctShrub/ecoResponse.length
-        aggragateEcoObj.PctSnowIce = aggragateEcoObj.PctSnowIce/ecoResponse.length
-        aggragateEcoObj.PctWater = aggragateEcoObj.PctWater/ecoResponse.length
-        aggragateEcoObj.PctWetlands = aggragateEcoObj.PctWetlands/ecoResponse.length
+        aggregateEcoObj.PctBarren = aggregateEcoObj.PctBarren/ecoResponse.length
+        aggregateEcoObj.PctCropland = aggregateEcoObj.PctCropland/ecoResponse.length
+        aggregateEcoObj.PctDevelop = aggregateEcoObj.PctDevelop/ecoResponse.length
+        aggregateEcoObj.PctForest = aggregateEcoObj.PctForest/ecoResponse.length
+        aggregateEcoObj.PctGrass = aggregateEcoObj.PctGrass/ecoResponse.length
+        aggregateEcoObj.PctShrub = aggregateEcoObj.PctShrub/ecoResponse.length
+        aggregateEcoObj.PctSnowIce = aggregateEcoObj.PctSnowIce/ecoResponse.length
+        aggregateEcoObj.PctWater = aggregateEcoObj.PctWater/ecoResponse.length
+        aggregateEcoObj.PctWetlands = aggregateEcoObj.PctWetlands/ecoResponse.length
       
         //Sorting the WF risk potential.
-        if(aggragateEcoObj.WHPClass){
-        aggragateEcoObj.WHPClass["Very High"] = aggragateEcoObj.WHPClass["Very High"]/ecoResponse.length || 0;
-        aggragateEcoObj.WHPClass["High"] = aggragateEcoObj.WHPClass["High"] / ecoResponse.length || 0;
-        aggragateEcoObj.WHPClass["Moderate"] = aggragateEcoObj.WHPClass["Moderate"] / ecoResponse.length || 0;
-        aggragateEcoObj.WHPClass["Low"] = aggragateEcoObj.WHPClass["Low"] / ecoResponse.length || 0;
-        aggragateEcoObj.WHPClass["Very Low"] = aggragateEcoObj.WHPClass["Very Low"] / ecoResponse.length || 0;
+        if(aggregateEcoObj.WHPClass){
+        aggregateEcoObj.WHPClass["Very High"] = aggregateEcoObj.WHPClass["Very High"]/ecoResponse.length || 0;
+        aggregateEcoObj.WHPClass["High"] = aggregateEcoObj.WHPClass["High"] / ecoResponse.length || 0;
+        aggregateEcoObj.WHPClass["Moderate"] = aggregateEcoObj.WHPClass["Moderate"] / ecoResponse.length || 0;
+        aggregateEcoObj.WHPClass["Low"] = aggregateEcoObj.WHPClass["Low"] / ecoResponse.length || 0;
+        aggregateEcoObj.WHPClass["Very Low"] = aggregateEcoObj.WHPClass["Very Low"] / ecoResponse.length || 0;
         }
         console.log(ecoResponse)
-        console.log(aggragateEcoObj)
+        console.log(aggregateEcoObj)
         
         
-        formatWildfireRiskData({ aggragateEcoObj })
-        landCoverDataFormatting ({ aggragateEcoObj })
-        habitatInfoRender({ aggragateEcoObj })
+        formatWildfireRiskData({ aggregateEcoObj })
+        landCoverDataFormatting ({ aggregateEcoObj })
+        habitatInfoRender({ aggregateEcoObj })
         //renderMapHexes(response.data.queryGeometry)
       }else {
         console.log('no eco data')
         
-        const aggragateEcoObj = {
+        const aggregateEcoObj = {
           CritHab: 'None present',
           L3EcoReg: 'No information available',
           LandForm: 'No information available',
@@ -2400,9 +2400,9 @@ const goto = async ({ mapPoint }) => {
             'Very Low': 0
           }
         }
-        habitatInfoRender({ aggragateEcoObj })
-        landCoverDataFormatting ({ aggragateEcoObj })
-        formatWildfireRiskData({ aggragateEcoObj })
+        habitatInfoRender({ aggregateEcoObj })
+        landCoverDataFormatting ({ aggregateEcoObj })
+        formatWildfireRiskData({ aggregateEcoObj })
       }
 
       })
@@ -2411,18 +2411,18 @@ const goto = async ({ mapPoint }) => {
 //DATA VIZ
 
 //Landcover piechart
-const landCoverDataFormatting = ({ aggragateEcoObj, perimeterLandCover }) => {
+const landCoverDataFormatting = ({ aggregateEcoObj, perimeterLandCover }) => {
                      
   const landCoverArray = [
-    {'name': 'Forest', 'percent': aggragateEcoObj ? aggragateEcoObj["PctForest"] : perimeterLandCover["PctForest"], 'fill':'#005948'}, 
-    {'name': 'Barren', 'percent': aggragateEcoObj ? aggragateEcoObj["PctBarren"] : perimeterLandCover["PctBarren"], 'fill': '#6E726B'},
-    {'name': 'Cropland', 'percent': aggragateEcoObj ? aggragateEcoObj["PctCropland"] : perimeterLandCover["PctCropland"], 'fill': '#D3AA5F'},
-    {'name': 'Developed', 'percent': aggragateEcoObj ? aggragateEcoObj["PctDevelop"] : perimeterLandCover["PctDevelop"], 'fill': '#993131'},
-    {'name': 'Grassland', 'percent': aggragateEcoObj ? aggragateEcoObj["PctGrass"] : perimeterLandCover["PctGrass"], 'fill': '#918652'},
-    {'name': 'Scrubland', 'percent': aggragateEcoObj ? aggragateEcoObj["PctShrub"] : perimeterLandCover["PctShrub"], 'fill': '#4F482A'},
-    {'name': 'Snow / Ice', 'percent': aggragateEcoObj ? aggragateEcoObj["PctSnowIce"] : perimeterLandCover["PctSnowIce"], 'fill': '#EDEDEB'},
-    {'name': 'Water', 'percent': aggragateEcoObj ? aggragateEcoObj["PctWater"] : perimeterLandCover["PctWater"], 'fill': '#054F8C'},
-    {'name': 'Wetlands', 'percent': aggragateEcoObj ? aggragateEcoObj["PctWetlands"] : perimeterLandCover["PctWetlands"], 'fill': '#028B9C'}
+    {'name': 'Forest', 'percent': aggregateEcoObj ? aggregateEcoObj["PctForest"] : perimeterLandCover["PctForest"], 'fill':'#005948'}, 
+    {'name': 'Barren', 'percent': aggregateEcoObj ? aggregateEcoObj["PctBarren"] : perimeterLandCover["PctBarren"], 'fill': '#6E726B'},
+    {'name': 'Cropland', 'percent': aggregateEcoObj ? aggregateEcoObj["PctCropland"] : perimeterLandCover["PctCropland"], 'fill': '#D3AA5F'},
+    {'name': 'Developed', 'percent': aggregateEcoObj ? aggregateEcoObj["PctDevelop"] : perimeterLandCover["PctDevelop"], 'fill': '#993131'},
+    {'name': 'Grassland', 'percent': aggregateEcoObj ? aggregateEcoObj["PctGrass"] : perimeterLandCover["PctGrass"], 'fill': '#918652'},
+    {'name': 'Scrubland', 'percent': aggregateEcoObj ? aggregateEcoObj["PctShrub"] : perimeterLandCover["PctShrub"], 'fill': '#4F482A'},
+    {'name': 'Snow / Ice', 'percent': aggregateEcoObj ? aggregateEcoObj["PctSnowIce"] : perimeterLandCover["PctSnowIce"], 'fill': '#EDEDEB'},
+    {'name': 'Water', 'percent': aggregateEcoObj ? aggregateEcoObj["PctWater"] : perimeterLandCover["PctWater"], 'fill': '#054F8C'},
+    {'name': 'Wetlands', 'percent': aggregateEcoObj ? aggregateEcoObj["PctWetlands"] : perimeterLandCover["PctWetlands"], 'fill': '#028B9C'}
                         ]
 console.log(landCoverArray)
   let placeholderPercent = 0
@@ -2443,7 +2443,6 @@ console.log(landCoverArray)
    const otherPercent = { 'name': 'Other', 'percent' : parseFloat(placeholderPercent.toFixed(0)), 'fill': '#D9C7AE' }
    landCoverArray.push(otherPercent)
   
-   console.log(landCoverArray)
   renderLandCoverGraph(landCoverArray);
 
 }
@@ -2889,15 +2888,15 @@ const containmentBar =  (containment) => {
 
 //WILDFIRE HAZARD POTENTIAL BAR GRAPH
     
-  const formatWildfireRiskData = ({aggragateEcoObj , consolidatedWHPClass}) => {
-    console.log(aggragateEcoObj || consolidatedWHPClass)
+  const formatWildfireRiskData = ({aggregateEcoObj , consolidatedWHPClass}) => {
+    console.log(aggregateEcoObj || consolidatedWHPClass)
 
     const wildfireRiskData = [
-      {name:"VERY HIGH", value: aggragateEcoObj ? aggragateEcoObj.WHPClass["Very High"] : consolidatedWHPClass['Very High']},
-      {name: "HIGH", value: aggragateEcoObj ? aggragateEcoObj.WHPClass["High"] : consolidatedWHPClass['High']},
-      {name: "MODERATE", value: aggragateEcoObj ? aggragateEcoObj.WHPClass["Moderate"] : consolidatedWHPClass['Moderate']},
-      {name: "LOW", value: aggragateEcoObj ? aggragateEcoObj.WHPClass["Low"] : consolidatedWHPClass['Low']},
-      {name: "VERY LOW", value: aggragateEcoObj ? aggragateEcoObj.WHPClass["Very Low"] : consolidatedWHPClass['Very Low']},
+      {name:"VERY HIGH", value: aggregateEcoObj ? aggregateEcoObj.WHPClass["Very High"] : consolidatedWHPClass['Very High']},
+      {name: "HIGH", value: aggregateEcoObj ? aggregateEcoObj.WHPClass["High"] : consolidatedWHPClass['High']},
+      {name: "MODERATE", value: aggregateEcoObj ? aggregateEcoObj.WHPClass["Moderate"] : consolidatedWHPClass['Moderate']},
+      {name: "LOW", value: aggregateEcoObj ? aggregateEcoObj.WHPClass["Low"] : consolidatedWHPClass['Low']},
+      {name: "VERY LOW", value: aggregateEcoObj ? aggregateEcoObj.WHPClass["Very Low"] : consolidatedWHPClass['Very Low']},
   ];
 
     console.log({ wildfireRiskData })
@@ -2916,7 +2915,8 @@ const containmentBar =  (containment) => {
       document.querySelector('#wildfire-risk-data-control').innerText = ``
       
     if(data.reduce((a,b) => a + b.value, 0) === 0){
-     document.querySelector('#wildfire-risk-data-control').innerText = `No data available`
+      document.querySelector('#wildfire-risk-data-control').innerText = ``
+      //  document.querySelector('#wildfire-risk-data-control').innerText = `No data available`
      return
     }
 
@@ -2942,7 +2942,7 @@ const containmentBar =  (containment) => {
         // .style('margin-right', `${margin.left}px`)
       .append('svg')
         .attr('id', 'wildfire-risk-graph-svg')
-        .attr('transform', `translate(${margin.left}, 0 )`)
+        .attr('transform', `translate(0, 0)`)
 
   const barColors = d3.scaleOrdinal()
                         .domain(data)
@@ -2952,7 +2952,7 @@ const containmentBar =  (containment) => {
       const svg = d3.select('#wildfire-risk-graph-svg')
         .attr('height', '100%')
         .attr('width', '100%')
-        .attr('viewBox',`0 0 ${width} ${height}` )
+        .attr('viewBox',`-45 0 ${width} ${height}` )
         .attr('preserveAspectRatio', 'none')
         .style('overflow', 'visible');        
       
@@ -3331,10 +3331,10 @@ const containmentBar =  (containment) => {
     `
   }
 
-  const habitatInfoRender = ({ aggragateEcoObj, perimeterEcology }) => {
-    console.log(perimeterEcology || aggragateEcoObj);
+  const habitatInfoRender = ({ aggregateEcoObj, perimeterEcology }) => {
+    console.log(perimeterEcology || aggregateEcoObj);
 
-    const containerSubheader = aggragateEcoObj
+    const containerSubheader = aggregateEcoObj
                              ? 'WITHIN 2 MILE RADIUS'
                              : 'WITHIN FIRE PERIMETER'
 
@@ -3343,9 +3343,11 @@ const containmentBar =  (containment) => {
 
     habitatContentHeader
 
+    const nonePresentText = `<h4 class = "bold">None present</h4>`
+
     const ecoRegion = (() => {
-      if(aggragateEcoObj){
-        return typeof(aggragateEcoObj.L3EcoReg) !== "string" ? aggragateEcoObj.L3EcoReg[0][0] : aggragateEcoObj.L3EcoReg;
+      if(aggregateEcoObj){
+        return typeof(aggregateEcoObj.L3EcoReg) !== "string" ? aggregateEcoObj.L3EcoReg[0][0] : aggregateEcoObj.L3EcoReg;
       } else if(perimeterEcology){
         return perimeterEcology.L3EcoReg
       } else {
@@ -3354,8 +3356,8 @@ const containmentBar =  (containment) => {
     })();
 
     const landformType = (() => {
-      if(aggragateEcoObj){
-        return typeof(aggragateEcoObj.LandForm) !== "string" ? aggragateEcoObj.LandForm[0][0] : aggragateEcoObj.LandForm;
+      if(aggregateEcoObj){
+        return typeof(aggregateEcoObj.LandForm) !== "string" ? aggregateEcoObj.LandForm[0][0] : aggregateEcoObj.LandForm;
       } else if(perimeterEcology){
         return perimeterEcology.LandForm
       } else {
@@ -3364,8 +3366,8 @@ const containmentBar =  (containment) => {
     })();
 
     const biodiversity = (() => {
-      if(aggragateEcoObj){
-        return typeof(aggragateEcoObj.RichClass) !== "string" ? aggragateEcoObj.RichClass[0][0] : aggragateEcoObj.RichClass;
+      if(aggregateEcoObj){
+        return typeof(aggregateEcoObj.RichClass) !== "string" ? aggregateEcoObj.RichClass[0][0] : aggregateEcoObj.RichClass;
       } else if(perimeterEcology){
         return perimeterEcology.RichClass 
       } else {
@@ -3374,28 +3376,33 @@ const containmentBar =  (containment) => {
     })();
 
     const criticalHabitat = (() => {
-      if(aggragateEcoObj){
-        return aggragateEcoObj.CritHab
-      } else if(perimeterEcology){
+      if(aggregateEcoObj){
+        return aggregateEcoObj.CritHab
+      } else if(perimeterEcology.CritHab){
         return perimeterEcology.CritHab  
       } else {
-        return 'None present'
+        return nonePresentText
       }
     })();
 
     const protectedAreas = (() => {
-      if(aggragateEcoObj){
-        return aggragateEcoObj.OwnersPadus
-      } else if(perimeterEcology){
+      if(aggregateEcoObj.OwnersPadus){
+        
+        const shortPadusList = `<h4 class = "bold">${aggregateEcoObj.OwnersPadus.join(', ')}</h4>`
+        const longPadusList = `<p class = "bold">${aggregateEcoObj.OwnersPadus.join(', ')}</p>`
+        
+        return aggregateEcoObj.OwnersPadus.length < 4 ? shortPadusList : longPadusList
+      } else if(perimeterEcology.OwnersPadus){
         return perimeterEcology.OwnersPadus  
       } else {
-        return 'None present'
+        console.log(nonePresentText)
+        return nonePresentText
       }
     })();
 
     const forestGroup = (() => {
-      if(aggragateEcoObj){
-        return typeof(aggragateEcoObj.ForestTypeGroup) !== "string" ? aggragateEcoObj.ForestTypeGroup[0][0] : aggragateEcoObj.ForestTypeGroup;
+      if(aggregateEcoObj){
+        return typeof(aggregateEcoObj.ForestTypeGroup) !== "string" ? aggregateEcoObj.ForestTypeGroup[0][0] : aggregateEcoObj.ForestTypeGroup;
       } else if(perimeterEcology){
         return perimeterEcology.ForestTypeGroup
       } else {
@@ -3404,8 +3411,8 @@ const containmentBar =  (containment) => {
     })();
 
     const potentialCarbon = (() => {
-      if(aggragateEcoObj){
-        return aggragateEcoObj.SumCarbon
+      if(aggregateEcoObj){
+        return aggregateEcoObj.SumCarbon
       } else if(perimeterEcology){
         return perimeterEcology.SumCarbon  
       } else {
@@ -3484,7 +3491,7 @@ const containmentBar =  (containment) => {
       <div>
         <p style = "margin-bottom: 2px;">PROTECTED AREAS, TRIBAL LANDS, </br>& WILDERNESS AREAS</p>
         <div class = "ecoregionInformation">
-          <p>${protectedAreas}</p>
+          <div>${protectedAreas}</div>
         </div>
       </div>
       `;
