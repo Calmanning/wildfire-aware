@@ -16,15 +16,6 @@ main {
   overflow: hidden;
 }
 
-/* @font-face {
-  font-family: 'Avenir Next Bold';
-  font-weight: bold;
-  font-style: normal;
-  font-variant: normal;
-  src: url('./fonts/AvenirNext-Bold/AvenirNext-Bold.pbf') format('eot');
-    
-} */
-
 b,
 strong,
 h1,
@@ -38,6 +29,8 @@ h5 {
 img {
   object-fit: cover;
 }
+
+
 
 .link {
   color: #ffba1f;
@@ -95,7 +88,7 @@ img {
   background-color: rgba(17, 49, 73, 1);
   z-index: 3;
   margin: 0px 0px;
-  padding:0 10px;
+  padding:5px 10px 0;
   
 }
 
@@ -135,6 +128,26 @@ img {
   color: white;
   background-color: rgba(0, 48, 77, 0.95);
   border-top: 1px solid hsla(0, 0%, 100%, 0.3);
+}
+
+/* SCROLL BAR */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #032235;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #FFBA1F;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #FFBA1F;
 }
 
 /* ESRI WIDGETS */
@@ -257,6 +270,11 @@ img {
   font-weight:bolder;
   border: none;
 }
+
+#bottom-btn {
+  margin: 30px 0 110px;
+}
+
 /* GRAPH & SVG */
 .tick text {
   font-size: 0.875rem;
@@ -315,9 +333,13 @@ img {
   display: inline;
 }
 
-#habitat-container .bold{
-  color: #6aa067;
-  line-height: 1.2;
+/* #people-container {
+   padding: 0 15px; 
+} */
+
+#people-container .bold {
+  color: #07698C;
+  margin-bottom: -5px;
 }
 
 #housing-container .bold {
@@ -328,17 +350,12 @@ img {
     color: #a5927c;
 }
 
-/* #people-container {
-   padding: 0 15px; 
-} */
-
-#people-container .bold {
-    color: #07698C;
-    margin-bottom: -5px;
+#habitat-container .bold {
+  color: #6aa067;
+  line-height: 1.2;
 }
 
-
-
+/* LAYER LIST LEGEND */
 .legend-spacing{
   display: flex;
   margin-bottom: 5px;
@@ -562,7 +579,7 @@ img {
 
   #sideBarTop {
     display: initial;
-    padding-top: 45px;
+    padding-top: 40px;
     position: absolute;
     top: 0px;
     left: 0;
@@ -580,7 +597,7 @@ img {
     margin: 0 47%
   }
   .divider {
-    margin: 0.5rem -1rem;
+    margin: 0.5rem -1rem 0rem;
     padding-bottom:0;
   }
 
@@ -600,7 +617,7 @@ img {
     background-color: rgba(17, 49, 73, 1);
     z-index: 3;
     margin: 0px 0px;
-    padding: 0 10px;
+    padding: 0px 10px 0;
   }
 
   #infoBar {
@@ -627,6 +644,10 @@ img {
     bottom: 2rem;
     max-height: 85%;
   }
+
+    #bottom-btn {
+      margin-bottom:  30px 0px 0px;
+    }
 }
 
 @media screen and (max-width: 660px){

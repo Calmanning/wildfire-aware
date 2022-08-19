@@ -132,6 +132,8 @@ require([
   fireListBtn.style.display = 'none', 
   sideBarInformation.style.display = 'none', 
   fireListSorting.style.display = 'initial',
+  removePreviousFireIcon()
+  removeCircleGraphic()
   scrollToTop();
   return mapView.goTo({ 
                       zoom: 5,
@@ -314,8 +316,10 @@ const resetURLParams = () => {
 
   const toggleFirePointsLayerVisibility = (() => {
     firePointsLayerCheckbox.addEventListener('change', () => {
+      console.log('fire points toggle')
       firePoints.visible = firePointsLayerCheckbox.checked;
       toggleLegendDivVisibility(firePointLegend);
+      toggleFireGraphicVisibility()
     });
   })();  
 
@@ -646,6 +650,13 @@ setTimeout(() => {
     ? graphicsLayer.graphics.pop()
     : null;
 
+  }
+
+  const toggleFireGraphicVisibility = () => {
+    console.log(graphicsLayer.graphics)
+    console.log(graphicsLayer.graphics.items[0].visible)
+
+    graphicsLayer.graphics.items[0].visible = firePoints.visible;
   }
 
 const goto = async ({ mapPoint }) => {
