@@ -928,8 +928,8 @@ const goto = async ({ mapPoint }) => {
 
         mapView.graphics.add(longDashCircle)
       } 
-    });
-
+    }
+  );
 
   searchWidget.on('search-complete', event => {
     console.log(event)
@@ -938,9 +938,24 @@ const goto = async ({ mapPoint }) => {
     
   });
 
+  const sizeReport = (() => {
+    console.log('window')
+    console.log(window.screen.width)
+    if (window.screen.width > 720) {
+      sideBarContainer.style.height ?  sideBarContainer.style.height = null : null;
+    }
+  });
+
+  window.addEventListener('load', sizeReport, false);
+  window.addEventListener('resize', sizeReport, false);
+
+  
   mapView.on('click', async (event) => {
     
-    window.screen.width <= 720 ? sideBarContainer.style.height = '100%' : null;
+    window.screen.width <= 720 
+                        ? sideBarContainer.style.height = '100%' 
+                        : null;
+    sideBarToggleArrow.style.transform = 'rotate(180deg)';
     await removeCircleGraphic()
 
     await removePreviousFireIcon();
@@ -1150,7 +1165,7 @@ const goto = async ({ mapPoint }) => {
 
     const firesInViewEl = document.getElementById('firesInView')
 
-    const fireSpan = `<span style="font-size: 1rem; font-weight: bold; color: #FFBA1F; margin-right: 5px;"> ${number} </span> <span>FIRES IN VIEW</span>`;
+    const fireSpan = `<span style="font-size: 24px; font-weight: bold; color: #FFBA1F; margin-right: 5px;"> ${number} </span> <span style="font-size: 20px;">FIRES IN VIEW</span>`;
 
     firesInViewEl.innerHTML = fireSpan
   }
@@ -1553,9 +1568,9 @@ const goto = async ({ mapPoint }) => {
               return 'Extreme'
           } else if (droughtCondition === 4) {
               return ' Exceptional'
-          } else if (droughtCondition === 'Drought conditions not reported') {
+          } else if (droughtCondition === 'Not present') {
             return 'None present'
-          }
+          } 
         }
         console.log(droughtStatus(droughtCondition))
         renderDroughtStatus( droughtStatus(droughtCondition))
@@ -2570,7 +2585,8 @@ const containmentBar =  (containment) => {
     
     const barColors = d3.scaleOrdinal()
     .domain(data)
-    .range(['#021a26', '#FFBA1F',])
+    .range(['#032235', '#FFBA1F',])
+    
   
     const SVGcontainer = d3.select('#containment').append('div')
     .attr('id', 'svgContainer')
@@ -2746,7 +2762,7 @@ const containmentBar =  (containment) => {
    .remove()
 
   const range = 350;
-  const height = 75;
+  const height = 55;
   const width = 350;
   
   const margin = {
@@ -2776,7 +2792,7 @@ const containmentBar =  (containment) => {
       .attr('class', 'bar')
       .attr('width', '100%')
       .attr('height', '100%')
-      .attr('viewBox',`0 0 ${width} ${height}` )
+      .attr('viewBox',`0 0 ${width} 65` )
       .attr('preserveAspectRatio', 'none')
       
 
@@ -2807,7 +2823,7 @@ const containmentBar =  (containment) => {
 
     g.insert('text')
       .attr('id','english-pop-header')
-      .attr('dy', '1em')
+      .attr('dy', '1.7em')
       .attr('text-anchor', 'middle')
       .text('SPEAKS ENGLISH')
       .attr('fill', '#efefef');
@@ -2823,7 +2839,7 @@ const containmentBar =  (containment) => {
     .remove();
 
   const range = 350;
-  const height = 75;
+  const height = 55;
   const width = 350;
   
   const margin = {
@@ -2882,7 +2898,7 @@ const containmentBar =  (containment) => {
 
     g.insert('text')
       .attr('id','vehicle-pop-header')
-      .attr('dy', '1em')
+      .attr('dy', '1.7em')
       .attr('text-anchor', 'middle')
       .text('HAS VEHICLE')
       .attr('fill', '#efefef');
@@ -3034,6 +3050,8 @@ const containmentBar =  (containment) => {
 
   const renderDroughtStatus = ( droughtStatus ) => {
 
+
+
     const drought = document.querySelector("#drought-condition").innerHTML = `
       <div style = "display: flex;">
           <div style = "width: max-content;">
@@ -3046,7 +3064,7 @@ const containmentBar =  (containment) => {
           </div>
         </div>`;
 
-    drought;
+    droughtStatus ? drought : document.querySelector("#drought-condition").innerHTML = '';
   }
 
   const clearWeatherGrid = () => {
@@ -3071,7 +3089,7 @@ const containmentBar =  (containment) => {
                     gap: 0px;
                     margin: auto;">
                         <div class="item-1" style = "margin: 15px 0 10px -5px; text-align: center;">
-                          <span class = "unit-conversion underline" style = "margin: 0 0 0 0;">&degF MPH
+                          <span class = "unit-conversion underline" style = "display: block; margin: -5px 0 -15px 0;">&degF MPH
                           </span>
                           </br>
                           <span class = "unit-conversion" style = "cursor: pointer; ">&degC KM/H

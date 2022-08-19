@@ -52,6 +52,15 @@ img {
     cursor: default;
 }
 
+.sortClass{
+  font-size: 20px;
+  padding-right: 2rem;
+}
+
+.SortClassLeftMargin {
+  margin-left: -16px;
+}
+
 #viewDiv {
   height: 100%;
   width: 100%;
@@ -63,17 +72,40 @@ img {
 
 #sideBar {
   background-color: rgba(17, 49, 73, 1);
+  width:416px;
 }
 
 #sideBarToggleArrow {
   display: none;
 }
 
+#sideBarHeader{
+  position: sticky;
+  top: 0px;
+  background-color: rgba(17, 49, 73, 1);
+  z-index: 3;
+  margin: 0px 0px;
+  padding-top: 9px;
+  /* display: initial; */
+}
+
+#sideBarMobileHeader {
+  position: sticky;
+  top: 0px;
+  background-color: rgba(17, 49, 73, 1);
+  z-index: 3;
+  margin: 0px 0px;
+  padding:0 10px;
+  
+}
+
 #infoBar {
+  /* background-color: rgba(17, 49, 73, 1); */
   width: 416px;
   height: 100%;
-  padding: 0.5rem 1rem;
+  padding: 0rem 1rem;
   overflow: hidden auto;
+  margin-top: 0;
 }
 
 #modal-btn {
@@ -209,7 +241,7 @@ img {
 /* MAP LAYERS CONTAINER & BUTTON */
 #layerListContainer {
   width: 215px;
-  max-height: 58vw;
+  max-height: 87%;
   overflow-y: auto;
   position: absolute;
   z-index: 1;
@@ -251,6 +283,7 @@ img {
   margin: 0.5rem 0rem;
   border: none;
   border-top: 2px solid hsl(0, 0%, 70%);
+  /* padding-bottom: 13px */
 }
 
 .fire-item p {
@@ -295,9 +328,9 @@ img {
     color: #a5927c;
 }
 
-#people-container {
-  padding: 0 15px;
-}
+/* #people-container {
+   padding: 0 15px; 
+} */
 
 #people-container .bold {
     color: #07698C;
@@ -548,11 +581,42 @@ img {
   }
   .divider {
     margin: 0.5rem -1rem;
+    padding-bottom:0;
+  }
+
+  #sideBarHeader {
+    position: sticky;
+    top: 0px;
+    background-color: rgba(17, 49, 73, 1);
+    z-index: 3;
+    margin: -3px -14px;
+    /* padding-top: 10px; */
+    display: none;
+  }
+
+  #sideBarMobileHeader {
+    position: sticky;
+    top: 0px;
+    background-color: rgba(17, 49, 73, 1);
+    z-index: 3;
+    margin: 0px 0px;
+    padding: 0 10px;
   }
 
   #infoBar {
+    /* background-color: rgba(17, 49, 73, 0.85); */
     width: 100%;
     overscroll-behavior: contain;
+    padding-top: 110px;
+  }
+
+  .sortClass {
+    font-size: 16px;
+    padding-right: 1rem;
+  }
+
+  .SortClassLeftMargin {
+    margin-left: 0px;
   }
 
   #viewDiv .esri-ui-bottom-right {
@@ -561,7 +625,7 @@ img {
 
   #layerListContainer {
     bottom: 2rem;
-    max-height: 200vw;
+    max-height: 85%;
   }
 }
 
