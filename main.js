@@ -22,7 +22,7 @@ require([
 // GLOBAL VARIABLES
 
   //DOM VARIABLES
-  const ViewURL = new URL(window.location.href)
+  const viewURL = new URL(window.location.href)
   const sideBarContainer = document.querySelector("#sideBar");
   const sideBarTop  = document.querySelector('#sideBarTop');
   const sideBarToggleArrow = document.querySelector('#sideBarToggleArrow');
@@ -774,15 +774,13 @@ const goto = async ({ mapPoint }) => {
     
     const fireType = fireData.incidentType;
     
-    const fireIcon = ({ fireType , fireAge }) => {
-      console.log(fireAge)
-      if(fireType == 'WILDFIRE' && (fireAge>1)) {
-      return "https://www.arcgis.com/sharing/rest/content/items/3ce2a29d3c794e288b24fcd39ed1f966/data"
-     } else if (fireType === 'WILDFIRE') {
-      return "https://www.arcgis.com/sharing/rest/content/items/f5ae5a1952d140f9b9c4c5c6ed9ad5da/data"
-      } else if (fireType === 'INCIDENT COMPLEX') {
-        return "https://www.arcgis.com/sharing/rest/content/items/f5ae5a1952d140f9b9c4c5c6ed9ad5da/data"
-      } else {
+    const fireIcon = () => {
+      
+      if (fireData.personnelAssigned && fireType === "PERSCRIPTTION BURN") {
+      return "https://www.arcgis.com/sharing/rest/content/items/4078350792ea4da2b36cab7351909fd7/data"
+     } else if (typeof(fireData.personnelAssigned) === 'number') {
+      return "https://esri.maps.arcgis.com/sharing/rest/content/items/b56beb3d45d14b63af0113901dd767f7/data"
+      } else if(typeof(fireData.personnelAssigned) === 'string') {
       return "https://www.arcgis.com/sharing/rest/content/items/83e1078b2faf42309b73ba46bd86f1b8/data"
       }
     }
@@ -1020,12 +1018,12 @@ const goto = async ({ mapPoint }) => {
     console.log('URL stuff')
     console.log(mapPoint)
     
-    // ViewURL.searchParams.set(`@`, `${mapPoint.x}, ${mapPoint.y}`)
-    ViewURL.hash = `@=${mapPoint.longitude.toFixed(3)},${mapPoint.latitude.toFixed(3)},${mapView.zoom <= 8 ? 12 : mapView.zoom},${irwinIdNumber ? irwinIdNumber :'loc'}`
-    console.log(ViewURL)
-    console.log(ViewURL.hash)
+    // viewURL.searchParams.set(`@`, `${mapPoint.x}, ${mapPoint.y}`)
+    viewURL.hash = `@=${mapPoint.longitude.toFixed(3)},${mapPoint.latitude.toFixed(3)},${mapView.zoom <= 8 ? 12 : mapView.zoom},${irwinIdNumber ? irwinIdNumber :'loc'}`
+    console.log(viewURL)
+    console.log(viewURL.hash)
     console.log(document.URL)
-    return window.location.href = ViewURL.hash.toString()
+    return window.location.href = viewURL.hash.toString()
   }
 
   fireListBtn.addEventListener('click', async () => {
@@ -1059,8 +1057,8 @@ const goto = async ({ mapPoint }) => {
   }
 
   const sideBarToggleView = (() => {
-    sideBarTop.addEventListener('click', () => {
-      
+    sideBarToggleArrow.addEventListener('click', (event) => {
+      event.preventDefault()
       if (sideBarContainer.style.height === '100%') {
         sideBarContainer.style.height = '0'
         sideBarToggleArrow.style.transform = 'rotate(0deg)'
@@ -1191,8 +1189,6 @@ const goto = async ({ mapPoint }) => {
       : fireListDisplayToggle(); 
       
       goto({ mapPoint });
-
-      renderWeatherHeader()
         
       currentDroughtQuery({ mapPoint });
 
@@ -1443,16 +1439,17 @@ const goto = async ({ mapPoint }) => {
           const perimeterWeightedMedianHousing = Math.round(consolidatedFirePerimeterData.sum_weightedmedianhomevalue/consolidatedFirePerimeterData.sum_h0010001)
           
           const perimeterHousingData = {
-            TotalHousingUnits: consolidatedFirePerimeterData.sum_h0010001 ? consolidatedFirePerimeterData.sum_h0010001.toLocaleString() : 'No housing data',
-            MedianValue: consolidatedFirePerimeterData.sum_weightedmedianhomevalue ? `$${perimeterWeightedMedianHousing.toLocaleString()}` : 'No housing data'
+            TotalHousingUnits: consolidatedFirePerimeterData.sum_h0010001 ? consolidatedFirePerimeterData.sum_h0010001.toLocaleString() : null,
+            MedianValue: consolidatedFirePerimeterData.sum_weightedmedianhomevalue ? `$${perimeterWeightedMedianHousing.toLocaleString()}` : null
           }
 
           const perimeterPopulation = {
-            totalPopulation: consolidatedFirePerimeterData.sum_p0010001 ? consolidatedFirePerimeterData.sum_p0010001.toLocaleString() : 'No data',
-            percentofPopulationInPoverty: consolidatedFirePerimeterData.sum_estpopinpoverty = consolidatedFirePerimeterData.sum_estpopinpoverty ? `${parseFloat(consolidatedFirePerimeterData.sum_estpopinpoverty/consolidatedFirePerimeterData.sum_p0010001*100).toFixed(0)}%` : 'No data',
-            percentofPopulationWithDisability: consolidatedFirePerimeterData.sum_estpopwithdisability = consolidatedFirePerimeterData.sum_estpopwithdisability ? `${parseFloat(consolidatedFirePerimeterData.sum_estpopwithdisability/consolidatedFirePerimeterData.sum_p0010001*100).toFixed(0)}%` : 'No data'
+            totalPopulation: consolidatedFirePerimeterData.sum_p0010001 ? consolidatedFirePerimeterData.sum_p0010001.toLocaleString() : 0,
+            percentofPopulationInPoverty: consolidatedFirePerimeterData.sum_estpopinpoverty = consolidatedFirePerimeterData.sum_estpopinpoverty ? `${parseFloat(consolidatedFirePerimeterData.sum_estpopinpoverty/consolidatedFirePerimeterData.sum_p0010001*100).toFixed(0)}%` : '0%',
+            percentofPopulationWithDisability: consolidatedFirePerimeterData.sum_estpopwithdisability = consolidatedFirePerimeterData.sum_estpopwithdisability ? `${parseFloat(consolidatedFirePerimeterData.sum_estpopwithdisability/consolidatedFirePerimeterData.sum_p0010001*100).toFixed(0)}%` : "0%"
           }
-
+        
+        //SETTING UP PERIMETER'S ECOLOGY INFORMATION
           const perimeterLandCover  = {
             PctBarren: consolidatedFirePerimeterData.PctBarren,
             PctCropland: consolidatedFirePerimeterData.PctCropland,
@@ -1465,12 +1462,39 @@ const goto = async ({ mapPoint }) => {
             PctWetlands: consolidatedFirePerimeterData.PctWetlands,
           }
 
-          const perimeterEcology = {
+
+        //modifying OWNERSPADUS information
+        consolidatedFirePerimeterData.OwnersPadus
+        ?  consolidatedFirePerimeterData.OwnersPadus = consolidatedFirePerimeterData.OwnersPadus.split(', ').filter(entry => !entry.includes(undefined) && !entry === false).reduce((OwnersPadusObj, OwnersPadusItem) => {
+            !OwnersPadusObj[OwnersPadusItem] 
+            ? OwnersPadusObj[OwnersPadusItem] = 1 
+            : OwnersPadusObj[OwnersPadusItem]++
+            return OwnersPadusObj
+            },{})
+        : null;
+         //if there are no keys return a string, otherwise join the array together.
+        !consolidatedFirePerimeterData.OwnersPadus[Object.keys(consolidatedFirePerimeterData.OwnersPadus)[0]]
+        ? consolidatedFirePerimeterData.OwnersPadus = null
+        : consolidatedFirePerimeterData.OwnersPadus = Object.keys(consolidatedFirePerimeterData.OwnersPadus).join(', ').split(', ');
+
+        //ForestTypeGroup
+        consolidatedFirePerimeterData.ForestTypeGroup = consolidatedFirePerimeterData.ForestTypeGroup.replace(/'/g, '"');
+        const consolidatedForestTypeGroup = JSON.parse(consolidatedFirePerimeterData.ForestTypeGroup)
+        
+        consolidatedFirePerimeterData.ForestTypeGroup = consolidatedForestTypeGroup;
+        consolidatedFirePerimeterData.ForestTypeGroup = !consolidatedForestTypeGroup[Object.keys(consolidatedForestTypeGroup)[0]]
+        ? consolidatedFirePerimeterData.ForestTypeGroup = null
+        : consolidatedFirePerimeterData.ForestTypeGroup = Object.keys(consolidatedForestTypeGroup);
+          
+        const perimeterEcology = {
+            Hex_Count: consolidatedFirePerimeterData.Hex_Count, 
             L3EcoReg: consolidatedFirePerimeterData.L3EcoReg ? consolidatedFirePerimeterData.L3EcoReg : 'No information',
             LandForm: consolidatedFirePerimeterData.LandForm ? consolidatedFirePerimeterData.LandForm : 'No information',
             RichClass: consolidatedFirePerimeterData.RichClass ? consolidatedFirePerimeterData.RichClass : 'No data',
             CritHab:  consolidatedFirePerimeterData.CritHab ? consolidatedFirePerimeterData.CritHab : null,
-            OwnersPadus: consolidatedFirePerimeterData.OwnersPadus ? consolidatedFirePerimeterData.OwnersPadus.split(',') : null
+            OwnersPadus: consolidatedFirePerimeterData.OwnersPadus ? consolidatedFirePerimeterData.OwnersPadus : null,
+            ForestTypeGroup: consolidatedFirePerimeterData.ForestTypeGroup ? consolidatedFirePerimeterData.ForestTypeGroup : null, 
+            SumCarbon: consolidatedFirePerimeterData.SumCarbon? Math.round(consolidatedFirePerimeterData.SumCarbon) : null
           }
 
            try {
@@ -1510,7 +1534,6 @@ const goto = async ({ mapPoint }) => {
 
     const populationAndEcologyPointHexQuery = ({ irwinIdNumber, mapPoint }) => {
     
-    
     const url ='https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/Wildfire_aggregated_v1/FeatureServer/0/query';
       console.log('getting point data')
     console.log(irwinIdNumber)
@@ -1546,9 +1569,9 @@ const goto = async ({ mapPoint }) => {
 
     const params = {
      where: '1=1',
-      geometry: fireInformation ? `${fireInformation[0]}` : mapPoint,
+      geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
       geometryType: 'esriGeometryPoint',      
-      inSR: fireInformation ? 4326 : 4326,
+      inSR: 4326,
       spatialRelationship: 'intersects',
       outFields: 'dm',
       returnQueryGeometry: true,
@@ -1607,7 +1630,7 @@ const goto = async ({ mapPoint }) => {
       
       const params = {
         where: '1=1',
-        geometry: fireInformation ? `${fireInformation[0]}` : mapPoint,
+        geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
         geometryType: 'esriGeometryPoint',      
         inSR: 4326,
         spatialRelationship: 'intersects',
@@ -1621,6 +1644,8 @@ const goto = async ({ mapPoint }) => {
       })
         .then((response) => {
           console.log('temperature')
+          console.log(response)
+          if(response.data.fields){
           console.log(response.data.features.sort((a, b) => {
             return a.attributes.Period - b.attributes.Period 
           }))
@@ -1628,13 +1653,25 @@ const goto = async ({ mapPoint }) => {
           a.attributes.Period - b.attributes.Period});
 
           const temp = {
-            todayF: dailyTemperatures[0].attributes.Temp,
-            tomorrowF: dailyTemperatures[1].attributes.Temp,
-            todayC: Math.round((dailyTemperatures[0].attributes.Temp - 32) * 5/9),
-            tomorrowC: Math.round((dailyTemperatures[1].attributes.Temp - 32) * 5/9)
+            todayF: `${dailyTemperatures[0].attributes.Temp}&deg F`,
+            tomorrowF: `${dailyTemperatures[1].attributes.Temp}&deg F`,
+            todayC: `${Math.round((dailyTemperatures[0].attributes.Temp - 32) * 5/9)}&deg C`,
+            tomorrowC: `${Math.round((dailyTemperatures[1].attributes.Temp - 32) * 5/9)}&deg C`,
+            renderWeather: true
           };
 
           resolve(temp)
+        } else {
+          const temp = {
+            todayF: 'No data',
+            tomorrowF: 'No data',
+            todayC: 'No data',
+            tomorrowC: 'No data',
+            renderWeather: false
+          };
+
+          resolve(temp)
+        }
         })
         .catch((error) => {
           console.error(error)
@@ -1896,24 +1933,19 @@ const goto = async ({ mapPoint }) => {
                   
         console.log(aggregatedPopulationBlockObject)
         
-
-    //WHEN THERE IS NO NUMBER we get NaN. Not 0. Make sure we're working with these conditions in the renders -- use 'No Data' instead of 0.  
       const populationData = [{'data': aggregatedPopulationBlockObject.Estimated0_14Pop, name: '< 14'}, {'data': aggregatedPopulationBlockObject.Estimated15_17Pop, name: '15-17'}, {'data': aggregatedPopulationBlockObject.Estimated18to64Pop, name: '18-64'},{'data': aggregatedPopulationBlockObject.Estimated65_79Pop, 'name': '65-79'},{'data': aggregatedPopulationBlockObject.Estimated80PlusPop, 'name': '+ 80'}];
       const englishSpeakingPopulation = {value: parseFloat(100 - (aggregatedPopulationBlockObject.EstPopNoEnglish/aggregatedPopulationBlockObject.P0010001)*100).toFixed(1)}
       const populationWithVehicle = {value: parseFloat(100 - (aggregatedPopulationBlockObject.EstPopWith0Vehicles/aggregatedPopulationBlockObject.P0010001)*100).toFixed(1)}
       const weightedMedianHomeValue = Math.round(aggregatedPopulationBlockObject.WeightedMedianHomeValue/aggregatedPopulationBlockObject.H0010001);
 
       const radiusHousingData = {
-        TotalHousingUnits: aggregatedPopulationBlockObject.H0010001 ? aggregatedPopulationBlockObject.H0010001.toLocaleString() : 'No housing data',
-        MedianValue: aggregatedPopulationBlockObject.WeightedMedianHomeValue ? `$${weightedMedianHomeValue.toLocaleString()}` : 'No housing data'
+        TotalHousingUnits: aggregatedPopulationBlockObject.H0010001 ? aggregatedPopulationBlockObject.H0010001.toLocaleString() : null,
+        MedianValue: aggregatedPopulationBlockObject.WeightedMedianHomeValue ? `$${weightedMedianHomeValue.toLocaleString()}` : null
       }
       const totalRadiusPopulation = {
-        totalPopulation: aggregatedPopulationBlockObject.P0010001 ? aggregatedPopulationBlockObject.P0010001.toLocaleString() : 'No data',
-        percentofPopulationInPoverty: aggregatedPopulationBlockObject.EstPopinPoverty ? `${parseFloat(aggregatedPopulationBlockObject.EstPopinPoverty/aggregatedPopulationBlockObject.P0010001*100).toFixed(0)}%` : 'No data',
-        percentofPopulationWithDisability: aggregatedPopulationBlockObject.EstPopWithDisability ? `${parseFloat(aggregatedPopulationBlockObject.EstPopWithDisability/aggregatedPopulationBlockObject.P0010001*100).toFixed(0)}%` : 'No data'
-      }
-      const radiusEcologyData = {
-
+        totalPopulation: aggregatedPopulationBlockObject.P0010001 ? aggregatedPopulationBlockObject.P0010001.toLocaleString() : 0,
+        percentofPopulationInPoverty: aggregatedPopulationBlockObject.EstPopinPoverty ? `${parseFloat(aggregatedPopulationBlockObject.EstPopinPoverty/aggregatedPopulationBlockObject.P0010001*100).toFixed(0)}%` : '0%',
+        percentofPopulationWithDisability: aggregatedPopulationBlockObject.EstPopWithDisability ? `${parseFloat(aggregatedPopulationBlockObject.EstPopWithDisability/aggregatedPopulationBlockObject.P0010001*100).toFixed(0)}%` : '0%'
       }
       
       populationBarGraph( populationData )
@@ -1941,299 +1973,6 @@ const goto = async ({ mapPoint }) => {
    });
   };
 
-  // const populationAgeByYear = ({ mapPoint, fireInformation }) => {
-
-  //   const url = 'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/ACS_Total_Population_Boundaries/FeatureServer/2/query'
-
-  //   const params = {
-  //     where: '1=1',
-  //     geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
-  //     geometryType: 'esriGeometryPoint',      
-  //     inSR: 4326,
-  //     outFields: ['B01001_001E', 'B01001_003E', 'B01001_004E', 'B01001_027E', 'B01001_028E', 'B01001_005E', 'B01001_006E', 'B01001_029E', 'B01001_030E', 'B01001_049E', 'B01001_048E', 'B01001_025E', 'B01001_024E', 'B01001_calc_pctLT18E', 'B01001_calc_numLT18E', 'B01001_calc_numGE65E', 'B01001_calc_numGE65E'].join(','),
-  //     returnGeometry: true,
-  //     returnQueryGeometry: true,
-  //     f: 'json'
-  //   }
-
-  //   axios.get(url, {
-  //     params
-  //   })
-  //   .then((response) => {
-
-  //     const underFourteenPop = response.data.features[0] 
-  //     ? response.data.features[0].attributes.B01001_003E + response.data.features[0].attributes.B01001_004E + response.data.features[0].attributes.B01001_005E + response.data.features[0].attributes.B01001_027E + response.data.features[0].attributes.B01001_028E + response.data.features[0].attributes.B01001_029E
-  //     : 'No information available';
-
-  //     const fifteenToSeventeenPop = response.data.features[0]
-  //     ? response.data.features[0].attributes.B01001_006E + response.data.features[0].attributes.B01001_030E
-  //     : 'No information available';
-
-  //     const eightteenToSixtyfourPop = response.data.features[0] 
-  //     ? response.data.features[0].attributes.B01001_001E -  response.data.features[0].attributes.B01001_calc_numLT18E - response.data.features[0].attributes.B01001_calc_numGE65E
-  //     : 'No information available';
-
-  //     const eightyPop = response.data.features[0]
-  //     ? response.data.features[0].attributes.B01001_024E + response.data.features[0].attributes.B01001_025E + response.data.features[0].attributes.B01001_048E + response.data.features[0].attributes.B01001_049E
-  //     : 'No information available';
-
-  //     const sixtyfiveToSeventynine = response.data.features[0]
-  //     ? response.data.features[0].attributes.B01001_calc_numGE65E - eightyPop
-  //     : 'No information available';
-
-  //     const censusTract = response.data.features[0]
-  //     ? response.data.features[0].geometry
-  //     : 'geometry unavailable'; 
-
-  //     const totalPopulation = response.data.features[0] 
-  //     ? response.data.features[0].attributes.B01001_001E
-  //     : 'No information available';
-
-  //     const populationData = response.data.features[0] 
-  //     ? [{'data': underFourteenPop, name: '< 14'}, {'data': fifteenToSeventeenPop, name: '15-17'}, {'data': eightteenToSixtyfourPop, name: '18-64'},{'data': sixtyfiveToSeventynine, 'name': '65-79'},{'data': eightyPop, 'name': '+ 80'}]
-  //     : null;
-
-      
-      
-  //    //totalPopulationUIRender({ totalPopulation })
-  //   })
-  //   .catch((error) => {
-  //     console.error(error)
-  //   })
-  // };
-
-  // const disabledPopulationQuery = ({ mapPoint, fireInformation }) => {
-
-  // const url = 'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/ACS_Disability_by_Type_Boundaries/FeatureServer/2/query';
-
-  // const params = {
-  //    where: '1=1',
-  //      geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
-  //     geometryType: 'esriGeometryPoint',      
-  //     inSR: 4326,
-  //     outFields: 'C18108_calc_pctDE',
-  //     returnQueryGeometry: true,
-  //     f: 'json'
-  //   }
-
-  //   axios.get(url, {
-  //     params
-  //   })
-  //     .then((response) => {
-  //       const disabledPopulation = response.data.features[0]
-  //       ? `${response.data.features[0].attributes.C18108_calc_pctDE}`
-  //       : null; 
-  //       console.log('disabled population:')
-  //       console.log(disabledPopulation);
-  //       //disabledPopulationRender(disabledPopulation);
-  //     })
-  //     .catch((error) => {
-  //       console.error(error);
-  //     })
-  // }
-
-  // const povertyPopulationQuery = ({ mapPoint, fireInformation }) => {
-
-  //   const url = 'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/ACS_Poverty_by_Age_Boundaries/FeatureServer/2/query';
-
-  //   const params = {
-  //     where: '1=1',
-  //      geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
-  //     geometryType: 'esriGeometryPoint',      
-  //     inSR: 4326,
-  //     outFields: 'B17020_calc_pctPovE',
-  //     f:'json'
-  //   }
-
-  //   axios.get(url, {
-  //     params
-  //   })
-  //     .then((response) => {
-  //       const povertyPopulation = response.data.features[0]
-  //       ? `${response.data.features[0].attributes.B17020_calc_pctPovE}`
-  //       : null;
-  //       console.log('poverty population')
-  //       console.log(povertyPopulation)
-
-  //       // povertyPopulationRender(povertyPopulation)
-  //     })
-
-  // }
-
-  
-
-  // const englishSpeakingAdults = ({ mapPoint, fireInformation }) => {
-
-  //   const url = 'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/ACS_English_Ability_and_Lingusitic_Isolation_Households_Boundaries/FeatureServer/2/query'
-
-  //   const params = {
-  //     where: '1=1',
-  //      geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
-  //     geometryType: 'esriGeometryPoint',      
-  //     inSR: 4326,
-  //     outFields: '100 - B16004_calc_pctGE18LEAE',
-  //     f: 'json'
-  //   }
-
-  //   axios.get(url, {
-  //     params
-  //   })
-  //     .then((response) => {
-  //       const englishSpeakingPopulation = {value: response.data.features[0].attributes.FIELD_EXP_0}
-        
-        
-  //     })
-  // }
-
-  // const householdsWithVehicle = ({ mapPoint, fireInformation }) => {
-
-  //   const url = 'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/ACS_Vehicle_Availability_Boundaries/FeatureServer/2/query';
-
-  //   const params = {
-  //     where: '1=1',
-  //      geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
-  //     geometryType: 'esriGeometryPoint',      
-  //     inSR: 4326,
-  //     outFields: '100 - B08201_calc_pctNoVehE',
-  //     f: 'json'
-  //   }
-
-  //   axios.get(url, {
-  //     params
-  //   })
-  //     .then((response) => {
-  //       const concentrationOfVehicles = response.data.features[0].attributes.FIELD_EXP_0
-  //       console.log(`Households with a vehicle: ${response.data.features[0].attributes.FIELD_EXP_0}%`)
-        
-  //     })
-  // }
-
-  // const landCoverQuery = ({ mapPoint, fireInformation }) => {
-  //   console.log('landCover Called')
-    
-  //   const url = 'https://services.arcgis.com/jIL9msH9OI208GCb/ArcGIS/rest/services/Nlcd_Simplified_By_Census_Tract_220412a/FeatureServer/0/query'
-
-  //   const params = {
-  //     where: '1=1',
-  //     geometry: fireInformation ? `${fireInformation[0]}` : mapPoint,
-  //     geometryType: 'esriGeometryPoint',
-  //     inSR: 4326,
-  //     outFields: ['PctWater', 'PctSnowIce', 'PctDeveloped', 'PctBarren', 'PctForest', 'PctShrubScrub', 'PctGrassHerb', 'PctCropPasture', 'PctWetlands'].join(','),
-  //     f:'json',
-  //   }
-
-  //   axios.get(url, {
-  //     params
-  //   })
-  //     .then((response) => {
-  //       console.log(response)
-  //       const landCoverPercentage = response.data.features[0].attributes
-  //       console.log('Land Cover')
-  //       console.log(landCoverPercentage)
-  //       //landCoverDataFormatting({ landCoverPercentage })
-  //     })
-  // }
-
-  // const ecoregionQuery = ({ mapPoint, fireInformation }) => {
-
-  //   const url = 'https://services2.arcgis.com/FiaPA4ga0iQKduv3/ArcGIS/rest/services/EPA_Level_III_Ecoregions/FeatureServer/0/query'
-
-  //   const params = {
-  //     where: '1=1',
-  //      geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
-  //     geometryType: 'esriGeometryPoint',      
-  //     inSR: 4326,
-  //     outFields: 'NA_L3NAME',
-  //     f: 'json'
-  //   }
-
-  //   axios.get(url, {
-  //     params
-  //   })
-  //     .then((response) => {
-  //       console.log(`Ecoregion: ${response.data.features[0].attributes.NA_L3NAME}`)
-  //     })
-  // }
-
-  // const criticalHabitatQuery = ({ mapPoint, fireInformation }) => {
-
-  //   const url = 'https://services.arcgis.com/jIL9msH9OI208GCb/ArcGIS/rest/services/Environmental_Information_by_Tract/FeatureServer/0/query?'
-
-  //   const params = {
-  //     where: '1=1',
-  //     geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
-  //     geometryType: 'esriGeometryPoint',      
-  //     inSR: 4326,
-  //     outFields: '*',
-  //     f: 'json'
-  //   }
-
-  //   axios.get(url, {
-  //     params
-  //   })
-  //     .then((response) => {
-        
-  //       const uneditedProtectedLandsList = response.data.features[0].attributes.OwnersPadus
-  //                                       ? response.data.features[0].attributes.OwnersPadus.split(', ')
-  //                                       : 'None present';
-
-  //         uneditedProtectedLandsList[0] === uneditedProtectedLandsList[1]
-  //         ? uneditedProtectedLandsList.shift()
-  //         : null;
-
-       
-  //       const editedCritList = response.data.features[0].attributes.CritHab.replace(/ *\([^)]*\) */g, " ")
-
-  //       const habitatDetails = {
-  //         bioDiversity: response.data.features[0].attributes.RichClass,
-  //         ecoregion: response.data.features[0].attributes.L3EcoReg
-  //                  ? response.data.features[0].attributes.L3EcoReg
-  //                  : 'No information available',
-  //         landformType: response.data.features[0].attributes.LandForm
-  //                     ? response.data.features[0].attributes.LandForm
-  //                     : 'No information available',
-  //         criticalHabitat: response.data.features[0].attributes.CritHab
-  //                        ? editedCritList
-  //                        : 'None present',
-  //         protectedAreas: typeof(uneditedProtectedLandsList ) === "object"
-  //                         ? uneditedProtectedLandsList.join(', ')
-  //                         : 'None present',
-  //         tractRanking: response.data.features[0].attributes.RichRank,
-  //         totalTracts: response.data.features[0].attributes.TotalTracts,
-  //         state: response.data.features[0].attributes.State.toUpperCase()
-  //       }
-  //       console.log(habitatDetails)
-  //       habitatInfoRender({ habitatDetails })
-  //     })
-  //     .catch((error) => {
-  //       console.error(error)
-  //     })
-  // }
-
-  // const fireRiskQuery = ({ mapPoint, fireInformation }) => {
-  //   fireInformation ? console.log(fireInformation) : console.log(mapPoint)
-
-  //   const url = 'https://services.arcgis.com/XG15cJAlne2vxtgt/ArcGIS/rest/services/National_Risk_Index_Census_Tracts/FeatureServer/0/query'
-
-  //   const params = {
-  //     where: '1=1',
-  //     geometry: fireInformation ? `${fireInformation[0]}` : `${mapPoint.longitude}, ${mapPoint.latitude}`,
-  //     geometryType: 'esriGeometryPoint',      
-  //     inSR: 4326,
-  //     outFields: ['STATE','WFIR_RISKR'].join(','),
-  //     f: 'json'
-  //   }
-
-  //   axios.get(url, {
-  //     params
-  //   })
-  //     .then((response) => {
-  //       console.log(response.data.features[0])
-  //       const fireRiskRating = response.data.features[0].attributes.WFIR_RISKR
-  //       console.log(fireRiskRating)
-  //       renderRisk(fireRiskRating)
-  //     })
-  // }
 
 //NEW ECO QUERY
   const newEcoQuery = ({ mapPoint, fireInformation }) => {
@@ -2263,7 +2002,7 @@ const goto = async ({ mapPoint }) => {
         
         const ecoResponse = response.data.features;
         
-        if(response.data.features){
+        if(response.data.fields){
         const aggregateEcoObj = ecoResponse.reduce((a,b) => {
           Object.keys(b.attributes).forEach(key => {
             
@@ -2276,6 +2015,7 @@ const goto = async ({ mapPoint }) => {
           return a
         }, {})
 
+        console.log(aggregateEcoObj)
       //Creating a list from from the CritHabitat obj. Taking only the keys listed.
         aggregateEcoObj.CritHab
         ?  aggregateEcoObj.CritHab = aggregateEcoObj.CritHab.split(', ').filter(entry => !entry.includes(undefined) && !entry === false).reduce((CritHabObj, CritHabItem) => {
@@ -2286,8 +2026,8 @@ const goto = async ({ mapPoint }) => {
             },{})
         : null;
         //if there are no keys return a string, otherwise join the array together.
-        !aggregateEcoObj.CritHab[Object.keys(aggregateEcoObj.CritHab)[0]]
-        ? aggregateEcoObj.CritHab = 'None present'
+        !aggregateEcoObj.CritHab[Object.keys(aggregateEcoObj.CritHab)]
+        ? aggregateEcoObj.CritHab = null
         : aggregateEcoObj.CritHab = Object.keys(aggregateEcoObj.CritHab).join(', ');
         
         //Creating an object of EcoRegion entries and their 'count' value from an array 
@@ -2301,8 +2041,8 @@ const goto = async ({ mapPoint }) => {
         : null;
         // console.log(aggregateEcoObj.L3EcoReg)
         !aggregateEcoObj.L3EcoReg[Object.keys(aggregateEcoObj.L3EcoReg)[0]]
-        ? aggregateEcoObj.L3EcoReg = 'No information available'
-        : aggregateEcoObj.L3EcoReg = Object.entries(aggregateEcoObj.L3EcoReg).sort((a, b) => b[0].localeCompare(a[0])).sort((a, b) => b[1] - a[1])
+        ? aggregateEcoObj.L3EcoReg = null
+        : aggregateEcoObj.L3EcoReg = Object.entries(aggregateEcoObj.L3EcoReg).sort((a, b) => b[0].localeCompare(a[0])).sort((a, b) => b[1] - a[1])[0][0]
 
         aggregateEcoObj.LandForm
         ? aggregateEcoObj.LandForm = aggregateEcoObj.LandForm.split(', ').filter(entry => !entry.includes(undefined)).reduce((landformObj, landformItem) => {
@@ -2314,8 +2054,8 @@ const goto = async ({ mapPoint }) => {
         : null;
         
         !aggregateEcoObj.LandForm[Object.keys(aggregateEcoObj.LandForm)[0]]
-        ? aggregateEcoObj.LandForm = 'No information available'
-        : aggregateEcoObj.LandForm = Object.entries(aggregateEcoObj.LandForm).sort((a, b) => b[0].localeCompare(a[0])).sort((a, b) => b[1] - a[1])
+        ? aggregateEcoObj.LandForm = null
+        : aggregateEcoObj.LandForm = Object.entries(aggregateEcoObj.LandForm).sort((a, b) => b[0].localeCompare(a[0])).sort((a, b) => b[1] - a[1])[0][0]
 
         // const sortedAggragateEcoLandform = Object.entries(aggregateEcoObj.LandForm).sort((a, b) => b[0].localeCompare(a[0]))
         // aggregateEcoObj.LandForm = sortedAggragateEcoLandform.sort((a, b) => b[1] - a[1])        
@@ -2330,8 +2070,8 @@ const goto = async ({ mapPoint }) => {
           },{})
         : null;
         !aggregateEcoObj.ForestTypeGroup[Object.keys(aggregateEcoObj.ForestTypeGroup)[0]]
-        ? aggregateEcoObj.ForestTypeGroup = 'No information available'
-        : aggregateEcoObj.ForestTypeGroup = Object.entries(aggregateEcoObj.ForestTypeGroup).sort((a, b) => b[0].localeCompare(a[0])).sort((a, b) => b[1] - a[1])
+        ? aggregateEcoObj.ForestTypeGroup = null
+        : aggregateEcoObj.ForestTypeGroup = Object.entries(aggregateEcoObj.ForestTypeGroup).sort((a, b) => b[0].localeCompare(a[0])).sort((a, b) => b[1] - a[1]).map((treeType) => treeType[0])
 
 
         console.log(aggregateEcoObj.OwnersPadus)
@@ -2357,9 +2097,10 @@ const goto = async ({ mapPoint }) => {
           },{})
         : null;
         !aggregateEcoObj.RichClass[Object.keys(aggregateEcoObj.RichClass)[0]]
-        ? aggregateEcoObj.RichClass = 'No data available'
-        : aggregateEcoObj.RichClass = Object.entries(aggregateEcoObj.RichClass).sort((a, b) => b[0].localeCompare(a[0])).sort((a, b) => b[1] - a[1])
+        ? aggregateEcoObj.RichClass = null
+        : aggregateEcoObj.RichClass = Object.entries(aggregateEcoObj.RichClass).sort((a, b) => b[0].localeCompare(a[0])).sort((a, b) => b[1] - a[1])[0][0]
         
+      //Sum of the carbon data for each hex-point
         aggregateEcoObj.SumCarbon = aggregateEcoObj.SumCarbon !== null
         ? Math.round(aggregateEcoObj.SumCarbon)
         : 0;
@@ -2398,20 +2139,22 @@ const goto = async ({ mapPoint }) => {
         console.log(ecoResponse)
         console.log(aggregateEcoObj)
         
-        
+        //creating a 'Hex_Count' Key base on the number of hexes queried.
+        aggregateEcoObj.Hex_Count = ecoResponse.length
+
         formatWildfireRiskData({ aggregateEcoObj })
         landCoverDataFormatting ({ aggregateEcoObj })
         habitatInfoRender({ aggregateEcoObj })
-        //renderMapHexes(response.data.queryGeometry)
       }else {
         console.log('no eco data')
         
         const aggregateEcoObj = {
-          CritHab: 'None present',
-          L3EcoReg: 'No information available',
-          LandForm: 'No information available',
-          OwnersPadus: 'None present',
-          RichClass: 'No information available',
+          Hex_Count: null,
+          CritHab: null,
+          L3EcoReg: null,
+          LandForm: null,
+          OwnersPadus: null,
+          RichClass: null,
           PctBarren: 0,
           PctCropland: 0,
           PctDevelop: 0,
@@ -2481,7 +2224,7 @@ const renderLandCoverGraph = (landCoverArray) => {
   d3.select('#landcover-graph')  
   .remove();
   
-  document.querySelector('#landcover-data-control').innerText = ``
+  // document.querySelector('#landcover-data-control').innerText = ``
 
   const landCoverArrayData = landCoverArray.filter(entry => entry.percent);
   console.log(landCoverArrayData)
@@ -2489,12 +2232,8 @@ const renderLandCoverGraph = (landCoverArray) => {
   
   if(landCoverArrayData.length === 0){
     
-    const noLandCoverData = document.createElement('h4');
     
-    noLandCoverData.setAttribute("class", "bold");
-    noLandCoverData.innerHTML = 'No information available';
-    
-    return document.querySelector('#landcover-data-control').append(noLandCoverData)
+    return 
   }
 
 
@@ -2601,6 +2340,8 @@ const containmentBar =  (containment) => {
   
     const SVGcontainer = d3.select('#containment').append('div')
     .attr('id', 'svgContainer')
+    .attr('width', 100)
+    .attr('height', 100)
   
     const height = 60;
     const width = 185;
@@ -2611,8 +2352,7 @@ const containmentBar =  (containment) => {
       .style('margin', '6px 5px 0')
       .attr("width", '100%')
       .attr("height", '85%')
-      .attr('viewBox',`0 0 ${width} 40` )
-      .attr('preserveAspectRatio', 'none')
+      .attr('viewBox',`0 0 175 40` )
     .append("g")
       .attr("transform", "translate( 0, -1.5 )");
       
@@ -2667,8 +2407,8 @@ const containmentBar =  (containment) => {
 
     if(!populationDataValue) {
       document.querySelector('#population-graph-label').innerHTML = ''
-      document.querySelector('#population-graph-data-control').setAttribute('style', "margin: 50% 0; display: block; text-align: center;")
-      document.querySelector('#population-graph-data-control').innerText = `No available data`
+      // document.querySelector('#population-graph-data-control').setAttribute('style', "margin: 50% 0; display: block; text-align: center;")
+      // document.querySelector('#population-graph-data-control').innerText = `No available data`
       return
     };
 
@@ -2737,27 +2477,15 @@ const containmentBar =  (containment) => {
         svg.select('.pop').remove()
       })
       
-      // const populationGraphLabel = document.createElement('p');
-      // populationGraphLabel.setAttribute('style', 'text-align: center; font-size: 0.875rem; margin: 0 auto; width: 75%; ');
-      // populationGraphLabel.setAttribute('id', 'population-graph-label');
-      // populationGraphLabel.append('AGE IN YEARS');
-      
-      // const spacer = document.createElement('p');
-      //  spacer.setAttribute('style', 'width: 25%;');
-      
-
+      //adding formating to the surinding 
       document.querySelector('#population-graph-spacer').innerHTML = ''
       document.querySelector('#population-graph-label').innerHTML = ''
       
       document.querySelector('#population-graph-spacer').setAttribute('style', 'width: 25%;'); 
-      // document.querySelector('#population-graph-spacer').innerHTML = `<div style = 'width: 25%;'></div>`
+      
       document.querySelector('#population-graph-label').setAttribute('style', 'text-align: center; font-size: 0.875rem; margin: 0 auto; width: 75%;'); 
       document.querySelector('#population-graph-label').innerHTML = `AGE IN YEARS`
 
-    // document.querySelector('#label-spacer') ? document.querySelector('#people-container').remove(spacer) : null;
-    // document.querySelector('#people-container').append(spacer);
-    // document.querySelector('#population-graph-label') ? document.querySelector('#population-graph-label').remove(populationGraphLabel) : null;
-    // document.querySelector('#people-container').append(populationGraphLabel)
 
   }
 
@@ -2771,6 +2499,10 @@ const containmentBar =  (containment) => {
 
   d3.select('#english-pop-header', 'text')
    .remove()
+
+  if(englishSpeakingPopulation.value === 'NaN') {
+    return
+  }
 
   const range = 350;
   const height = 55;
@@ -2793,7 +2525,7 @@ const containmentBar =  (containment) => {
 
 
   const data = [100.01, englishSpeakingPopulation.value]
-  const barText = data[1] === 'NaN' ? `No data` : `${data[1]}%`
+  const barText = data[1] === '100.0' ? `100%` : `${data[1]}%`
   
   const barColors = d3.scaleOrdinal()
                         .domain(data)
@@ -2849,6 +2581,9 @@ const containmentBar =  (containment) => {
     d3.select('#vehicle-pop-header')
     .remove();
 
+    if(populationWithVehicle.value === 'NaN') {
+    return
+  }
   const range = 350;
   const height = 55;
   const width = 350;
@@ -2870,7 +2605,7 @@ const containmentBar =  (containment) => {
 
 
   const data = [100.01, populationWithVehicle.value];
-  const barText = data[1] === 'NaN' ? `No data` : `${data[1]}%`;
+  const barText = data[1] === '100.0' ? `100%` : `${data[1]}%`;
 
   const barColors = d3.scaleOrdinal()
                         .domain(data)
@@ -2919,7 +2654,6 @@ const containmentBar =  (containment) => {
 //WILDFIRE HAZARD POTENTIAL BAR GRAPH
     
   const formatWildfireRiskData = ({aggregateEcoObj , consolidatedWHPClass}) => {
-    console.log(aggregateEcoObj || consolidatedWHPClass)
 
     const wildfireRiskData = [
       {name:"VERY HIGH", value: aggregateEcoObj ? aggregateEcoObj.WHPClass["Very High"] : consolidatedWHPClass['Very High']},
@@ -2928,8 +2662,6 @@ const containmentBar =  (containment) => {
       {name: "LOW", value: aggregateEcoObj ? aggregateEcoObj.WHPClass["Low"] : consolidatedWHPClass['Low']},
       {name: "VERY LOW", value: aggregateEcoObj ? aggregateEcoObj.WHPClass["Very Low"] : consolidatedWHPClass['Very Low']},
   ];
-
-    console.log({ wildfireRiskData })
 
   wildfirePotentialGraph({ wildfireRiskData })
   };
@@ -2946,6 +2678,7 @@ const containmentBar =  (containment) => {
       
     if(data.reduce((a,b) => a + b.value, 0) === 0){
       document.querySelector('#wildfire-risk-data-control').innerText = ``
+      document.querySelector('#wildfire-risk-header').innerText  = ``
       //  document.querySelector('#wildfire-risk-data-control').innerText = `No data available`
      return
     }
@@ -3052,13 +2785,6 @@ const containmentBar =  (containment) => {
     sideBarInformation.style.display = 'initial';
   };
 
-  const renderWeatherHeader = async () => {
-    const weatherContentHeader = infoItemHeader[1].innerHTML = `<p class = "trailer-0 padding-trailer-0 sectionHeader">WEATHER</p>
-                                                                <p class = "trailer-0 padding-leader-0 sectionSubHeader">LOCATION CLICKED</p>`;
-
-    weatherContentHeader
-  };
-
   const renderDroughtStatus = ( droughtStatus ) => {
 
 
@@ -3088,12 +2814,27 @@ const containmentBar =  (containment) => {
 
   const renderWeatherInformation = ({ temp, wind, airQualityToday, airQualityTomorrow }) => {
 
-                     
+                    console.log(temp) 
     const aqToday = airQualityToday
     const aqTomorrow = airQualityTomorrow
+
     
-    const grid = document.querySelector('#temp-wind-aq').innerHTML = `
-      <div style = "
+    const weatherContentHeader = (temp) => {
+      if (temp.renderWeather) {  
+        infoItemHeader[1].innerHTML = `<p class = "trailer-0 padding-trailer-0 sectionHeader">WEATHER</p>
+                                     <p class = "trailer-0 padding-leader-0 sectionSubHeader">LOCATION CLICKED</p>`;
+      } else {
+        infoItemHeader[1].innerHTML = ``;
+      }                                        
+  };
+    
+    
+    const renderWeatherGrid = (temp) => {
+      if(temp.renderWeather) {
+        console.log(temp.renderWeather)
+        setTimeout(() => {
+        document.querySelector('#temp-wind-aq').innerHTML = `
+          <div style = "
                     display: grid; 
                     grid-template-columns: repeat(3, minmax(0, 1fr));
                     grid-template-rows: auto auto auto;
@@ -3117,10 +2858,10 @@ const containmentBar =  (containment) => {
                         </div>
                         <div id = "today-temp" 
                         style = "border: 1px solid; border-style: none solid none solid;">
-                          <p style="margin: 1rem; text-align: center;">${temp.todayF}&deg F</p>
+                          <p style="margin: 1rem; text-align: center;">${temp.todayF}</p>
                         </div>
                         <div id = "tomorrow-temp">
-                           <p style="margin: 1rem; text-align: center;">${temp.tomorrowF}&deg F</p>
+                           <p style="margin: 1rem; text-align: center;">${temp.tomorrowF}</p>
                         </div>
                         <div class="item-7" 
                         style = "border: 1px solid; border-style: solid none solid none;">
@@ -3150,9 +2891,16 @@ const containmentBar =  (containment) => {
                                     line-height: 21px;""> ${aqTomorrow} </ptrailer-0>
                         </div>
                       </div>
-    `
-    grid
-
+    `}, 1000)
+    } else {
+      console.log('no temp')
+      setTimeout(() => console.log('clear temp'), document.querySelector('#temp-wind-aq').innerHTML = ``, 5000)
+      
+    }
+  }
+    
+    weatherContentHeader(temp)
+    renderWeatherGrid(temp)
     changeWeatherMetrics({ temp, wind })
   }
 
@@ -3164,10 +2912,10 @@ const containmentBar =  (containment) => {
       const tomorrowWindEL = document.querySelector('#tomorrow-wind');
 
                      
-    const todayTempF = `<p style="margin: 1rem; text-align: center;">${temp.todayF}&degF</p>`;
-    const todayTempC = `<p style="margin: 1rem; text-align: center;">${temp.todayC}&degC</p>`;
-    const tomorrowTempF = `<p style="margin: 1rem; text-align: center;">${temp.tomorrowF}&degF</p>`;
-    const tomorrowTempC = `<p style="margin: 1rem; text-align: center;">${temp.tomorrowC}&degC</p>`;
+    const todayTempF = `<p style="margin: 1rem; text-align: center;">${temp.todayF}</p>`;
+    const todayTempC = `<p style="margin: 1rem; text-align: center;">${temp.todayC}</p>`;
+    const tomorrowTempF = `<p style="margin: 1rem; text-align: center;">${temp.tomorrowF}</p>`;
+    const tomorrowTempC = `<p style="margin: 1rem; text-align: center;">${temp.tomorrowC}</p>`;
     const windTodayMPH = `<p style="margin: 1rem; text-align: center;"> ${wind.today.mph} </p>`;
     const windTodayKPH = `<p style="margin: 1rem; text-align: center;"> ${wind.today.kph} </p>`;
     const windTomorrowMPH = `<p style="margin: 1rem; text-align: center;"> ${wind.tomorrow.mph} </p>`;
@@ -3212,118 +2960,51 @@ const containmentBar =  (containment) => {
 
     poepleContentHeader
     
-    // const populationObject = totalRadiusPopulation || perimeterPopulation
-
-    const population = (() => {
-      if(totalRadiusPopulation){
-        return totalRadiusPopulation.totalPopulation
-      } else if(perimeterPopulation){
-        console.log(perimeterPopulation.totalPopulation )
-        return perimeterPopulation.totalPopulation  
-      } else {
-        return 'No data'
-      }
-    })();
+    const populationObject = totalRadiusPopulation || perimeterPopulation
     
-    const populationInPoverty = (() => {
-      if(totalRadiusPopulation){
-        return totalRadiusPopulation.percentofPopulationInPoverty
-      } else if(perimeterPopulation){
-        return perimeterPopulation.percentofPopulationInPoverty
-      } else {
-        return 'No data'
-      }
-    })();
-
-    const populationWithDisability = (() => {
-      if(totalRadiusPopulation){
-        return totalRadiusPopulation.percentofPopulationWithDisability
-      } else if(perimeterPopulation){
-        return perimeterPopulation.percentofPopulationWithDisability  
-      } else {
-        return 'No data'
-      }
-    })();
-    
-    document.querySelector('#general-population').innerHTML = ``
-    document.querySelector('#general-population').innerHTML = 
+    const totalPopulationSection = ({populationObject}) => {
+      document.querySelector('#general-population').innerHTML = 
     `
       <div style = "margin-bottom: 10px;">
-      <h4 class= "bold">${population}</h4>
+      <h4 class= "bold">${populationObject.totalPopulation}</h4>
       <p style = "margin: -5px auto -5px"> POPULATION </p>
       </div>
     `
-
-    document.querySelector('#disability').innerHTML = `` 
-    document.querySelector('#disability').innerHTML = 
-    `
-    <div style = "margin-bottom: 10px;">
-    <h4 class = "bold text-center">${populationWithDisability}</h4>
-    <p class= "text-center" style = "margin: -5px auto -5px; text-align: left;">DISABILITY</p>
-    </div>
-    `
-
-    document.querySelector('#poverty').innerHTML = ``
-    document.querySelector('#poverty').innerHTML = 
-    `
-    <div style = "margin-bottom: 10px;">
-    <h4 class = "bold text-center">${populationInPoverty}</h4>
-    <p class= "text-center" style = "margin: -5px auto -5px; text-align: left;">POVERTY</p>
-    </div>
-    `
-
-  }
-
-  const povertyPopulationRender = (povertyPopulation) => {
-    
-    !povertyPopulation
-    ? povertyPopulation = "N/A"
-    : povertyPopulation = `${povertyPopulation}%`
-    
-    if(document.querySelector('#poverty')) {
-    document.querySelector('#poverty').remove()
     }
-    const povertyDiv = document.createElement('div');
 
-    atRiskDiv.append(povertyDiv);
-
-    povertyDiv.setAttribute('id', 'poverty');
-
-    document.querySelector('#poverty').innerHTML = ''
-
-    document.querySelector('#poverty').innerHTML = 
+    const disabilityPopulationSection = ({populationObject}) => {
+      document.querySelector('#disability').innerHTML = 
     `
     <div style = "margin-bottom: 10px;">
-    <h4 class = "bold text-center">${povertyPopulation}</h4>
-    <p class= "text-center" style = "margin: -5px auto -5px; text-align: left;">POVERTY</p>
-    </div>
-    `
-  }
-
-  const disabledPopulationRender = (disabledPopulation) => {
-    console.log(disabledPopulation);
-
-    !disabledPopulation
-    ? disabledPopulation = "N/A"
-    : disabledPopulation = `${disabledPopulation}%`
-
-    if(document.querySelector('#disability')) {
-    document.querySelector('#disability').remove()
-  }
-
-    const disableDiv = document.createElement('div');
-
-    atRiskDiv.prepend(disableDiv)
-    disableDiv.setAttribute('id', 'disability');
-
-    document.querySelector('#disability').innerHTML = 
-    `
-    <div style = "margin-bottom: 10px;">
-    <h4 class = "bold text-center">${disabledPopulation}</h4>
+    <h4 class = "bold text-center">${populationObject.percentofPopulationInPoverty}</h4>
     <p class= "text-center" style = "margin: -5px auto -5px; text-align: left;">DISABILITY</p>
     </div>
     `
+    }
+
+    const povertyPopulationSection = ({populationObject}) => {
+      document.querySelector('#poverty').innerHTML = 
+    `
+    <div style = "margin-bottom: 10px;">
+    <h4 class = "bold text-center">${populationObject.percentofPopulationWithDisability}</h4>
+    <p class= "text-center" style = "margin: -5px auto -5px; text-align: left;">POVERTY</p>
+    </div>
+    `
+    }
+
+    const renderPopulationData = (() => {
+      if(populationObject.totalPopulation){
+        totalPopulationSection({populationObject})
+        povertyPopulationSection({populationObject})
+        disabilityPopulationSection({populationObject})
+      } else {
+        document.querySelector('#disability').innerHTML = `` 
+        document.querySelector('#poverty').innerHTML = ``
+        return  totalPopulationSection({populationObject})
+      }
+    })();
   }
+
 
   const housingInfoRender = ({ radiusHousingData, perimeterHousingData }) => {
     console.log(radiusHousingData || perimeterHousingData)
@@ -3337,36 +3018,30 @@ const containmentBar =  (containment) => {
 
     poepleContentHeader
 
-    const housingUnits = (() => {
-      if(radiusHousingData){
-        return radiusHousingData.TotalHousingUnits
-      } else if(perimeterHousingData){
-        return perimeterHousingData.TotalHousingUnits  
-      } else {
-        return 'No data'
-      }
-    })();
-    
-    const medianValue = (() => {
-      if(radiusHousingData){
-        return radiusHousingData.MedianValue
-      } else if(perimeterHousingData){
-        return perimeterHousingData.MedianValue
-      } else {
-        return 'No data'
-      }
-    })();
+    const areaHousingObject = radiusHousingData || perimeterHousingData
 
-    document.querySelector('#housing-container-stats').innerHTML = `
+    
+      if(areaHousingObject.TotalHousingUnits && areaHousingObject.MedianValue){
+        document.querySelector('#housing-container').style.display = 'flex';
+
+        document.querySelector('#housing-container-stats').innerHTML = `
       <div style = "margin-bottom: 10px">
-      <h4 class= "bold">${housingUnits}</h4>
+      <h4 class= "bold">${areaHousingObject.TotalHousingUnits}</h4>
         <p style = "margin-bottom: -5px;">TOTAL HOUSING UNITS </p> 
       </div>
       <div>
-      <h4 class = "bold" style = "line-height: 1.2;">${medianValue}</h4>
+      <h4 class = "bold" style = "line-height: 1.2;">${areaHousingObject.MedianValue}</h4>
         <p style = "margin-bottom: -5px;"> MEDIAN HOUSING VALUE </p>
       </div>
     `
+      } else {
+        document.querySelector('#housing-container-stats').innerHTML =""
+
+        document.querySelector('#housing-container').style.display = 'none';
+        
+         infoItemHeader[3].innerHTML = "";
+      }
+    
   }
 
   const habitatInfoRender = ({ aggregateEcoObj, perimeterEcology }) => {
@@ -3376,103 +3051,55 @@ const containmentBar =  (containment) => {
                              ? 'WITHIN 2 MILE RADIUS'
                              : 'WITHIN FIRE PERIMETER'
 
-    const habitatContentHeader = infoItemHeader[4].innerHTML = `<p class = "trailer-0 sectionHeader">ECOSYSTEM</p>
-                                                                <p class = "trailer-0 sectionSubHeader">${containerSubheader}</p>`;
-
-    habitatContentHeader
-
-    //TODO CHANGE ALL CONDITIONALS TO USE THE 'ecoObject' VARIABLE
-    const ecoObject = aggregateEcoObj || perimeterEcology
+    //TODO move the function call into the render-cehck function.                             
+    const habitatContentControl = ({ ecoObject }) => {
+      if(ecoObject.Hex_Count) {
+        console.log(ecoObject.Hex_Count)  
+        return infoItemContent[4].style.display = `initial`, infoItemHeader[4].innerHTML = `<p class = "trailer-0 sectionHeader">ECOSYSTEM</p>
+                                                <p class = "trailer-0 sectionSubHeader">${containerSubheader}</p>`
+      } else {
+        console.log(ecoObject.Hex_Count)  
+        return infoItemContent[4].style.display = `none`, infoItemHeader[4].innerHTML = ``
+      };
+    }
     const nonePresentText = `<h4 class = "bold">None present</h4>`
-
-    const ecoRegion = (() => {
-      if(aggregateEcoObj){
-        return typeof(aggregateEcoObj.L3EcoReg) !== "string" ? aggregateEcoObj.L3EcoReg[0][0] : aggregateEcoObj.L3EcoReg;
-      } else if(perimeterEcology){
-        return perimeterEcology.L3EcoReg
-      } else {
-        return 'No data'
-      }
-    })();
-
-    const landformType = (() => {
-      if(aggregateEcoObj){
-        return typeof(aggregateEcoObj.LandForm) !== "string" ? aggregateEcoObj.LandForm[0][0] : aggregateEcoObj.LandForm;
-      } else if(perimeterEcology){
-        return perimeterEcology.LandForm
-      } else {
-        return 'No data'
-      }
-    })();
-
-    const biodiversity = (() => {
-      if(ecoObject.RichClass){
-        return typeof(ecoObject.RichClass) !== "string" ? ecoObject.RichClass[0][0] : ecoObject.RichClass;
-      } else {
-        return 'No data available'
-      }
-    })();
-
-    const criticalHabitat = (() => {
-      if(aggregateEcoObj){
-        return aggregateEcoObj.CritHab
-      } else if(perimeterEcology.CritHab){
-        return perimeterEcology.CritHab  
-      } else {
-        return nonePresentText
-      }
-    })();
-
-    const protectedAreas = (() => {
-      if(ecoObject.OwnersPadus){
-        const shortPadusList = `<h4 class = "bold">${aggregateEcoObj.OwnersPadus.join(', ')}</h4>`
-        const longPadusList = `<p class = "bold">${aggregateEcoObj.OwnersPadus.join(', ')}</p>`
-        
-        return aggregateEcoObj.OwnersPadus.length < 4 ? shortPadusList : longPadusList;
-      
-      } else {
-        
-        return nonePresentText
-      }
-    })();
-
-    const forestGroup = (() => {
-      if(aggregateEcoObj){
-        return typeof(aggregateEcoObj.ForestTypeGroup) !== "string" ? aggregateEcoObj.ForestTypeGroup[0][0] : aggregateEcoObj.ForestTypeGroup;
-      } else if(perimeterEcology){
-        return perimeterEcology.ForestTypeGroup
-      } else {
-        return 'No data'
-      }
-    })();
-
-    const potentialCarbon = (() => {
-      if(aggregateEcoObj){
-        return aggregateEcoObj.SumCarbon
-      } else if(perimeterEcology){
-        return perimeterEcology.SumCarbon  
-      } else {
-        return 'None present'
-      }
-    })();
     
-      document.querySelector('#ecoregion').innerHTML = `
+    const ecoObject = aggregateEcoObj || perimeterEcology
+
+
+    const ecoRegion = (({ecoObject}) => {
+      if(ecoObject.L3EcoReg){
+        return document.querySelector('#ecoregion').innerHTML = `
      <div>
         <p class = "trailer-0">ECOREGION</p>
         <div style = "margin-bottom: 15px;">
-          <h4 class = "bold" style = "margin-top: -7px; ">${ecoRegion}</h4>
+          <h4 class = "bold" style = "margin-top: -7px; ">${ecoObject.L3EcoReg}</h4>
         </div>
       </div>`;
+      } else {
+        document.querySelector('#ecoregion').innerHTML = ""
+      }
+    });
 
-      document.querySelector('#landform').innerHTML = `
+    const landformType = (({ ecoObject }) => {
+      if(ecoObject.LandForm){
+        // return typeof(aggregateEcoObj.LandForm) !== "string" ? aggregateEcoObj.LandForm[0][0] : aggregateEcoObj.LandForm;
+        return document.querySelector('#landform').innerHTML = `
       <div>
           <p class = "trailer-0">LANDFORM TYPE</p>
           <div style = "margin-bottom: 15px;">
-            <h4 class = "bold" style = "margin-top: -7px;">${landformType}</h4>
+            <h4 class = "bold" style = "margin-top: -7px;">${ecoObject.LandForm}</h4>
           </div>
         </div>`;
+      } else {
+        return document.querySelector('#landform').innerHTML = ``
+      }
+    });
 
-      document.querySelector('#biodiversity').innerHTML = `
+    const biodiversity = (({ ecoObject }) => {
+      console.log(ecoObject.RichClass)
+      if(ecoObject.RichClass){
+        return document.querySelector('#biodiversity').innerHTML = `
     <div style = "margin-bottom: 1.5625rem;">
         <div style = "width: 100%;">
           <div>
@@ -3480,7 +3107,7 @@ const containmentBar =  (containment) => {
         </div>
         <div style ="width: 100%; display: flex; text-align: center;">
           <div style = "width: 50%; text-align: center; align-self: center;">
-          <h4 class = "bold">${biodiversity}</h4>
+          <h4 class = "bold">${ecoObject.RichClass}</h4>
               <p style ="margin-bottom: 5px; margin-top: 5px;">Imperiled Species Biodiversity</p>
           </div>
           <div style = "width: 50%;"> 
@@ -3513,45 +3140,99 @@ const containmentBar =  (containment) => {
           </div>
         </div>
       </div>`;
+      } else {
+        return document.querySelector('#biodiversity').innerHTML = ``;
+      }
+    });
 
-      document.querySelector('#criticalHabitat').innerHTML = `
+    const criticalHabitat = (({ ecoObject }) => {
+      if(ecoObject.CritHab){
+        return document.querySelector('#criticalHabitat').innerHTML = `
       <div style = margin-top: 10px>
         <p style = "margin-bottom: 2px;">CRITICAL HABITAT DESIGNATION</p>
         <div class = "ecoregionInformation">
-          <h4 class = "bold">${criticalHabitat}</h4>
+          <h4 class = "bold">${ecoObject.CritHab}</h4>
         </div>
-      </div>
-      `;
+      </div>`;
+      } else {
+        return document.querySelector('#criticalHabitat').innerHTML = `
+      <div style = margin-top: 10px>
+        <p style = "margin-bottom: 2px;">CRITICAL HABITAT DESIGNATION</p>
+        <div class = "ecoregionInformation">
+          <h4 class = "bold">${nonePresentText}</h4>
+        </div>
+      </div>`;
+      }
+    });
 
-      document.querySelector('#protectedAreas').innerHTML = `
+    const protectedAreas = (({ ecoObject }) => {
+      if(ecoObject.OwnersPadus){
+        const shortPadusList = `<h4 class = "bold">${ecoObject.OwnersPadus.join(', ')}</h4>`
+        const longPadusList = `<p class = "bold">${ecoObject.OwnersPadus.join(', ')}</p>`
+
+        return document.querySelector('#protectedAreas').innerHTML = `
       <div>
         <p style = "margin-bottom: 2px;">PROTECTED AREAS, TRIBAL LANDS, </br>& WILDERNESS AREAS</p>
         <div class = "ecoregionInformation">
-          <div>${protectedAreas}</div>
+          <div>${ecoObject.OwnersPadus.length < 4 ? shortPadusList : longPadusList}</div>
         </div>
-      </div>
-      `;
-
-      document.querySelector('#forestType').innerHTML = `
+      </div>`;
+      } else {
+        return document.querySelector('#protectedAreas').innerHTML = `
       <div>
-        <p style = "margin-bottom: 2px;">PREDOMINANT FOREST TYPE GROUPS</p>
+        <p style = "margin-bottom: 2px;">PROTECTED AREAS, TRIBAL LANDS, </br>& WILDERNESS AREAS</p>
         <div class = "ecoregionInformation">
-          <h4 class = "bold">${forestGroup}</h4>
+          <div>${nonePresentText}</div>
         </div>
-      </div>
-      `;
-        
-      document.querySelector('#carbon').innerHTML = `
+      </div>`;
+      }
+    });
+
+    const forestGroupSection = (({ecoObject}) => {
+      if(ecoObject.ForestTypeGroup){
+        return document.querySelector('#forestType').innerHTML = `
+        <div>
+          <p style = "margin-bottom: 2px;">PREDOMINANT FOREST TYPE GROUPS</p>
+          <div class = "ecoregionInformation">
+            <h4 class = "bold">${ecoObject.ForestTypeGroup.length > 1 ? ecoObject.ForestTypeGroup[0].trim()+ ", and " + ecoObject.ForestTypeGroup[1].trim() : ecoObject.ForestTypeGroup[0].trim()}</h4>
+          </div>
+        </div>`;
+      } else{
+        return document.querySelector('#forestType').innerHTML = ``;
+      }
+    });
+
+    const potentialCarbon = (({ ecoObject }) => {
+      if(ecoObject.SumCarbon){
+        return document.querySelector('#carbon').innerHTML = `
       <div  style="margin-top: 15px;>
         <p style = "margin-bottom: 2px;">POTENTIAL CARBON LOSS</p>
         <div class = "ecoregionInformation">
           <div style = "position: relative;">            
-            <h4 class = "bold">${potentialCarbon.toLocaleString()} tons</h4>
+            <h4 class = "bold">${ecoObject.SumCarbon.toLocaleString()} tons</h4>
             </div>
           </div>
-          
       </div>
       `;
+      } else {
+        return document.querySelector('#carbon').innerHTML = ``
+      }
+    });
+    
+      const renderEcologyData = (({ ecoObject }) => {
+        
+          habitatContentControl({ ecoObject })
+          ecoRegion({ ecoObject })
+          landformType({ ecoObject })
+          forestGroupSection({ ecoObject })
+          potentialCarbon({ ecoObject })
+          biodiversity({ ecoObject })
+          criticalHabitat({ ecoObject })
+          protectedAreas({ ecoObject })
+      
+      });
+
+      renderEcologyData({ ecoObject })
     }
 
 });
