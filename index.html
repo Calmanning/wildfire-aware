@@ -245,7 +245,7 @@
           <div>
             <div id="sideBarMobileHeader">
               <div class="trailer-0">
-                <span class='bold' style="color: #FFBA1F; font-size: 1.8rem;">WILDFIRE AWARE</span>
+                <span class='bold' style="color: #FFBA1F; font-size: 1.8rem; white-space: nowrap;">WILDFIRE AWARE - ESRI</span>
                 <span id="modal-btn" class="right btn cursor-pointer js-modal-toggle" href="#" data-modal="infoModal">
                   <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"
                     style="width: 24px; height: 24px; margin-top: -5px; margin-left:-1px; fill: currentColor;" class="svg-icon">
@@ -371,7 +371,15 @@
 
                   <div id="wildfire-risk" style="margin-top: 20px;">
                     <div style="width: 100%;">
-                      <p  id ="wildfire-risk-header" style="width: 100%; margin-bottom: 0;">WILDFIRE HAZARD POTENTIAL</p>
+                      <p  id ="wildfire-risk-header" style="width: 100%; margin-bottom: 0;">WILDFIRE HAZARD POTENTIAL 
+                        <span id="wfp-btn" class="tooltip tooltip-multiline modifier-class" style = "width: 15px; height: 15px; display: inline-block;"aria-label="This is a tooltipplaceholder for wildfire potential.">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"
+                          style="width: 20px; height: 20px; margin: -10px 0px 0px -1px; fill: currentColor;" class="svg-icon">
+                          <path
+                            d="M31.297 16.047c0 8.428-6.826 15.25-15.25 15.25S.797 24.475.797 16.047c0-8.424 6.826-15.25 15.25-15.25s15.25 6.826 15.25 15.25zM18 24V12h-4v12h-2v2h8v-2h-2zm0-18h-4v4h4V6z" />
+                        </svg>
+                      </span>
+                    </p>
                       <div>
                         <h4 id="wildfire-risk-data-control" class="bold"> </h4>
                       </div>
@@ -436,17 +444,90 @@
           <h5 class='avenir-demi trailer-half' style = "color:rgb(255,186,31); margin-bottom: 0;">ABOUT THIS APP</h5>
           <div>
             <p>
-              The Wildfire Aware app is intended to provide information about current wildfire incidents in the United States. The
-              data shown here from the Living Atlas are authoritative sources, including:
+              The Wildfire Aware app is intended to provide information about the current status and potential impact of wildfire
+              incidents in the United States. This app opens with the list of fires sorted by the number of personnel assigned from
+              greatest to least as reported by incident staff. The data included in this application can all be found in the ArcGIS
+              Living Atlas and are from authoritative entities.
             </p>
+          <h5 class='avenir-demi trailer-half' style="color:rgb(255,186,31); margin-bottom: 0;">USE THIS APP</h5>
+          <div>
             <p>
+              Select a fire from the list, change the sort option to date, name or size, or use shift and your mouse to draw a box and
+              zoom in. Once you have selected a fire or clicked on the map, details will be displayed in the information panel on the
+              right giving you more information about a wildfire along with impacts to human and ecosystem populations.
+              You can also sort by wildfire name, date or size, by selecting the relevant filter in the information pane.
+              Read more about Wildfire Aware and ways to use it <a class = "link" href="https://www.esri.com/arcgis-blog/products/arcgis-living-atlas/public-safety/wildfire-aware/" target="_blank">here</a>.
+            </p>  
+          <h5 class='avenir-demi trailer-half' style="color:rgb(255,186,31); margin-bottom: 0;">PERSONNEL BREAKDOWNS</h5>
+            The categories below represent the number of personnel assigned.
+          <div>
+            <div id="fire-points-legend" style="display:inherit; margin-bottom: 10px;">
+              <div class="legend-spacing" style="margin-left: -10px;">
+                <div class="legend-image-spacing">
+                  <img style="margin-top: -10px; min-width: 3rem; height: 3rem;"
+                    src="https://esri.maps.arcgis.com/sharing/rest/content/items/b56beb3d45d14b63af0113901dd767f7/data"
+                    alt="fires with 500 or more people assigned">
+                </div>
+                <div class="legend-text" style="margin-top: 5px; margin-left: 20px;">
+                  &gt 500: Fires with the largest number of assigned personnel often require larger incident management team involvement.
+                </div>
+              </div>
+              <div class="legend-spacing">
+                <div class="legend-image-spacing">
+                  <img style="margin-top: -10px; margin-left: -4px; width:2rem; height: 2rem;"
+                    src="https://esri.maps.arcgis.com/sharing/rest/content/items/b56beb3d45d14b63af0113901dd767f7/data"
+                    alt="fires with personnel between 50 to 500">
+                </div>
+                <div class="legend-text">
+                  50-500: Greater complexity requires a higher number of personnel and potentially an incident management team.
+                </div>
+              </div>
+              <div class="legend-spacing">
+                <div class="legend-image-spacing">
+                  <img class="fire-icon-legend"
+                    src="https://esri.maps.arcgis.com/sharing/rest/content/items/b56beb3d45d14b63af0113901dd767f7/data"
+                    alt="fires with less than 50 personnel">
+                </div>
+                <div class="legend-text"> 
+                  1-50: This number of personnel could indicate a smaller, less complex incident or one that is nearing the end of its primary response efforts.
+                </div>
+              </div>
+              <div class="legend-spacing">
+                <div class="legend-image-spacing">
+                  <img class="fire-icon-legend"
+                    src="https://www.arcgis.com/sharing/rest/content/items/6f3a489a81a54494a1b57cb577e92fcb/data"
+                    alt="fire with no personnel reported">
+                </div>
+                <div class="legend-text">
+                Not Reported: New fires, smaller fires that are easier to contain, or fires that are near the end of their life cycle
+                may not report the number of ‘personnel assigned’. This should in no way be taken as an indication that the fire is
+                unstaffed or otherwise receiving no response.
+              </div>
+              </div>
+              <div class="legend-spacing">
+                <div class="legend-image-spacing">
+                  <img class="fire-icon-legend"
+                    src="https://www.arcgis.com/sharing/rest/content/items/4078350792ea4da2b36cab7351909fd7/data"
+                    alt="Prescribed fire">
+                </div>
+                <div class="legend-text">
+                  Prescribed Fire: These fires are intentional and planned events.
+                </div>
+              </div>
+            </div>
+            
+            <h5 class='avenir-demi trailer-half' style="color:rgb(255,186,31); margin-bottom: 0;">SOURCES</h5>
+            <p>
+              The application includes data from ArcGIS <a class="link" href = "https://livingatlas.arcgis.com/en/home/" target ="_blank">Living Atlas</a> are authoritative sources, including:
+              </br>
+              </br>
               Environmental Protection Agency – <a class="link" href = "https://esri.maps.arcgis.com/home/item.html?id=3a21a75ffc8244f6a1c85a19b8ff7713" target ="_blank">Ecoregions</a> and Air Quality <a class="link" href="https://www.arcgis.com/home/item.html?id=61864315c28f4668bbbbdc73b08f4113" target="_blank">Current</a> and <a class="link" href="https://www.arcgis.com/home/item.html?id=61864315c28f4668bbbbdc73b08f4113" target="_blank">Tomorrow</a></br>
               National Aeronautics and Space Administration – <a class="link" href="https://www.arcgis.com/home/item.html?id=b8f4033069f141729ffb298b7418b653" target="_blank">MODIS</a> and <a class="link" href="https://www.arcgis.com/home/item.html?id=dece90af1a0242dcbf0ca36d30276aa3" target="_blank">VIIRS</a> </br>
               National Weather Service – <a class="link" href="https://www.arcgis.com/home/item.html?id=0ae7cf18df0a4b4d9e7eea665f00500d" target="_blank">Temperature Forecast</a>, <a class="link" href="https://www.arcgis.com/home/item.html?id=47ed83c3b4f943118e848fbfc33d119e" target="_blank">Wind Speed</a>, <a class="link" href="https://www.arcgis.com/home/item.html?id=a6134ae01aad44c499d12feec782b386" target="_blank">Weather Watches and Warnings</a></br>
               US Department of Agriculture – <a class="link" href="https://www.arcgis.com/home/item.html?id=7d4cc55ecaef4ceb82c8d05b13e0d049" target="_blank">Drought Monitor</a></br>
               US Census – <a class="link" href="https://www.arcgis.com/home/item.html?id=b3642e91b49548f5af772394b0537681" target="_blank">Census 2020 Redistricting Blocks</a> and <a class="link" href="https://esri.maps.arcgis.com/home/group.html?id=16b3a5ac36834ed6b3f16261d9a988ea#overview" target="_blank">American Community Survey</a></br>
               USDA Forest Service – <a class="link" href ="https://www.arcgis.com/home/item.html?id=c7dc5721f6ab42f5a515ae7f832115a9" target="_blank">Wildfire Burned Areas</a> and <a class="link" href="https://www.arcgis.com/home/item.html?id=9274dfe5318540d7a09f0117c0be0730" target="_blank">Wildfire Hazard Potential</a></br>
-              US Forest Service FIA – <a class="link" href="https://www.arcgis.com/home/item.html?id=fe77a8a503ca4b9ba1ee2ef3c8ff7b19" target="_blank">Forest Type Groups</a> and <a class="link" href="https://www.arcgis.com/home/item.html?id=70aa58201e044303823a24a71a422d00" target="_blank">Predominant Major Forest Carbon Pools</a></br>
+              USDA Forest Service FIA – <a class="link" href="https://www.arcgis.com/home/item.html?id=fe77a8a503ca4b9ba1ee2ef3c8ff7b19" target="_blank">Forest Type Groups</a> and <a class="link" href="https://www.arcgis.com/home/item.html?id=70aa58201e044303823a24a71a422d00" target="_blank">Predominant Major Forest Carbon Pools</a></br>
               US Fish and Wildlife Service – <a class="link" href = "https://www.arcgis.com/home/item.html?id=794de45b9d774d21aed3bf9b5313ee24" target ="_blank">Critical Habitat</a></br>
               US Geological Survey – <a class="link" href="https://www.arcgis.com/home/item.html?id=3ccf118ed80748909eb85c6d262b426f" target="_blank">National Land Cover Database</a> and <a class="link" href="https://www.arcgis.com/home/item.html?id=e20f27c6af5a49b289bea1ba05b4986b" target="_blank">Protected Areas Database</a></br>
               Integrated Reporting of Wildland-Fire Information (IRWIN) – <a class="link" href="https://www.arcgis.com/home/item.html?id=d957997ccee7408287a963600a77f61f" target="_blank">Wildfire Points</a></br>
@@ -455,10 +536,8 @@
               Esri – <a class="link" href="https://doc.arcgis.com/en/esri-demographics/latest/regional-data/updated-demographics.htm" target="_blank">2022 Demographics</a> and <a class="link" href="https://www.arcgis.com/home/item.html?id=cd817a746aa7437cbd72a6d39cdb4559" target="_blank">World Ecological Landforms</a>
             </p>
             
-              <h5 style = "color:rgb(255,186,31); margin-bottom: 0;"><strong>APP USE</strong></h5>
-              Click on a location in the U.S. to find out more about a wildfire along with affected populations. You can also
-              inpidually select a wildfire to find out detailed information. This app was designed by Esri’s Sean Breyer, Michael Dangermond, Gonzalo Espinoza-Davalos, Chris Ferner, Jim Herries, Calvin Manning, Emily Meriam,
-              and Dan Pisut
+              This app was designed by Esri’s Sean Breyer, Michael Dangermond, Gonzalo Espinoza-Davalos, Chris Ferner, Jim Herries, Calvin Manning, Emily Meriam,
+              Dan Pisut, and James Sill.
             </p>
             <br>
           </div>

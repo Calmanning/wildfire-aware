@@ -3016,7 +3016,7 @@ const containmentBar =  (containment) => {
 
         return document.querySelector('#protectedAreas').innerHTML = `
       <div>
-        <p style = "margin-bottom: 2px;">PROTECTED AREAS, TRIBAL LANDS, </br>& WILDERNESS AREAS</p>
+        <p style = "margin-bottom: 2px;">PUBLIC LANDS & PROTECTED AREAS</p>
         <div class = "ecoregionInformation">
           <div>${ecoObject.OwnersPadus.length < 4 ? shortPadusList : longPadusList}</div>
         </div>

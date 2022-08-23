@@ -104,7 +104,20 @@ img {
   bottom: 0;
 }
 
+
+
 #modal-btn {
+  margin-top: 11px;
+  padding: 0;
+  border: 0;
+  color: #ea1600;
+  background-color: #ffffff;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+}
+
+#wfp-btn {
   margin-top: 11px;
   padding: 0;
   border: 0;
@@ -632,6 +645,12 @@ img {
     padding: 0px 10px 0;
   }
 
+  #modal-btn {
+  position: relative;
+  top: -78px;
+  right: 3px;
+  }
+
   #infoBar {
     /* background-color: rgba(17, 49, 73, 0.85); */
     width: 100%;
@@ -699,6 +718,12 @@ img {
   #sideBarMobileHeader {
     margin: 0
   }
+
+    #modal-btn {
+      position: relative;
+      top: -30px;
+      right: 3px;
+    }
 }
 
 @media screen and (max-width: 440px) {
@@ -711,4 +736,10 @@ img {
   #sideBar {
     padding: 40px 0px 0;
   }
+
+    #modal-btn {
+      position: relative;
+      top: -88px;
+      right: 3px;
+    }
 }
