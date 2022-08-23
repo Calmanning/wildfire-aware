@@ -138,10 +138,10 @@ require([
   removePreviousFireIcon()
   removeCircleGraphic()
   scrollToTop();
-  return mapView.goTo({ 
-                      zoom: 5,
-                      center: [260, 39]
-                    });
+  return mapView.goTo({
+                  zoom: 4,
+                  center: [245, 48]
+                });
   };
   
   const scaleBar = new ScaleBar({
@@ -498,9 +498,9 @@ const resetURLParams = () => {
 //SETTING THE CENTER OF MAP VIEW ON PAGE LOAD. NOTE: is there a better placement in the code for this function?
   const initialMapExtent = () => {
     mapView.goTo({
-                    zoom: 5,
-                    center: [260, 39]
-                  });
+                  zoom: 4,
+                  center: [245, 48]
+                });
   }
 
   const parseURLHash  = async ({newDefaultLocation}) => {
