@@ -153,9 +153,6 @@ const resetURLParams = () => {
   const loadMapview = (() => {
     mapView.when()
       .then(() => {
-        console.log('mapView loaded')
-      })
-      .then(() => {
 
         firePoints = webmap.allLayers.find((layer) => {
           return layer.title === 'Current Incidents'
@@ -231,8 +228,7 @@ const resetURLParams = () => {
 
       })
       .then(() => {
-      //setting up view -- if url-information is relevant have the view reflect that information, otherwise set center on continental US.
-          console.log(window.location)  
+      //setting up view -- if url-information is relevant have the view reflect that information, otherwise set center on continental US.  
         if(window.location.hash){
             const newDefaultLocation = window.location.hash.substring(3)
             parseURLHash({newDefaultLocation})
@@ -241,15 +237,15 @@ const resetURLParams = () => {
         initialMapExtent()
 
       })
-      .then(() => {
-        layerListBtn.addEventListener('click', (event) => {
-          addLayerList(event)
-          
+        .then(() => {
+          layerListBtn.addEventListener('click', (event) => {
+            addLayerList(event)
+            
+          })
         })
-      })
-      .catch((error) => {
-        console.error(error)
-      })
+        .catch((error) => {
+          console.error(error)
+        })
 
   })();
 
@@ -316,7 +312,6 @@ const resetURLParams = () => {
 
   const toggleFirePointsLayerVisibility = (() => {
     firePointsLayerCheckbox.addEventListener('change', () => {
-      console.log('fire points toggle')
       firePoints.visible = firePointsLayerCheckbox.checked;
       toggleLegendDivVisibility(firePointLegend);
       toggleFireGraphicVisibility()
@@ -508,7 +503,6 @@ const resetURLParams = () => {
   const parseURLHash  = async ({newDefaultLocation}) => {
     
     const URLLocationParams = newDefaultLocation.split(',')
-    console.log(URLLocationParams)
 
     const URLLocationCoordinates = {
       x: URLLocationParams[0],
@@ -518,8 +512,6 @@ const resetURLParams = () => {
     const mapPoint = new Point(
       URLLocationCoordinates
     )
-    
-      console.log(URLLocationParams[3].length)
 
     if(URLLocationParams[3] && URLLocationParams[3] === 'loc'){
       //use URLLocationCoordinates to query location info
@@ -560,10 +552,7 @@ const circle = new Graphic({
 
 //MAP POINT GRAPHIC FUNCTION
   const addCircleGraphic = async ({mapPoint, fireLocation}) => {    
-    console.log(mapPoint)
-
-    console.log('add a circle please')
-    
+ 
     const circleGeometry = new Circle({
     center: mapPoint || fireLocation,
     geodesic: true,
@@ -572,13 +561,12 @@ const circle = new Graphic({
     radiusUnit: "miles",
   });
     
-    circle.symbol.outline.style = mapView.zoom < 8 ? "solid" : "long-dash"
+    circle.symbol.outline.style = mapView.zoom <= 8 ? "solid" : "long-dash"
     circle.geometry = circleGeometry
 
 
     mapView.graphics.add(circle);
-    
-    console.log(mapView.graphics)
+  
   };
 
   const removeCircleGraphic = async () => {
@@ -590,22 +578,15 @@ const circle = new Graphic({
 //RENDER CENSUS SELECTED TRACT
 
   const fireGraphic = async ({fireIconGraphicInfo, fireInformation}) => {
-    console.log(fireIconGraphicInfo ? 'fire object' : 'array with coordinates')
-    console.log(fireIconGraphicInfo || fireInformation)
+  
     const fireLocation = fireInformation 
                          ? fireInformation[0].split(',')
                          : fireIconGraphicInfo.geometry;
-console.log(fireLocation)                         
                          
-    const fireType = fireInformation
-                   ? fireInformation[2]
-                   : fireIconGraphicInfo.attributes.incidentType;
-
     const firePersonnelSize = fireInformation    
                    ? fireInformation[3].split(' ')[0]
                    : fireIconGraphicInfo.attributes.TotalIncidentPersonnel;
-console.log(firePersonnelSize)   
-console.log(typeof(firePersonnelSize))                
+
 await removePreviousFireIcon()
 setTimeout(() => {
     const fireIconGraphic =  new Graphic ({
@@ -626,26 +607,21 @@ setTimeout(() => {
   });
 
   
-  // if(fireType !== 'RX' || 'PERSCRIPTTION BURN') {
-  //     fireIconGraphic.symbol.size = 30
       if(parseInt(firePersonnelSize) > 500){
-          fireIconGraphic.symbol.size = 40
+          fireIconGraphic.symbol.size = 33
         } else if (parseInt(firePersonnelSize) < 500){
           fireIconGraphic.symbol.size = 30
         } else if (parseInt(firePersonnelSize) < 50 || NaN){
           fireIconGraphic.symbol.size = 17
         }
-    // }
     
     webmap.layers.reorder(graphicsLayer, 12)
     graphicsLayer.graphics.push(fireIconGraphic);
-    console.log(graphicsLayer)
   },0.1)
     
   }
   
   const removePreviousFireIcon = async () => {
-    console.log('remove grphic called')
     graphicsLayer.graphics
     ? graphicsLayer.graphics.pop()
     : null;
@@ -653,15 +629,11 @@ setTimeout(() => {
   }
 
   const toggleFireGraphicVisibility = () => {
-    console.log(graphicsLayer.graphics)
-    console.log(graphicsLayer.graphics.items[0].visible)
 
     graphicsLayer.graphics.items[0].visible = firePoints.visible;
   }
 
 const goto = async ({ mapPoint }) => {
-  console.log('ADJUSTING MAP EXTENT')
-  console.log(mapPoint);
 
     if (mapView.zoom >= 8 ) {
       return
@@ -674,7 +646,6 @@ const goto = async ({ mapPoint }) => {
       }
     )
   
-  console.log(point)
   mapView.goTo(
     {
       zoom: 12,
@@ -697,11 +668,6 @@ const goto = async ({ mapPoint }) => {
 
 //List of fires in dropdown
   const formatActiveFires = (sortedFireList) => {
-    // console.log(sortedFireList)
-  
-  // const personnelSubheader =  while(sorting[0].style.textDecoration){
-  //   return 'personnel'
-  // }
 
   const fires = sortedFireList.map(fire => {
     
@@ -727,9 +693,6 @@ const goto = async ({ mapPoint }) => {
               ? fire[0].attributes.IncidentTypeCategory
               : fire.attributes.IncidentTypeCategory,
     }
-
-    // const acreSubheader = `{fireListItem.fireAcres.toLocaleString()} acres`;
-    // const personnelSubheader = `{fireListItem.firePersonnel.toLocaleString()} personnel`
     
     return  (
       `
@@ -749,16 +712,15 @@ const goto = async ({ mapPoint }) => {
 
   document.getElementById('fire-list').innerHTML = [...fires].join("");
 
-    // fireListItemClickEvent() 
+    
     fireItemEvents()     
-    // fireDateEdit()
+    
 };
 
 
 
 //TODO: change this function name. Too common. Not descriptive.
   const setFireContentInfo =  ({ fireData }) => {
-  console.log(fireData)
 
     const recentFireData = new Date(fireData.modifiedOnDateTime).toLocaleDateString(undefined,{month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric'});
 
@@ -784,7 +746,7 @@ const goto = async ({ mapPoint }) => {
       return "https://www.arcgis.com/sharing/rest/content/items/83e1078b2faf42309b73ba46bd86f1b8/data"
       }
     }
-  //NOTE: Should I separate these variable from the HTML formatting below...probably
+  
 
 
     const fireHeader = infoItemHeader[0].innerHTML = `
@@ -835,12 +797,10 @@ const goto = async ({ mapPoint }) => {
   };
 
 //EVENT LISTENERS
-
   reactiveUtils.when(
     () => mapView?.stationary, 
     () => {
       const extentGeometry = mapView.extent
-      console.log(extentGeometry)
       getFiresByExtent({ extentGeometry })
 
     }
@@ -849,7 +809,6 @@ const goto = async ({ mapPoint }) => {
   reactiveUtils.watch(
     () => mapView?.zoom,
     async () => {
-      console.log(`zoom changed to ${mapView.zoom}`);
       if(!(mapView.zoom >= 0 && mapView.zoom <= 9)){
         disableMapLayer(AQITodayCheckbox)
         disableMapLayer(AQITomorrowCheckbox)
@@ -896,11 +855,8 @@ const goto = async ({ mapPoint }) => {
       }
       
       if(mapView.zoom <= 9 && mapView.graphics.items.length > 0 && graphicsLayer.graphics.items.length > 0){
-        console.log(mapView.graphics)
-        console.log(graphicsLayer)
         const solidCircle = circle.clone()
         solidCircle.symbol.outline.style = "solid"
-        // solidCircle.symbol.outline.visible = false
         
         await removeCircleGraphic()
 
@@ -908,10 +864,8 @@ const goto = async ({ mapPoint }) => {
         mapView.graphics.items[0].visible = false
         
       }else if(mapView.zoom >= 10 && mapView.graphics.items.length > 0 && graphicsLayer.graphics.items.length > 0) {
-        console.log('make long dash')
          const longDashCircle = circle.clone()
          longDashCircle.symbol.outline.style = "long-dash"
-        //  solidCircle.symbol.outline.visible = true
         
          await removeCircleGraphic()
 
@@ -922,7 +876,6 @@ const goto = async ({ mapPoint }) => {
         
         const solidCircle = circle.clone()
         solidCircle.symbol.outline.style = "solid"
-        // solidCircle.symbol.outline.visible = false
         
         await removeCircleGraphic()
 
@@ -931,7 +884,6 @@ const goto = async ({ mapPoint }) => {
         
         const longDashCircle = circle.clone()
         longDashCircle.symbol.outline.style = "long-dash"
-        // longDashCircle.symbol.outline.visible = false
         
         await removeCircleGraphic()
 
@@ -940,18 +892,9 @@ const goto = async ({ mapPoint }) => {
     }
   );
 
-  searchWidget.on('search-complete', event => {
-    console.log(event)
-    const location = event.results[0].results[0].feature.geometry
-    console.log(location)
-    
-  });
-
   const sizeReport = (() => {
-    console.log('window')
-    console.log(window.screen.width)
     if (window.screen.width > 720) {
-      sideBarContainer.style.height ?  sideBarContainer.style.height = null : null;
+      sideBarContainer.style.height ?  sideBarContainer.style.height = null : null ;
     }
   });
 
@@ -960,19 +903,21 @@ const goto = async ({ mapPoint }) => {
 
   
   mapView.on('click', async (event) => {
+    const mapPoint = event.mapPoint
+    
+    if (await mapPointLocationCheck({ mapPoint }) === false){
+      return
+    }
+    await removeCircleGraphic()
+
+    await removePreviousFireIcon();
+
+    mapHitTest(event)
     
     window.screen.width <= 720 
                         ? sideBarContainer.style.height = '100%' 
                         : null;
     sideBarToggleArrow.style.transform = 'rotate(180deg)';
-    await removeCircleGraphic()
-
-    await removePreviousFireIcon();
-
-    console.log(event)
-
-    mapHitTest(event)
-
   });
 
   const mapHitTest = (event) => {
@@ -980,21 +925,15 @@ const goto = async ({ mapPoint }) => {
     let feature;
     
     mapView.hitTest(event, { include: [firePoints, fireArea, firePerimeter]}).then((hitResponse) => {
-      console.log('hitTest')
-      console.log(event)
+      
       if(hitResponse.results.length) {
         feature = hitResponse.results.filter((result) => {
-          console.log(result)
+      
           return result.graphic;
         })[0].graphic;
-        console.log(feature.layer.renderer)
-        const mapPoint = feature.geometry.centroid 
-                       ? event.mapPoint 
-                       : feature.geometry;
+      
         const hitTestResponse = feature.attributes
 
-        console.log(feature)
-        console.log(feature.sourceLayer.title)
         feature.sourceLayer.title.includes('Current Incidents')
         ? (selectedFireInfoQuery({hitTestResponse}))
         : (selectedFireInfoQuery({hitTestResponse}));
@@ -1002,8 +941,9 @@ const goto = async ({ mapPoint }) => {
       } else {
         infoItemHeader[0].innerHTML = '';
         infoItemContent[0].innerHTML = '';
+        
         const mapPoint = event.mapPoint;
-        console.log(mapPoint)
+        
         queryHub({ mapPoint });
         newEcoQuery({ mapPoint });
         censusBlockCentroidQuery({ mapPoint });
@@ -1011,20 +951,15 @@ const goto = async ({ mapPoint }) => {
         updateURLParams({mapPoint})
       };
 
-    })
-  }
+    });
+  };
 
   const updateURLParams = ({mapPoint, irwinIdNumber}) => {
-    console.log('URL stuff')
-    console.log(mapPoint)
-    
-    // viewURL.searchParams.set(`@`, `${mapPoint.x}, ${mapPoint.y}`)
+   
     viewURL.hash = `@=${mapPoint.longitude.toFixed(3)},${mapPoint.latitude.toFixed(3)},${mapView.zoom <= 8 ? 12 : mapView.zoom},${irwinIdNumber ? irwinIdNumber :'loc'}`
-    console.log(viewURL)
-    console.log(viewURL.hash)
-    console.log(document.URL)
+   
     return window.location.href = viewURL.hash.toString()
-  }
+  };
 
   fireListBtn.addEventListener('click', async () => {
     fireListDisplayToggle(); 
@@ -1062,11 +997,9 @@ const goto = async ({ mapPoint }) => {
       if (sideBarContainer.style.height === '100%') {
         sideBarContainer.style.height = '0'
         sideBarToggleArrow.style.transform = 'rotate(0deg)'
-        console.log('toggle side bar down')
       } else {
         sideBarContainer.style.height = '100%'
         sideBarToggleArrow.style.transform = 'rotate(180deg)'
-        console.log('toggle side bar up')
       }
     })
   })()
@@ -1074,7 +1007,6 @@ const goto = async ({ mapPoint }) => {
   //Different Ways to sort the fire list
   const sortingOptions = ({ dateSorted, wildFires }) => {
     const wildFiresToSort = wildFires
-    console.log(wildFires)
     dateSortedList.push(dateSorted)
 
     let sortingAcrage = [];
@@ -1106,7 +1038,6 @@ const goto = async ({ mapPoint }) => {
       })
       personnelSorted.map((personnelFire) => {
         personnelFire.attributes.TotalIncidentPersonnel = !personnelFire.attributes.TotalIncidentPersonnel || null ? 'Not reported' : `${personnelFire.attributes.TotalIncidentPersonnel.toLocaleString()} personnel`;
-        console.log(personnelFire.attributes.TotalIncidentPersonnel)
       })
     
     sorting.forEach((sortCategory) => {
@@ -1133,8 +1064,6 @@ const goto = async ({ mapPoint }) => {
       
     sorting.forEach((sortCategory) => {
       sortCategory.addEventListener('click', (event) => {
-        console.log(event)
-        console.log(event.target.innerText)
         !event.target.classList.contains('underline')
         ? (sorting.forEach((item) => {
                                       item.classList.remove('underline')}), 
@@ -1179,10 +1108,39 @@ const goto = async ({ mapPoint }) => {
     firesInViewEl.innerHTML = fireSpan
   }
 
-//Functions Hub for REST calls 
-//querys called from Map click
+
+//FEATURE SERVICE QUERIES
+  //is the mapClick point within the Unites States?
+  const mapPointLocationCheck = async({ mapPoint }) => {
+    return new Promise (resolve => {
+      const url = 'https://services.arcgis.com/jIL9msH9OI208GCb/ArcGIS/rest/services/AllHexesFromAgolAsPoints220811a/FeatureServer/22/query'
+
+      const params = {
+        where: '1=1',
+        geometry: mapPoint,
+        geometryType: 'esriGeometryPoint',
+        inSR: 4326,
+        spatialRelationship: 'intersects',
+        distance: 2,
+        units: 'esriSRUnit_StatuteMile',
+        outSR: 3857,
+        f: 'json'
+      }
+
+      axios.get(url, {
+        params
+      })
+        .then((response) => {
+        response.data.fields ? resolve(true) : resolve(false)
+
+          }
+      )}
+    )
+  }
+  
+
   const queryHub = ({ mapPoint }) => {
-      mapPoint ? console.log(mapPoint) : console.log(fireInformation)
+
 
       mapPoint 
       ? fireListDisplayToggle(mapPoint)
@@ -1282,7 +1240,6 @@ const goto = async ({ mapPoint }) => {
       document.querySelectorAll('.fire-item').forEach(item => {
          item.addEventListener("click", (event) => {
 
-      console.log(`fire clicked ${event.target.attributes.value.value}`)
       const fireInformation = event.target.attributes.value.value.split(', ')
       
       const irwinID = fireInformation[1]; 
@@ -1292,39 +1249,18 @@ const goto = async ({ mapPoint }) => {
       });
         
         item.addEventListener("mouseenter", (event) => {
-          console.log(`fire hover ${event.target.attributes.value.value}`)    
-          
+
           const fireInformation = event.target.attributes.value.value.split(', ')
 
           fireGraphic({ fireInformation })
         }),
 
         item.addEventListener("mouseleave", (event) => {
-          console.log('mouseout')
+
           removePreviousFireIcon();
         })
       });
     };
-
-
- //query calls from clicking on a list of active fires
-  // const fireListItemClickEvent = async () => { 
-  // document.querySelectorAll(".fire-item").forEach(item => {
-  //   item.addEventListener("click", (event) => {
-
-  //     console.log(`fire clicked ${event.target.attributes.value.value}`)
-  //     // removePreviousFireIcon();
-  //     const fireInformation = event.target.attributes.value.value.split(', ')
-      
-  //     const irwinID = fireInformation[1]; 
-      
-  //     selectedFireInfoQuery({irwinID}); //collects the selected fires information and ALSO renders it to the sidebar 
-
-  //     // queryHub({ fireInformation });
-      
-  //     });
-  //   });
-  // }; 
    
   const selectedFireInfoQuery = ({hitTestResponse, irwinID}) => {
     
@@ -1333,8 +1269,6 @@ const goto = async ({ mapPoint }) => {
     const irwinIdNumber = hitTestResponse 
           ? hitTestResponse.IrwinID || hitTestResponse.IRWINID.replace(/[{}]/g, "")
           : irwinID;
-
-          console.log(irwinIdNumber);
 
     const params = {
       where: `IrwinId ='${irwinIdNumber}'`,
@@ -1349,8 +1283,7 @@ const goto = async ({ mapPoint }) => {
       params
     })
       .then((response) => {
-        console.log(response)
-        console.log(response.data.features)
+
         const fireIconGraphicInfo = response.data.features[0]
         
         const incidentType = response.data.features[0].attributes.IncidentTypeCategory !== "WF" 
@@ -1362,7 +1295,7 @@ const goto = async ({ mapPoint }) => {
           response.data.features[0].geometry
         )
         
-        console.log(mapPoint)
+
         const fireData = response.data.features[0]
           ? {
               irwinId: response.data.features[0].attributes.IrwinID,
@@ -1402,8 +1335,6 @@ const goto = async ({ mapPoint }) => {
     
     const url ='https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/Wildfire_aggregated_v1/FeatureServer/1/query';
 
-    console.log(irwinIdNumber)
-
     const params = {
       where: `irwinID = '{${irwinIdNumber}}'`,
       geometryType: 'esriGeometryPoint',      
@@ -1421,17 +1352,10 @@ const goto = async ({ mapPoint }) => {
       params
     })
       .then((response) => {
-        console.log(response)
         
         const consolidatedFirePerimeterData = response.data.fields ? response.data.features[0].attributes : false 
-        console.log(consolidatedFirePerimeterData)
-        
-        !consolidatedFirePerimeterData
-        ? console.log('no data')
-        : (console.log('yes there is perimeter data'));
         
         if(consolidatedFirePerimeterData){
-          console.log(consolidatedFirePerimeterData);
           
           const populationData =[{'data': consolidatedFirePerimeterData.sum_estimated0_14pop ? consolidatedFirePerimeterData.sum_estimated0_14pop : 0 , name: '< 14'}, {'data': consolidatedFirePerimeterData.sum_estimated15_17pop ? consolidatedFirePerimeterData.sum_estimated15_17pop : 0, name: '15-17'}, {'data': consolidatedFirePerimeterData.sum_estimated18to64pop ? consolidatedFirePerimeterData.sum_estimated18to64pop : 0, name: '18-64'},{'data': consolidatedFirePerimeterData.sum_estimated65_79pop ? consolidatedFirePerimeterData.sum_estimated65_79pop : 0, 'name': '65-79'},{'data': consolidatedFirePerimeterData.sum_estimated80pluspop ? consolidatedFirePerimeterData.sum_estimated80pluspop : 0 , 'name': '+ 80'}]; 
           const perimeterPopulationWithVehicle = {value: parseFloat(100 - (consolidatedFirePerimeterData.sum_estpopwith0vehicles/consolidatedFirePerimeterData.sum_p0010001) * 100).toFixed(1)}
@@ -1462,6 +1386,9 @@ const goto = async ({ mapPoint }) => {
             PctWetlands: consolidatedFirePerimeterData.PctWetlands,
           }
 
+        //modifying CRITHAB information
+        consolidatedFirePerimeterData.CritHab = [...new Set(consolidatedFirePerimeterData.CritHab.split(', '))].join(", ")
+
 
         //modifying OWNERSPADUS information
         consolidatedFirePerimeterData.OwnersPadus
@@ -1478,19 +1405,25 @@ const goto = async ({ mapPoint }) => {
         : consolidatedFirePerimeterData.OwnersPadus = Object.keys(consolidatedFirePerimeterData.OwnersPadus).join(', ').split(', ');
 
         //ForestTypeGroup
-        consolidatedFirePerimeterData.ForestTypeGroup = consolidatedFirePerimeterData.ForestTypeGroup.replace(/'/g, '"');
-        const consolidatedForestTypeGroup = JSON.parse(consolidatedFirePerimeterData.ForestTypeGroup)
-        
-        consolidatedFirePerimeterData.ForestTypeGroup = consolidatedForestTypeGroup;
-        consolidatedFirePerimeterData.ForestTypeGroup = !consolidatedForestTypeGroup[Object.keys(consolidatedForestTypeGroup)[0]]
-        ? consolidatedFirePerimeterData.ForestTypeGroup = null
-        : consolidatedFirePerimeterData.ForestTypeGroup = Object.keys(consolidatedForestTypeGroup);
+        try {
+          consolidatedFirePerimeterData.ForestTypeGroup = consolidatedFirePerimeterData.ForestTypeGroup.replace(/'/g, '"');
+          const consolidatedForestTypeGroup = JSON.parse(consolidatedFirePerimeterData.ForestTypeGroup)
           
+          consolidatedFirePerimeterData.ForestTypeGroup = consolidatedForestTypeGroup;
+          consolidatedFirePerimeterData.ForestTypeGroup = !consolidatedForestTypeGroup[Object.keys(consolidatedForestTypeGroup)[0]]
+          ? consolidatedFirePerimeterData.ForestTypeGroup = null
+          : consolidatedFirePerimeterData.ForestTypeGroup = Object.keys(consolidatedForestTypeGroup);
+        } catch(error){
+          console.log(error)
+        }
+
+        const test = consolidatedFirePerimeterData.CritHab.split(', ')
+        console.log([...new Set(consolidatedFirePerimeterData.CritHab.split(', '))].join(", "))
         const perimeterEcology = {
             Hex_Count: consolidatedFirePerimeterData.Hex_Count, 
             L3EcoReg: consolidatedFirePerimeterData.L3EcoReg ? consolidatedFirePerimeterData.L3EcoReg : 'No information',
             LandForm: consolidatedFirePerimeterData.LandForm ? consolidatedFirePerimeterData.LandForm : 'No information',
-            RichClass: consolidatedFirePerimeterData.RichClass ? consolidatedFirePerimeterData.RichClass : 'No data',
+            RichClass: consolidatedFirePerimeterData.RichClass ? consolidatedFirePerimeterData.RichClass : null,
             CritHab:  consolidatedFirePerimeterData.CritHab ? consolidatedFirePerimeterData.CritHab : null,
             OwnersPadus: consolidatedFirePerimeterData.OwnersPadus ? consolidatedFirePerimeterData.OwnersPadus : null,
             ForestTypeGroup: consolidatedFirePerimeterData.ForestTypeGroup ? consolidatedFirePerimeterData.ForestTypeGroup : null, 
@@ -1511,7 +1444,6 @@ const goto = async ({ mapPoint }) => {
             formatWildfireRiskData({ consolidatedWHPClass })
 
           } catch(error) {
-            console.log('Error happened here!')
             console.error(error)
           }
         
@@ -1527,40 +1459,16 @@ const goto = async ({ mapPoint }) => {
         populationAndEcologyPointHexQuery({ irwinIdNumber, mapPoint })
         
         }
-
-
       })
   }
 
+//If the fire does not have a perimeter, get surrounding 2-mile information.
     const populationAndEcologyPointHexQuery = ({ irwinIdNumber, mapPoint }) => {
-    
-    const url ='https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/Wildfire_aggregated_v1/FeatureServer/0/query';
-      console.log('getting point data')
-    console.log(irwinIdNumber)
 
-    const params = {
-      where: `irwinID = '${irwinIdNumber}'`,
-      geometryType: 'esriGeometryPoint',      
-      spatialRelationship: 'intersects',
-      distance: 2,
-      units: 'esriSRUnit_StatuteMile',
-      inSR: 3857,
-      outFields: '*',
-      returnGeometry: true,
-      returnQueryGeometry: true,
-      f: 'json'
-    }
-
-    axios.get(url, {
-      params
-    })
-      .then((response) => {
-        console.log(response)
-        console.log(mapPoint)
         addCircleGraphic({ mapPoint });
         newEcoQuery({ mapPoint });
         censusBlockCentroidQuery({ mapPoint });
-      })
+
   }
 
   const currentDroughtQuery = ({mapPoint, fireInformation}) => {
@@ -1582,14 +1490,10 @@ const goto = async ({ mapPoint }) => {
       params
     })
       .then((response) => {
-        console.log(response)
+
         const droughtCondition = response.data.features[0] 
         ? response.data.features[0].attributes.dm 
         : 'Drought conditions not reported';
-        
-        console.log('Drought conditions')
-        console.log(droughtCondition)
-        
 
         const droughtStatus = (droughtCondition) => {
           if(droughtCondition === 0) {
@@ -1606,20 +1510,19 @@ const goto = async ({ mapPoint }) => {
             return 'None present'
           } 
         }
-        console.log(droughtStatus(droughtCondition))
+        
         renderDroughtStatus( droughtStatus(droughtCondition))
 
-      })
+      });
 
-    }
+    };
 
     const weatherCollection = async ({ mapPoint, fireInformation }) => {
       const temp = await temperatureQuery({ mapPoint, fireInformation });
       const wind = await windForecastQuery({ mapPoint, fireInformation });
       const airQualityToday = await currentAirQuality({ mapPoint, fireInformation });
       const airQualityTomorrow = await forecastAirQuality({ mapPoint, fireInformation });
-      //TODO: CREATE THIS FUNCTION
-      console.log(temp, wind, airQualityToday, airQualityTomorrow )
+     
       renderWeatherInformation({ temp, wind, airQualityToday, airQualityTomorrow })
     }
 
@@ -1643,12 +1546,9 @@ const goto = async ({ mapPoint }) => {
         params
       })
         .then((response) => {
-          console.log('temperature')
-          console.log(response)
+         
           if(response.data.fields){
-          console.log(response.data.features.sort((a, b) => {
-            return a.attributes.Period - b.attributes.Period 
-          }))
+
           const dailyTemperatures = response.data.features.sort((a, b) => { 
           a.attributes.Period - b.attributes.Period});
 
@@ -1697,13 +1597,11 @@ const goto = async ({ mapPoint }) => {
       params
     })
       .then((response) => {
-        console.log('Wind Forecast')
-        console.log(response)
+        
         const windTime = response.data.features.length  
                         ? response.data.features.sort((a, b) => a.attributes.fromdate - b.attributes.fromdate)
                         : null
 
-        console.log(windTime)
         const windForce = [
           {
             mph: '< 1mph',
@@ -1789,7 +1687,7 @@ const goto = async ({ mapPoint }) => {
         
         
         resolve(wind);
-        // windRender({ wind })
+
       })
       .catch((error) => {
         console.error(error)
@@ -1815,13 +1713,11 @@ const goto = async ({ mapPoint }) => {
         params
       })
         .then((response) => {
-          console.log('Current Air Quality:')
           
           const currentAQICode = response.data.features[0]
                             ? response.data.features[0].attributes.gridcode
                             : 'No data'
                                 
-          console.log(currentAQICode)
           const airQualityToday = (currentAQICode) => { 
             if(currentAQICode === 1) {
                 return 'Good';
@@ -1867,8 +1763,7 @@ const goto = async ({ mapPoint }) => {
         params
       })
         .then((response) => {
-          console.log('Air Quality Forecast:')
-          console.log(response)
+        
           const airQualityForecast = response.data.features[0]
                                    ? response.data.features[0].attributes.gridcode
                                    : 'No data'
@@ -1890,7 +1785,7 @@ const goto = async ({ mapPoint }) => {
               return 'No data';
             }
           };
-          //TODO: create this function to render the AQ forecast
+
           resolve(airQualityTomorrow(airQualityForecast));
         })
         .catch((error) => {
@@ -1921,7 +1816,6 @@ const goto = async ({ mapPoint }) => {
       params
     })
       .then((response) => {
-        console.log(response)
 
     if(response.data.features){
       const aggregatedPopulationBlockObject = response.data.features.reduce((a,b) => {
@@ -1930,8 +1824,6 @@ const goto = async ({ mapPoint }) => {
         }), 0;
         return a
         },{})
-                  
-        console.log(aggregatedPopulationBlockObject)
         
       const populationData = [{'data': aggregatedPopulationBlockObject.Estimated0_14Pop, name: '< 14'}, {'data': aggregatedPopulationBlockObject.Estimated15_17Pop, name: '15-17'}, {'data': aggregatedPopulationBlockObject.Estimated18to64Pop, name: '18-64'},{'data': aggregatedPopulationBlockObject.Estimated65_79Pop, 'name': '65-79'},{'data': aggregatedPopulationBlockObject.Estimated80PlusPop, 'name': '+ 80'}];
       const englishSpeakingPopulation = {value: parseFloat(100 - (aggregatedPopulationBlockObject.EstPopNoEnglish/aggregatedPopulationBlockObject.P0010001)*100).toFixed(1)}
@@ -1998,7 +1890,6 @@ const goto = async ({ mapPoint }) => {
       params
     })
       .then((response) => {
-        console.log(response);
         
         const ecoResponse = response.data.features;
         
@@ -2015,7 +1906,6 @@ const goto = async ({ mapPoint }) => {
           return a
         }, {})
 
-        console.log(aggregateEcoObj)
       //Creating a list from from the CritHabitat obj. Taking only the keys listed.
         aggregateEcoObj.CritHab
         ?  aggregateEcoObj.CritHab = aggregateEcoObj.CritHab.split(', ').filter(entry => !entry.includes(undefined) && !entry === false).reduce((CritHabObj, CritHabItem) => {
@@ -2039,7 +1929,6 @@ const goto = async ({ mapPoint }) => {
             return L3EcoRegObj
           },{})
         : null;
-        // console.log(aggregateEcoObj.L3EcoReg)
         !aggregateEcoObj.L3EcoReg[Object.keys(aggregateEcoObj.L3EcoReg)[0]]
         ? aggregateEcoObj.L3EcoReg = null
         : aggregateEcoObj.L3EcoReg = Object.entries(aggregateEcoObj.L3EcoReg).sort((a, b) => b[0].localeCompare(a[0])).sort((a, b) => b[1] - a[1])[0][0]
@@ -2057,10 +1946,7 @@ const goto = async ({ mapPoint }) => {
         ? aggregateEcoObj.LandForm = null
         : aggregateEcoObj.LandForm = Object.entries(aggregateEcoObj.LandForm).sort((a, b) => b[0].localeCompare(a[0])).sort((a, b) => b[1] - a[1])[0][0]
 
-        // const sortedAggragateEcoLandform = Object.entries(aggregateEcoObj.LandForm).sort((a, b) => b[0].localeCompare(a[0]))
-        // aggregateEcoObj.LandForm = sortedAggragateEcoLandform.sort((a, b) => b[1] - a[1])        
-
-          //Creating an object of ForestType entries and their 'count' value from an array 
+      //Creating an object of ForestType entries and their 'count' value from an array 
         aggregateEcoObj.ForestTypeGroup
         ? aggregateEcoObj.ForestTypeGroup = aggregateEcoObj.ForestTypeGroup.split(',').filter(entry => !entry.includes(undefined) && !entry.includes(null)).reduce((ForestTypeGroupObj, ForestTypeGroupItem) => {
             !ForestTypeGroupObj[ForestTypeGroupItem] 
@@ -2074,7 +1960,6 @@ const goto = async ({ mapPoint }) => {
         : aggregateEcoObj.ForestTypeGroup = Object.entries(aggregateEcoObj.ForestTypeGroup).sort((a, b) => b[0].localeCompare(a[0])).sort((a, b) => b[1] - a[1]).map((treeType) => treeType[0])
 
 
-        console.log(aggregateEcoObj.OwnersPadus)
         aggregateEcoObj.OwnersPadus
         ? aggregateEcoObj.OwnersPadus = aggregateEcoObj.OwnersPadus.split(', ').filter(entry => !entry.includes(undefined) && !entry === false).reduce((OwnersPadusObj, OwnersPadusItem) => {
             !OwnersPadusObj[OwnersPadusItem] 
@@ -2106,7 +1991,6 @@ const goto = async ({ mapPoint }) => {
         : 0;
         
       //creating the WFHP object from the returned object
-        console.log(aggregateEcoObj.WHPClass)
         aggregateEcoObj.WHPClass
         ? aggregateEcoObj.WHPClass = aggregateEcoObj.WHPClass.split(', ').filter(entry => !entry.includes(undefined)).reduce((WHPClassObj, WHPClassItem) => {
             !WHPClassObj[WHPClassItem] 
@@ -2136,9 +2020,7 @@ const goto = async ({ mapPoint }) => {
         aggregateEcoObj.WHPClass["Low"] = aggregateEcoObj.WHPClass["Low"] / ecoResponse.length || 0;
         aggregateEcoObj.WHPClass["Very Low"] = aggregateEcoObj.WHPClass["Very Low"] / ecoResponse.length || 0;
         }
-        console.log(ecoResponse)
-        console.log(aggregateEcoObj)
-        
+
         //creating a 'Hex_Count' Key base on the number of hexes queried.
         aggregateEcoObj.Hex_Count = ecoResponse.length
 
@@ -2146,7 +2028,6 @@ const goto = async ({ mapPoint }) => {
         landCoverDataFormatting ({ aggregateEcoObj })
         habitatInfoRender({ aggregateEcoObj })
       }else {
-        console.log('no eco data')
         
         const aggregateEcoObj = {
           Hex_Count: null,
@@ -2196,11 +2077,9 @@ const landCoverDataFormatting = ({ aggregateEcoObj, perimeterLandCover }) => {
     {'name': 'Water', 'percent': aggregateEcoObj ? aggregateEcoObj["PctWater"] : perimeterLandCover["PctWater"], 'fill': '#054F8C'},
     {'name': 'Wetlands', 'percent': aggregateEcoObj ? aggregateEcoObj["PctWetlands"] : perimeterLandCover["PctWetlands"], 'fill': '#028B9C'}
                         ]
-console.log(landCoverArray)
   let placeholderPercent = 0
                       
   landCoverArray.map(biome => {
-    console.log(biome)
     biome.percent = Math.round(biome.percent)
     
     if (biome.percent < 10) {
@@ -2223,15 +2102,11 @@ const renderLandCoverGraph = (landCoverArray) => {
 
   d3.select('#landcover-graph')  
   .remove();
-  
-  // document.querySelector('#landcover-data-control').innerText = ``
 
   const landCoverArrayData = landCoverArray.filter(entry => entry.percent);
-  console.log(landCoverArrayData)
 
   
   if(landCoverArrayData.length === 0){
-    
     
     return 
   }
@@ -2300,13 +2175,10 @@ const renderLandCoverGraph = (landCoverArray) => {
           .on('mouseover', (e, d, i) => {
             text.append('text')
               .attr('dy', '1em')
-              // .attr('dx', '-1.5em')
               .attr('text-anchor', 'middle')
               .attr('class', 'percentage')
               .text(`${d.value}%`)
             text.append('text')
-              // .attr('dy', 'em')
-              // .attr('dx', '-2em')
               .attr('text-anchor', 'middle')
               .attr('class', 'landcover')
               .text(`${d.data.name}`)
@@ -2319,10 +2191,9 @@ const renderLandCoverGraph = (landCoverArray) => {
         
 };
 
-//FIRE CONTAINMENT 
+//FIRE CONTAINMENT BAR
 const containmentBar =  (containment) => {
   
-  //this section is where to write the d3 code for the 'containment bar'. Return the variable 
   d3.select('#containment-bar')  
   .remove();
 
@@ -2352,7 +2223,7 @@ const containmentBar =  (containment) => {
       .style('margin', '6px 5px 0')
       .attr("width", '100%')
       .attr("height", '85%')
-      .attr('viewBox',`0 0 175 40` )
+      .attr('viewBox',`0 0 181 40` )
     .append("g")
       .attr("transform", "translate( 0, -1.5 )");
       
@@ -2384,7 +2255,6 @@ const containmentBar =  (containment) => {
 
   //Population Bar Chart
   const populationBarGraph = ( populationData ) => {
-    console.log(populationData)
 
     const populationDataValue = populationData.reduce(
       (a,b) => a + b.data, 0
@@ -2407,8 +2277,7 @@ const containmentBar =  (containment) => {
 
     if(!populationDataValue) {
       document.querySelector('#population-graph-label').innerHTML = ''
-      // document.querySelector('#population-graph-data-control').setAttribute('style', "margin: 50% 0; display: block; text-align: center;")
-      // document.querySelector('#population-graph-data-control').innerText = `No available data`
+      
       return
     };
 
@@ -2491,8 +2360,6 @@ const containmentBar =  (containment) => {
 
   //english speaking population
   const englishBarGraph = ( englishSpeakingPopulation) => {
-  console.log('bargraph Called')
-  console.log(englishSpeakingPopulation.value)
 
   d3.select('#english-percent-bar')
   .remove();
@@ -2669,7 +2536,6 @@ const containmentBar =  (containment) => {
   const wildfirePotentialGraph = ({ wildfireRiskData }) => {
     
     const data = wildfireRiskData
-    console.log(data)
 
       //clear out the existing chart
       d3.select('#wildfire-risk-graph')  
@@ -2679,7 +2545,6 @@ const containmentBar =  (containment) => {
     if(data.reduce((a,b) => a + b.value, 0) === 0){
       document.querySelector('#wildfire-risk-data-control').innerText = ``
       document.querySelector('#wildfire-risk-header').innerText  = ``
-      //  document.querySelector('#wildfire-risk-data-control').innerText = `No data available`
      return
     }
 
@@ -2701,8 +2566,6 @@ const containmentBar =  (containment) => {
         .attr('id', 'wildfire-risk-graph')
         .attr('width', '100%')
         .attr('height', '100%')
-        // .style('margin-left', `${margin.left}px`)
-        // .style('margin-right', `${margin.left}px`)
       .append('svg')
         .attr('id', 'wildfire-risk-graph-svg')
         .attr('transform', `translate(0, 0)`)
@@ -2750,7 +2613,6 @@ const containmentBar =  (containment) => {
       xAxisG.selectAll('.domain, .tick')
       .remove();
 
-      //const rect = svg.selectAll('.bar')
       svg.selectAll('.bar')
         .data(data)
         .enter().append('g')
@@ -2774,20 +2636,10 @@ const containmentBar =  (containment) => {
             .style('font-weight', 'bold')
           .text(d => (d.value > 0 ? `${Math.round(d.value*100)}%` : '0%'))
   }
-
   
 //RENDERING UI CONTENT
 
-  const toggleItemContentVisibility = () => {
-    console.log('toggler');
-    
-    console.log(sideBarInformation.style.display)
-    sideBarInformation.style.display = 'initial';
-  };
-
   const renderDroughtStatus = ( droughtStatus ) => {
-
-
 
     const drought = document.querySelector("#drought-condition").innerHTML = `
       <div style = "display: flex;">
@@ -2814,10 +2666,8 @@ const containmentBar =  (containment) => {
 
   const renderWeatherInformation = ({ temp, wind, airQualityToday, airQualityTomorrow }) => {
 
-                    console.log(temp) 
     const aqToday = airQualityToday
     const aqTomorrow = airQualityTomorrow
-
     
     const weatherContentHeader = (temp) => {
       if (temp.renderWeather) {  
@@ -2829,10 +2679,9 @@ const containmentBar =  (containment) => {
   };
     
     
-    const renderWeatherGrid = (temp) => {
+    const renderWeatherGrid = async (temp) => {
       if(temp.renderWeather) {
-        console.log(temp.renderWeather)
-        setTimeout(() => {
+        
         document.querySelector('#temp-wind-aq').innerHTML = `
           <div style = "
                     display: grid; 
@@ -2841,11 +2690,9 @@ const containmentBar =  (containment) => {
                     gap: 0px;
                     margin: auto;">
                         <div class="item-1" style = "margin: 15px 0 10px -5px; text-align: center;">
-                          <span class = "unit-conversion underline" style = "display: block; margin: -5px 0 -15px 0;">&degF MPH
-                          </span>
+                          <span class="unit-conversion underline" style = "cursor: pointer; display: block; margin: -5px 0 -15px 0;">&degF MPH</span>
                           </br>
-                          <span class = "unit-conversion" style = "cursor: pointer; ">&degC KM/H
-                          </span>
+                          <span class="unit-conversion" style = "cursor: pointer;">&degC KM/H</span>
                         </div>
                         <div class="item-2" style = "padding: 25px 0; text-align: center;">
                           <span>TODAY</span>
@@ -2891,60 +2738,59 @@ const containmentBar =  (containment) => {
                                     line-height: 21px;""> ${aqTomorrow} </ptrailer-0>
                         </div>
                       </div>
-    `}, 1000)
+    `
     } else {
-      console.log('no temp')
-      setTimeout(() => console.log('clear temp'), document.querySelector('#temp-wind-aq').innerHTML = ``, 5000)
+      setTimeout(() => document.querySelector('#temp-wind-aq').innerHTML = ``, 1000)
       
     }
   }
     
+   renderWeatherGrid(temp)
     weatherContentHeader(temp)
-    renderWeatherGrid(temp)
     changeWeatherMetrics({ temp, wind })
   }
 
   const changeWeatherMetrics = ({ temp, wind }) => {
-      
+      const metric = document.querySelectorAll('.unit-conversion')  
+
       const todayTempEL = document.querySelector('#today-temp');
       const tomorrowTempEl = document.querySelector('#tomorrow-temp');
       const todayWindEL = document.querySelector('#today-wind');
       const tomorrowWindEL = document.querySelector('#tomorrow-wind');
 
                      
-    const todayTempF = `<p style="margin: 1rem; text-align: center;">${temp.todayF}</p>`;
-    const todayTempC = `<p style="margin: 1rem; text-align: center;">${temp.todayC}</p>`;
-    const tomorrowTempF = `<p style="margin: 1rem; text-align: center;">${temp.tomorrowF}</p>`;
-    const tomorrowTempC = `<p style="margin: 1rem; text-align: center;">${temp.tomorrowC}</p>`;
-    const windTodayMPH = `<p style="margin: 1rem; text-align: center;"> ${wind.today.mph} </p>`;
-    const windTodayKPH = `<p style="margin: 1rem; text-align: center;"> ${wind.today.kph} </p>`;
-    const windTomorrowMPH = `<p style="margin: 1rem; text-align: center;"> ${wind.tomorrow.mph} </p>`;
-    const windTomorrowKPH = `<p style="margin: 1rem; text-align: center;"> ${wind.tomorrow.kph} </p>`;
-
-      const metric = document.querySelectorAll(".unit-conversion")
+      const todayTempF = `<p style="margin: 1rem; text-align: center;">${temp.todayF}</p>`;
+      const todayTempC = `<p style="margin: 1rem; text-align: center;">${temp.todayC}</p>`;
+      const tomorrowTempF = `<p style="margin: 1rem; text-align: center;">${temp.tomorrowF}</p>`;
+      const tomorrowTempC = `<p style="margin: 1rem; text-align: center;">${temp.tomorrowC}</p>`;
+      const windTodayMPH = `<p style="margin: 1rem; text-align: center;"> ${wind.today.mph} </p>`;
+      const windTodayKPH = `<p style="margin: 1rem; text-align: center;"> ${wind.today.kph} </p>`;
+      const windTomorrowMPH = `<p style="margin: 1rem; text-align: center;"> ${wind.tomorrow.mph} </p>`;
+      const windTomorrowKPH = `<p style="margin: 1rem; text-align: center;"> ${wind.tomorrow.kph} </p>`;
+    
       metric.forEach((item) => {
+
         item.addEventListener('click', (event) => {
-          
+
           !event.target.classList.contains('underline')
           ? (metric.forEach((item) => {item.classList.remove('underline')}), event.target.classList.add('underline'))
           : null;
           
           event.target.innerText.includes('F')
-          ? (todayTempEL.innerHTML = todayTempF,
+          ? (
+            todayTempEL.innerHTML = todayTempF,
              tomorrowTempEl.innerHTML = tomorrowTempF, 
              todayWindEL.innerHTML = windTodayMPH,
              tomorrowWindEL.innerHTML = windTomorrowMPH
              )
-          : (todayTempEL.innerHTML = todayTempC, 
+          : (
+            todayTempEL.innerHTML = todayTempC, 
              tomorrowTempEl.innerHTML = tomorrowTempC,
              todayWindEL.innerHTML = windTodayKPH,
              tomorrowWindEL.innerHTML = windTomorrowKPH
              )
-
-          
         })
       })
-
     };
  
   
@@ -3022,7 +2868,7 @@ const containmentBar =  (containment) => {
 
     
       if(areaHousingObject.TotalHousingUnits && areaHousingObject.MedianValue){
-        document.querySelector('#housing-container').style.display = 'flex';
+        document.querySelector('#housing-container').style.display = 'grid';
 
         document.querySelector('#housing-container-stats').innerHTML = `
       <div style = "margin-bottom: 10px">
@@ -3051,14 +2897,11 @@ const containmentBar =  (containment) => {
                              ? 'WITHIN 2 MILE RADIUS'
                              : 'WITHIN FIRE PERIMETER'
 
-    //TODO move the function call into the render-cehck function.                             
     const habitatContentControl = ({ ecoObject }) => {
       if(ecoObject.Hex_Count) {
-        console.log(ecoObject.Hex_Count)  
         return infoItemContent[4].style.display = `initial`, infoItemHeader[4].innerHTML = `<p class = "trailer-0 sectionHeader">ECOSYSTEM</p>
                                                 <p class = "trailer-0 sectionSubHeader">${containerSubheader}</p>`
       } else {
-        console.log(ecoObject.Hex_Count)  
         return infoItemContent[4].style.display = `none`, infoItemHeader[4].innerHTML = ``
       };
     }
@@ -3083,63 +2926,61 @@ const containmentBar =  (containment) => {
 
     const landformType = (({ ecoObject }) => {
       if(ecoObject.LandForm){
-        // return typeof(aggregateEcoObj.LandForm) !== "string" ? aggregateEcoObj.LandForm[0][0] : aggregateEcoObj.LandForm;
-        return document.querySelector('#landform').innerHTML = `
-      <div>
-          <p class = "trailer-0">LANDFORM TYPE</p>
-          <div style = "margin-bottom: 15px;">
-            <h4 class = "bold" style = "margin-top: -7px;">${ecoObject.LandForm}</h4>
-          </div>
-        </div>`;
+      return document.querySelector('#landform').innerHTML = `
+        <div>
+            <p class = "trailer-0">LANDFORM TYPE</p>
+            <div style = "margin-bottom: 15px;">
+              <h4 class = "bold" style = "margin-top: -7px;">${ecoObject.LandForm}</h4>
+            </div>
+          </div>`;
       } else {
         return document.querySelector('#landform').innerHTML = ``
       }
     });
 
     const biodiversity = (({ ecoObject }) => {
-      console.log(ecoObject.RichClass)
       if(ecoObject.RichClass){
         return document.querySelector('#biodiversity').innerHTML = `
-    <div style = "margin-bottom: 1.5625rem;">
-        <div style = "width: 100%;">
-          <div>
-          <p class = "trailer-0">BIODIVERSITY</p>
-        </div>
-        <div style ="width: 100%; display: flex; text-align: center;">
-          <div style = "width: 50%; text-align: center; align-self: center;">
-          <h4 class = "bold">${ecoObject.RichClass}</h4>
-              <p style ="margin-bottom: 5px; margin-top: 5px;">Imperiled Species Biodiversity</p>
-          </div>
-          <div style = "width: 50%;"> 
-            <img src="https://www.arcgis.com/sharing/rest/content/items/668bf6e91edd49d1bb8b3f00d677b315/data"
-              style="width:60px; height:60px;
-              // margin-right: 10px; 
-              display: inline-flex;" 
-              viewbox="0 0 70 70" 
-              class="svg-icon" 
-              type="image/svg+xml">
-            <img src="https://www.arcgis.com/sharing/rest/content/items/bc5dc73ad7d345de840c128cc42cc938/data"
-              style="width:60px; height:60px; 
-              display: inline-flex;" 
-              viewbox="0 0 70 70" 
-              class="svg-icon" 
-              type="image/svg+xml">
-            <img src="https://www.arcgis.com/sharing/rest/content/items/96a4af6a248b4da48f1b7bd703f88485/data"
-              style="width:60px; height:60px;
-              // margin-right: 7px;
-              display: inline-flex;" 
-              viewbox="0 0 70 70" 
-              class="svg-icon" 
-              type="image/svg+xml">
-            <img src="https://www.arcgis.com/sharing/rest/content/items/3c9e63f9173a463ba4e5765c08cf7238/data"
-              style="width:60px; height:60px; 
-              display: inline-flex;" 
-              viewbox="0 0 70 70" 
-              class="svg-icon" 
-              type="image/svg+xml">
-          </div>
-        </div>
-      </div>`;
+          <div style = "margin-bottom: 1.5625rem;">
+            <div style = "width: 100%;">
+              <div>
+              <p class = "trailer-0">BIODIVERSITY</p>
+            </div>
+            <div style ="width: 100%; display: flex; text-align: center;">
+              <div style = "width: 50%; text-align: center; align-self: center;">
+              <h4 class = "bold">${ecoObject.RichClass}</h4>
+                  <p style ="margin-bottom: 5px; margin-top: 5px;">Imperiled Species Biodiversity</p>
+              </div>
+              <div style = "width: 50%;"> 
+                <img src="https://www.arcgis.com/sharing/rest/content/items/668bf6e91edd49d1bb8b3f00d677b315/data"
+                  style="width:60px; height:60px;
+                  // margin-right: 10px; 
+                  display: inline-flex;" 
+                  viewbox="0 0 70 70" 
+                  class="svg-icon" 
+                  type="image/svg+xml">
+                <img src="https://www.arcgis.com/sharing/rest/content/items/bc5dc73ad7d345de840c128cc42cc938/data"
+                  style="width:60px; height:60px; 
+                  display: inline-flex;" 
+                  viewbox="0 0 70 70" 
+                  class="svg-icon" 
+                  type="image/svg+xml">
+                <img src="https://www.arcgis.com/sharing/rest/content/items/96a4af6a248b4da48f1b7bd703f88485/data"
+                  style="width:60px; height:60px;
+                  // margin-right: 7px;
+                  display: inline-flex;" 
+                  viewbox="0 0 70 70" 
+                  class="svg-icon" 
+                  type="image/svg+xml">
+                <img src="https://www.arcgis.com/sharing/rest/content/items/3c9e63f9173a463ba4e5765c08cf7238/data"
+                  style="width:60px; height:60px; 
+                  display: inline-flex;" 
+                  viewbox="0 0 70 70" 
+                  class="svg-icon" 
+                  type="image/svg+xml">
+              </div>
+            </div>
+          </div>`;
       } else {
         return document.querySelector('#biodiversity').innerHTML = ``;
       }
@@ -3194,7 +3035,7 @@ const containmentBar =  (containment) => {
         <div>
           <p style = "margin-bottom: 2px;">PREDOMINANT FOREST TYPE GROUPS</p>
           <div class = "ecoregionInformation">
-            <h4 class = "bold">${ecoObject.ForestTypeGroup.length > 1 ? ecoObject.ForestTypeGroup[0].trim()+ ", and " + ecoObject.ForestTypeGroup[1].trim() : ecoObject.ForestTypeGroup[0].trim()}</h4>
+            <h4 class = "bold">${ecoObject.ForestTypeGroup.length > 1 ? ecoObject.ForestTypeGroup[0].trim()+ " and " + ecoObject.ForestTypeGroup[1].trim() : ecoObject.ForestTypeGroup[0].trim()}</h4>
           </div>
         </div>`;
       } else{

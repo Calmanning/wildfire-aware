@@ -228,7 +228,6 @@
                     </div>
                   </div>
                 </div>
-              
             </ul>
           </div>
           <button class="btn modifier-class btn-fill" id = "layer-list-button"
@@ -242,8 +241,7 @@
       <div id="sideBar" style="float:left; z-index: 2;">
         <div id="sideBarTop"><span id="sideBarToggleArrow"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" class="svg-icon">
           <path d="M4 23v-5L16 6l12 12v5L16 11 4 23z" />
-          </svg></span>
-          
+          </svg></span>    
           <div>
             <div id="sideBarMobileHeader">
               <div class="trailer-0">
@@ -269,30 +267,9 @@
 
         </div>
         <aside id = "infoBar">
-          <!-- <div style = "height: 110px;"></div> -->
+          
           <div stlye="display: block;">
-            <!-- <div>
-            <div id = "sideBarHeader">
-              <div class="trailer-0">
-                <span class = 'bold' style = "color: #FFBA1F; font-size: 1.8rem;">WILDFIRE AWARE</span>
-                <span id="modal-btn" class="right btn cursor-pointer js-modal-toggle" href="#"
-                  data-modal="infoModal">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" style = "width: 24px; height: 24px; margin-top: -5px; margin-left:-1px; fill: currentColor;" class="svg-icon">
-                  <path
-                    d="M31.297 16.047c0 8.428-6.826 15.25-15.25 15.25S.797 24.475.797 16.047c0-8.424 6.826-15.25 15.25-15.25s15.25 6.826 15.25 15.25zM18 24V12h-4v12h-2v2h8v-2h-2zm0-18h-4v4h4V6z" />
-                </svg>
-                </span>
-              </div>
-              <div class="trailer-0" style = "margin-top: -8px;">
-               
-                <p class="trailer-0" style ="font-size: 14px">
-                  For community awareness within the US about a wildfire, select from the list or click on the map.
-                </p>
-              </div>
-
-              <hr class="divider">
-            </div>
-            </div> -->
+          
             <div id="sideBarContent" class="trailer-quarter">
              
               <div id="activeFiresDropdown" class="dropdown js-dropdown" style="width: 100%;">
@@ -343,8 +320,6 @@
                       </div>
                       <div id="temp-wind-aq">
                       </div>
-                      <div id="watches-and-warnings" style="margin: 30px 0 15px 0px;">
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -357,7 +332,7 @@
                     
                     <div id="people-container" style="display: flex; flex-flow: row wrap; margin-bottom: 25px;">
                       
-                      <div id="total-population" style = "width: 30%; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0 0">
+                      <div id="total-population" style = "width: 30%; display: flex; flex-direction: column; justify-content: space-between;">
                         <div id="general-population"></div>
                         <div id="disability"></div>
                         <div id="poverty"></div>
@@ -384,13 +359,12 @@
                   <div class="item-header">
                   </div>
                   <div class="item-content">
-                    <div id="housing-container" style='display: flex;'>
-                      <div style="width: 40%;">
-                        <img src="https://www.arcgis.com/sharing/rest/content/items/e1e519abf84542c1b4557697bcb7984b/data" style="width:90%; height:90%; 
-                           display: inline-flex;
-                           margin: -11px 0 0 0 " class="svg-icon" type="image/svg+xml" alt="image for housing section information">
+                    <div id="housing-container" style='display: none; grid-auto-flow: column;'>
+                      <div style="width: 100%;">
+                        <img src="https://www.arcgis.com/sharing/rest/content/items/e1e519abf84542c1b4557697bcb7984b/data" 
+                        style="margin-bottom: -38px; width:100%; height:100%;" type="image/svg+xml" alt="image for housing section information">
                       </div>
-                      <div id = "housing-container-stats" style="width: 60%; margin: 0; text-align: center;">
+                      <div id = "housing-container-stats" style="margin: 0; width: 110%; text-align: center;">
                       </div>
                     </div>
                   </div>
@@ -453,6 +427,12 @@
 
       <div class="js-modal modal-overlay modifier-class" data-modal="infoModal">
         <div class="modal-content" style = "background-color: rgba(17, 54, 81, 0.85); width: 75vw;" role="dialog" aria-labelledby="modal" role="dialog">
+          <a class="js-modal-toggle right" aria-label="close-modal">
+            <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 28 28" class="svg-icon" style = "color: #efefef;">
+              <path
+                d="M18.404 16l9.9 9.9-2.404 2.404-9.9-9.9-9.9 9.9L3.696 25.9l9.9-9.9-9.9-9.898L6.1 3.698l9.9 9.899 9.9-9.9 2.404 2.406-9.9 9.898z" />
+            </svg>
+          </a>
           <h5 class='avenir-demi trailer-half' style = "color:rgb(255,186,31); margin-bottom: 0;">ABOUT THIS APP</h5>
           <div>
             <p>
