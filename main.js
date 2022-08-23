@@ -106,6 +106,9 @@ require([
     })
     .then(() => {
       mapView.map = webmap;
+      mapView.constraints = {
+        rotationEnabled: false
+      }
       document.querySelector('.loader').classList.remove('is-active')
     })
     .catch((error) => {
