@@ -1872,7 +1872,7 @@ const goto = async ({ mapPoint }) => {
 //NEW ECO QUERY
   const newEcoQuery = ({ mapPoint, fireInformation }) => {
 
-    const url = 'https://services.arcgis.com/jIL9msH9OI208GCb/ArcGIS/rest/services/AllHexesFromAgolAsPoints220811a/FeatureServer/22/query'
+    const url = 'https://services.arcgis.com/jIL9msH9OI208GCb/ArcGIS/rest/services/AllHexesFromAgolAsPoints220823a/FeatureServer/0/query'
 
     const params = {
       where: '1=1',
