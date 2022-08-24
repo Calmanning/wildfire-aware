@@ -672,6 +672,12 @@ const goto = async ({ mapPoint }) => {
 //List of fires in dropdown
   const formatActiveFires = (sortedFireList) => {
 
+    if(!sortedFireList.length){
+      console.log('no fires')
+      fireListEl.innerHTML = ''
+      return
+    }
+
   const fires = sortedFireList.map(fire => {
     
     if(typeof(fire) === 'object') {
@@ -713,7 +719,7 @@ const goto = async ({ mapPoint }) => {
 
   });
 
-  document.getElementById('fire-list').innerHTML = [...fires].join("");
+  fireListEl.innerHTML = [...fires].join("");
 
     
     fireItemEvents()     
@@ -732,6 +738,10 @@ const goto = async ({ mapPoint }) => {
     const fireAge = fireData.fireDiscovery;
     
     const fireName = fireData.incidentName.toUpperCase();
+
+    const fireCounty = fireData.county.toUpperCase();
+
+    const fireState = fireData.state.substring(3);
 
     const fireAcres = fireData.dailyAcres;
 
@@ -768,6 +778,7 @@ const goto = async ({ mapPoint }) => {
                 type="image/svg+xml"/>
               <div>
                 <h4 class = "bold trailer-0" style= "line-height: 0px;"><b>${fireName}</b></h4>
+                <p class = "trailer-0" style = "font-size: 0.875rem;" >${fireCounty} COUNTY, ${fireState}</p>
                 <p class = "trailer-0" style = "font-size: 0.875rem;" >INCIDENT TYPE: ${fireType}</p>
                 <p class = "trailer-0" style = "font-size: 0.875rem; white-space:nowrap" >START: ${fireDate.toUpperCase()}</p>
               </div>
@@ -1188,6 +1199,13 @@ const goto = async ({ mapPoint }) => {
         params
       })
         .then((response) => {
+          console.log(response)
+          if(!response.data.fields){
+            firesInView(0)
+            formatActiveFires(0)
+            return
+            
+          }
         const wildFires = response.data.features
       
          let fires = wildFires.map(fire => (
@@ -1276,7 +1294,7 @@ const goto = async ({ mapPoint }) => {
     const params = {
       where: `IrwinId ='${irwinIdNumber}'`,
       time: null,
-      outFields: ['IrwinID', 'IncidentName', 'ModifiedOnDateTime', 'FireDiscoveryDateTime', 'FireDiscoveryAge ', 'IncidentTypeCategory', 'DailyAcres', 'TotalIncidentPersonnel','PercentContained'].join(","),
+      outFields: ['IrwinID', 'IncidentName', 'POOState', 'POOCounty', 'ModifiedOnDateTime', 'FireDiscoveryDateTime', 'FireDiscoveryAge ', 'IncidentTypeCategory', 'DailyAcres', 'TotalIncidentPersonnel','PercentContained'].join(","),
       returnGeometry: true,
       outSR: 4326,
       f: 'json'
@@ -1286,7 +1304,7 @@ const goto = async ({ mapPoint }) => {
       params
     })
       .then((response) => {
-
+console.log(response)
         const fireIconGraphicInfo = response.data.features[0]
         
         const incidentType = response.data.features[0].attributes.IncidentTypeCategory !== "WF" 
@@ -1302,6 +1320,8 @@ const goto = async ({ mapPoint }) => {
         const fireData = response.data.features[0]
           ? {
               irwinId: response.data.features[0].attributes.IrwinID,
+              state: response.data.features[0].attributes.POOState,
+              county: response.data.features[0].attributes.POOCounty,
               incidentName: response.data.features[0].attributes.IncidentName,
               fireDiscovery: response.data.features[0].attributes.FireDiscoveryAge === 0 ? 'Less than 24 hours' : response.data.features[0].attributes.FireDiscoveryAge,
               fireDiscoveryDateTime: response.data.features[0].attributes.FireDiscoveryDateTime,
@@ -2954,33 +2974,35 @@ const containmentBar =  (containment) => {
               <h4 class = "bold">${ecoObject.RichClass}</h4>
                   <p style ="margin-bottom: 5px; margin-top: 5px;">Imperiled Species Biodiversity</p>
               </div>
-              <div style = "width: 50%;"> 
+              <div style = "width: 70%;">
+              <div style = "width: 100%;">
                 <img src="https://www.arcgis.com/sharing/rest/content/items/668bf6e91edd49d1bb8b3f00d677b315/data"
-                  style="width:60px; height:60px;
+                  style="width:77px; height:77px;
                   // margin-right: 10px; 
                   display: inline-flex;" 
                   viewbox="0 0 70 70" 
                   class="svg-icon" 
                   type="image/svg+xml">
                 <img src="https://www.arcgis.com/sharing/rest/content/items/bc5dc73ad7d345de840c128cc42cc938/data"
-                  style="width:60px; height:60px; 
+                  style="width:77px; height:77px; 
                   display: inline-flex;" 
                   viewbox="0 0 70 70" 
                   class="svg-icon" 
                   type="image/svg+xml">
                 <img src="https://www.arcgis.com/sharing/rest/content/items/96a4af6a248b4da48f1b7bd703f88485/data"
-                  style="width:60px; height:60px;
+                  style="width:77px; height:77px;
                   // margin-right: 7px;
                   display: inline-flex;" 
                   viewbox="0 0 70 70" 
                   class="svg-icon" 
                   type="image/svg+xml">
                 <img src="https://www.arcgis.com/sharing/rest/content/items/3c9e63f9173a463ba4e5765c08cf7238/data"
-                  style="width:60px; height:60px; 
+                  style="width:77px; height:77px; 
                   display: inline-flex;" 
                   viewbox="0 0 70 70" 
                   class="svg-icon" 
                   type="image/svg+xml">
+                </div> 
               </div>
             </div>
           </div>`;

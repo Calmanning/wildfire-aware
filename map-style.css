@@ -118,11 +118,10 @@ img {
 }
 
 #wfp-btn {
-  margin-top: 11px;
   padding: 0;
   border: 0;
-  color: #ea1600;
-  background-color: #ffffff;
+  /* color: #ea1600;
+  background-color: #ffffff; */
   border-radius: 50%;
   width: 20px;
   height: 20px;

@@ -246,7 +246,7 @@
             <div id="sideBarMobileHeader">
               <div class="trailer-0">
                 <span class='bold' style="color: #FFBA1F; font-size: 1.8rem; white-space: nowrap;">WILDFIRE AWARE - ESRI</span>
-                <span id="modal-btn" class="right btn cursor-pointer js-modal-toggle" href="#" data-modal="infoModal">
+                <span id="modal-btn" class="right btn cursor-pointer js-modal-toggle" href="#" tabIndex ='0' data-modal="infoModal">
                   <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"
                     style="width: 24px; height: 24px; margin-top: -5px; margin-left:-1px; fill: currentColor;" class="svg-icon">
                     <path
@@ -369,23 +369,6 @@
                     </div>
                   </div>
 
-                  <div id="wildfire-risk" style="margin-top: 20px;">
-                    <div style="width: 100%;">
-                      <p  id ="wildfire-risk-header" style="width: 100%; margin-bottom: 0;">WILDFIRE HAZARD POTENTIAL 
-                        <span id="wfp-btn" class="tooltip tooltip-multiline modifier-class" style = "width: 15px; height: 15px; display: inline-block;"aria-label="This is a tooltipplaceholder for wildfire potential.">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"
-                          style="width: 20px; height: 20px; margin: -10px 0px 0px -1px; fill: currentColor;" class="svg-icon">
-                          <path
-                            d="M31.297 16.047c0 8.428-6.826 15.25-15.25 15.25S.797 24.475.797 16.047c0-8.424 6.826-15.25 15.25-15.25s15.25 6.826 15.25 15.25zM18 24V12h-4v12h-2v2h8v-2h-2zm0-18h-4v4h4V6z" />
-                        </svg>
-                      </span>
-                    </p>
-                      <div>
-                        <h4 id="wildfire-risk-data-control" class="bold"> </h4>
-                      </div>
-                    </div>
-                  </div>
-
                 </div>
 
                 <div class="item-container">
@@ -402,7 +385,26 @@
                         <div id = "landcover-data-control">  
                         </div>
                       </div>
+                      
                       <div id='forestType'>
+                      </div>
+                      <div id="wildfire-risk" style="margin-top: 20px;">
+                        <div style="width: 100%;">
+                          <p id="wildfire-risk-header" style="width: 100%; margin-bottom: 0;">WILDFIRE HAZARD POTENTIAL
+                            <span id="wfp-btn" class="tooltip tooltip-multiline modifier-class"
+                              style="width: 15px; height: 15px; display: inline-block;"
+                              aria-label="Higher classes represent increased probability of extreme fire behavior under conducive weather conditions (based on fire modeling using 2014 vegetation data).">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"
+                                style="width: 20px; height: 20px; margin: -6px 0px 0px -1px; fill: currentColor;" class="svg-icon">
+                                <path
+                                  d="M31.297 16.047c0 8.428-6.826 15.25-15.25 15.25S.797 24.475.797 16.047c0-8.424 6.826-15.25 15.25-15.25s15.25 6.826 15.25 15.25zM18 24V12h-4v12h-2v2h8v-2h-2zm0-18h-4v4h4V6z" />
+                              </svg>
+                            </span>
+                          </p>
+                          <div>
+                            <h4 id="wildfire-risk-data-control" class="bold"> </h4>
+                          </div>
+                        </div>
                       </div>
                       <div id='carbon'>
                       </div>
@@ -435,7 +437,7 @@
 
       <div class="js-modal modal-overlay modifier-class" data-modal="infoModal">
         <div class="modal-content" style = "background-color: rgba(17, 54, 81, 0.85); width: 75vw;" role="dialog" aria-labelledby="modal" role="dialog">
-          <a class="js-modal-toggle right" aria-label="close-modal">
+          <a class="js-modal-toggle right" aria-label="close-modal" tabIndex = '0' aria-selected="false">
             <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 28 28" class="svg-icon" style = "color: #efefef;">
               <path
                 d="M18.404 16l9.9 9.9-2.404 2.404-9.9-9.9-9.9 9.9L3.696 25.9l9.9-9.9-9.9-9.898L6.1 3.698l9.9 9.899 9.9-9.9 2.404 2.406-9.9 9.898z" />
@@ -446,7 +448,7 @@
             <p>
               The Wildfire Aware app is intended to provide information about the current status and potential impact of wildfire
               incidents in the United States. This app opens with the list of fires sorted by the number of personnel assigned from
-              greatest to least as reported by incident staff. The data included in this application can all be found in the ArcGIS
+              greatest to least as reported by incident staff. The data included in this application can all be found in ArcGIS
               Living Atlas and are from authoritative entities.
             </p>
           <h5 class='avenir-demi trailer-half' style="color:rgb(255,186,31); margin-bottom: 0;">USE THIS APP</h5>
@@ -456,20 +458,21 @@
               zoom in. Once you have selected a fire or clicked on the map, details will be displayed in the information panel on the
               right giving you more information about a wildfire along with impacts to human and ecosystem populations.
               You can also sort by wildfire name, date or size, by selecting the relevant filter in the information pane.
-              Read more about Wildfire Aware and ways to use it <a class = "link" href="https://www.esri.com/arcgis-blog/products/arcgis-living-atlas/public-safety/wildfire-aware/" target="_blank">here</a>.
+              </br>
+              Read more about Wildfire Aware and ways to use it <a class="link" href="https://www.esri.com/arcgis-blog/products/arcgis-living-atlas/public-safety/wildfire-aware/" target="_blank" tabIndex = '0' aria-selected='false'>here</a>.
             </p>  
           <h5 class='avenir-demi trailer-half' style="color:rgb(255,186,31); margin-bottom: 0;">PERSONNEL BREAKDOWNS</h5>
             The categories below represent the number of personnel assigned.
-          <div>
+          <div style = "margin-top: 25px;">
             <div id="fire-points-legend" style="display:inherit; margin-bottom: 10px;">
-              <div class="legend-spacing" style="margin-left: -10px;">
-                <div class="legend-image-spacing">
-                  <img style="margin-top: -10px; min-width: 3rem; height: 3rem;"
+              <div class="legend-spacing">
+                <div class="legend-image-spacing" style="margin-bottom: 25px;">
+                  <img style="margin-top: -10px; margin-left: -6px; width: 2.7rem; height: 2.7rem;"
                     src="https://esri.maps.arcgis.com/sharing/rest/content/items/b56beb3d45d14b63af0113901dd767f7/data"
                     alt="fires with 500 or more people assigned">
                 </div>
-                <div class="legend-text" style="margin-top: 5px; margin-left: 20px;">
-                  &gt 500: Fires with the largest number of assigned personnel often require larger incident management team involvement.
+                <div class="legend-text" style="padding: 4px 0 ">
+                  <b>&gt 500:</b> Fires with the largest number of assigned personnel often require larger incident management team involvement.
                 </div>
               </div>
               <div class="legend-spacing">
@@ -479,7 +482,7 @@
                     alt="fires with personnel between 50 to 500">
                 </div>
                 <div class="legend-text">
-                  50-500: Greater complexity requires a higher number of personnel and potentially an incident management team.
+                  <b>50-500:</b> Greater complexity requires a higher number of personnel and potentially an incident management team.
                 </div>
               </div>
               <div class="legend-spacing">
@@ -489,7 +492,7 @@
                     alt="fires with less than 50 personnel">
                 </div>
                 <div class="legend-text"> 
-                  1-50: This number of personnel could indicate a smaller, less complex incident or one that is nearing the end of its primary response efforts.
+                  <b>1-50:</b> This number of personnel could indicate a smaller, less complex incident or one that is nearing the end of its primary response efforts.
                 </div>
               </div>
               <div class="legend-spacing">
@@ -499,7 +502,7 @@
                     alt="fire with no personnel reported">
                 </div>
                 <div class="legend-text">
-                Not Reported: New fires, smaller fires that are easier to contain, or fires that are near the end of their life cycle
+                <b>Not Reported:</b> New fires, smaller fires that are easier to contain, or fires that are near the end of their life cycle
                 may not report the number of ‘personnel assigned’. This should in no way be taken as an indication that the fire is
                 unstaffed or otherwise receiving no response.
               </div>
@@ -511,14 +514,14 @@
                     alt="Prescribed fire">
                 </div>
                 <div class="legend-text">
-                  Prescribed Fire: These fires are intentional and planned events.
+                  <b>Prescribed Fire:</b> These fires are intentional and planned events.
                 </div>
               </div>
             </div>
             
             <h5 class='avenir-demi trailer-half' style="color:rgb(255,186,31); margin-bottom: 0;">SOURCES</h5>
             <p>
-              The application includes data from ArcGIS <a class="link" href = "https://livingatlas.arcgis.com/en/home/" target ="_blank">Living Atlas</a> are authoritative sources, including:
+              The 23 data layers used in this application can be found in ArcGIS <a class="link" href = "https://livingatlas.arcgis.com/en/home/" target ="_blank">Living Atlas</a>:
               </br>
               </br>
               Environmental Protection Agency – <a class="link" href = "https://esri.maps.arcgis.com/home/item.html?id=3a21a75ffc8244f6a1c85a19b8ff7713" target ="_blank">Ecoregions</a> and Air Quality <a class="link" href="https://www.arcgis.com/home/item.html?id=61864315c28f4668bbbbdc73b08f4113" target="_blank">Current</a> and <a class="link" href="https://www.arcgis.com/home/item.html?id=61864315c28f4668bbbbdc73b08f4113" target="_blank">Tomorrow</a></br>
@@ -535,9 +538,8 @@
               Nature Serve – <a class="link" href="https://www.arcgis.com/home/item.html?id=6e90cefddb634e6a949838e7efff55fb" target="_blank">Imperiled Species</a></br>
               Esri – <a class="link" href="https://doc.arcgis.com/en/esri-demographics/latest/regional-data/updated-demographics.htm" target="_blank">2022 Demographics</a> and <a class="link" href="https://www.arcgis.com/home/item.html?id=cd817a746aa7437cbd72a6d39cdb4559" target="_blank">World Ecological Landforms</a>
             </p>
-            
-              This app was designed by Esri’s Sean Breyer, Michael Dangermond, Gonzalo Espinoza-Davalos, Chris Ferner, Jim Herries, Calvin Manning, Emily Meriam,
-              Dan Pisut, and James Sill.
+              This app was designed by Esri’s Calvin Manning, Emily Meriam, and Chris Ferner with support from Sean Breyer, Michael
+              Dangermond, Gonzalo Espinoza-Davalos, James Sill, Jim Herries, and Dan Pisut.
             </p>
             <br>
           </div>
