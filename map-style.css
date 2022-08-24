@@ -48,6 +48,11 @@ img {
 .sortClass{
   font-size: 20px;
   padding-right: 2rem;
+  cursor: pointer;
+}
+
+.sortClass:hover{
+  color: #cac8c8;
 }
 
 .SortClassLeftMargin {
@@ -104,7 +109,10 @@ img {
   bottom: 0;
 }
 
-
+#esriLogo {
+  width: 80px;
+  margin: 0px 0 -3px 17px;
+}
 
 #modal-btn {
   margin-top: 11px;
@@ -644,10 +652,17 @@ img {
     padding: 0px 10px 0;
   }
 
+  #esriLogo {
+    width: 80px;
+    margin: -30px 0 0 8px;
+    position: absolute;
+    left: -50%;
+  }
+
   #modal-btn {
-  position: relative;
-  top: -78px;
-  right: 3px;
+  position: absolute;
+  top: -40px;
+  right: -43%
   }
 
   #infoBar {
@@ -686,6 +701,11 @@ img {
   #sideBar {
   padding: 40px 140px 0;
   }
+    /* #modal-btn {
+      position: absolute;
+      top: -40px;
+      right: -140px;
+    } */
 }
 
 @media screen and (max-width: 590px){
@@ -695,6 +715,19 @@ img {
 
   #sideBarMobileHeader{
     margin: 0 20%
+  }
+
+  #esriLogo {
+    width: 80px;
+    margin: -30px 0 0 8px;
+    position: absolute;
+    left: -32%;
+  }
+
+  #modal-btn {
+    position: absolute;
+    top: -40px;
+    right: -27%
   }
 }
 
@@ -717,12 +750,19 @@ img {
   #sideBarMobileHeader {
     margin: 0
   }
+  
+  #esriLogo{
+    width: 80px;
+    margin: -30px 0 0 8px;
+    position: absolute;
+    left: 0;
+  }
 
-    #modal-btn {
-      position: relative;
-      top: -30px;
-      right: 3px;
-    }
+  #modal-btn {
+    position: absolute;
+    top: -40px;
+    right: 4%
+  }
 }
 
 @media screen and (max-width: 440px) {
@@ -735,10 +775,4 @@ img {
   #sideBar {
     padding: 40px 0px 0;
   }
-
-    #modal-btn {
-      position: relative;
-      top: -88px;
-      right: 3px;
-    }
 }

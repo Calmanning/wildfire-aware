@@ -138,9 +138,18 @@ require([
   removePreviousFireIcon()
   removeCircleGraphic()
   scrollToTop();
+
+  if(window.screen.width <= 820){
+    console.log('home')
+    return mapView.goTo({
+                  zoom: 4,
+                  center: [257, 35]
+                });
+  }
+
   return mapView.goTo({
                   zoom: 4,
-                  center: [245, 48]
+                  center: [245, 53]
                 });
   };
   
@@ -262,7 +271,7 @@ const resetURLParams = () => {
     
       layerList.style.display === 'none'
       ? layerListBtn.innerText = 'MAP LAYERS'
-      : layerListBtn.innerText = 'CLEAR & CLOSE'
+      : layerListBtn.innerText = 'RESET & CLOSE'
     
   };
 
@@ -490,6 +499,8 @@ const resetURLParams = () => {
       firePermieterLayerCheckbox.checked = true;
       toggleLegendDivVisibility(firePerimeterLegend);
       toggleLegendDivVisibility(firePointLegend);
+      toggleFireGraphicVisibility()
+
     }
 
   }
@@ -497,10 +508,17 @@ const resetURLParams = () => {
 
 //SETTING THE CENTER OF MAP VIEW ON PAGE LOAD. NOTE: is there a better placement in the code for this function?
   const initialMapExtent = () => {
-    mapView.goTo({
-                  zoom: 4,
-                  center: [245, 48]
-                });
+    if(window.screen.width <= 820){
+      return mapView.goTo({
+        zoom: 4,
+        center: [257, 35]
+      })
+    } else {
+      return mapView.goTo({
+        zoom: 4,
+        center: [245, 53]
+      });
+    }
   }
 
   const parseURLHash  = async ({newDefaultLocation}) => {
@@ -591,7 +609,7 @@ const circle = new Graphic({
                    : fireIconGraphicInfo.attributes.TotalIncidentPersonnel;
 
 await removePreviousFireIcon()
-setTimeout(() => {
+
     const fireIconGraphic =  new Graphic ({
       geometry: {
         type: 'point',
@@ -620,7 +638,7 @@ setTimeout(() => {
     
     webmap.layers.reorder(graphicsLayer, 12)
     graphicsLayer.graphics.push(fireIconGraphic);
-  },0.1)
+  
     
   }
   
@@ -673,7 +691,6 @@ const goto = async ({ mapPoint }) => {
   const formatActiveFires = (sortedFireList) => {
 
     if(!sortedFireList.length){
-      console.log('no fires')
       fireListEl.innerHTML = ''
       return
     }
@@ -721,7 +738,7 @@ const goto = async ({ mapPoint }) => {
 
   fireListEl.innerHTML = [...fires].join("");
 
-    
+    !fires[0].includes('h5') ? null : formatFirstFireItem()
     fireItemEvents()     
     
 };
@@ -851,6 +868,8 @@ const goto = async ({ mapPoint }) => {
         
       }else{
         enableMapLayer(satelliteHotspotsCheckbox)
+        satelliteHotspotsLayer.visible = true;
+        satelliteHotspotsCheckbox.checked = true;
       }
       
       if(!(mapView.zoom >= 9 && mapView.zoom <= 11)){
@@ -1020,6 +1039,7 @@ const goto = async ({ mapPoint }) => {
 
   //Different Ways to sort the fire list
   const sortingOptions = ({ dateSorted, wildFires }) => {
+  
     const wildFiresToSort = wildFires
     dateSortedList.push(dateSorted)
 
@@ -1053,19 +1073,24 @@ const goto = async ({ mapPoint }) => {
       personnelSorted.map((personnelFire) => {
         personnelFire.attributes.TotalIncidentPersonnel = !personnelFire.attributes.TotalIncidentPersonnel || null ? 'Not reported' : `${personnelFire.attributes.TotalIncidentPersonnel.toLocaleString()} personnel`;
       })
+
+  //If there are no fires. Clear all lists. Set firest in view to '0'.
+      if(!dateSorted.length || !wildFires.length){
+      formatActiveFires(0)
+      firesInView(0)
+      renderFireListClickEvent({personnelSorted, dateSorted, nameSorted, acreSorted })
+      return
+      }
     
     sorting.forEach((sortCategory) => {
             if(sortCategory.innerText.includes('PERSONNEL') && sortCategory.classList.contains('underline')){
           formatActiveFires(personnelSorted)
-          formatFirstFireItem()
       }else if(sortCategory.innerText.includes('DATE') && sortCategory.classList.contains('underline')){
           formatActiveFires(dateSorted)
       } else if (sortCategory.innerText.includes('NAME') && sortCategory.classList.contains('underline')){
             formatActiveFires(nameSorted)
-            formatFirstFireItem()
       } else if (sortCategory.innerText.includes('SIZE') && sortCategory.classList.contains('underline')){
             formatActiveFires(acreSorted)
-            formatFirstFireItem()
         }
     })
 
@@ -1087,15 +1112,12 @@ const goto = async ({ mapPoint }) => {
 
         if(event.target.innerText.includes('PERSONNEL')){
           formatActiveFires(personnelSorted)
-          formatFirstFireItem()
         }else if(event.target.innerText.includes('DATE')) {
           formatActiveFires(dateSorted)
         } else if (event.target.innerText.includes('NAME')) {
             formatActiveFires(nameSorted)
-            formatFirstFireItem()
         } else if (event.target.innerText.includes('SIZE')) {
             formatActiveFires(acreSorted)
-            formatFirstFireItem()
         }
       })
 
@@ -1103,7 +1125,7 @@ const goto = async ({ mapPoint }) => {
   };
 
   const resetFireList = () => {
-    document.querySelectorAll('.sortClass').forEach((sortCategory) => {
+    sorting.forEach((sortCategory) => {
       sortCategory.classList.remove('underline')
     })
 
@@ -1199,13 +1221,7 @@ const goto = async ({ mapPoint }) => {
         params
       })
         .then((response) => {
-          console.log(response)
-          if(!response.data.fields){
-            firesInView(0)
-            formatActiveFires(0)
-            return
-            
-          }
+         
         const wildFires = response.data.features
       
          let fires = wildFires.map(fire => (
@@ -1254,32 +1270,35 @@ const goto = async ({ mapPoint }) => {
       })
           .catch((error) => {
             console.error(`query Error: ${error}`)
+            firesInView(0);
       });
     };
 
     const fireItemEvents = () => {
       document.querySelectorAll('.fire-item').forEach(item => {
-         item.addEventListener("click", (event) => {
-
-      const fireInformation = event.target.attributes.value.value.split(', ')
-      
-      const irwinID = fireInformation[1]; 
-      
-      selectedFireInfoQuery({irwinID}); //collects the selected fires information and ALSO renders it to the sidebar 
-      
-      });
-        
         item.addEventListener("mouseenter", (event) => {
 
           const fireInformation = event.target.attributes.value.value.split(', ')
 
           fireGraphic({ fireInformation })
         }),
-
-        item.addEventListener("mouseleave", (event) => {
-
-          removePreviousFireIcon();
-        })
+        
+        item.addEventListener('mouseleave', removePreviousFireIcon);
+        
+        item.addEventListener("click", (event) => {
+          console.log(event)
+          
+          item.removeEventListener("mouseleave", removePreviousFireIcon)
+      
+          const fireInformation = event.target.attributes.value.value.split(', ')
+      
+          const irwinID = fireInformation[1]; 
+      
+          selectedFireInfoQuery({irwinID}); //collects the selected fires information and ALSO renders it to the sidebar 
+      
+        
+        });
+        
       });
     };
    
@@ -1375,7 +1394,7 @@ console.log(response)
       params
     })
       .then((response) => {
-        
+        console.log(response)
         const consolidatedFirePerimeterData = response.data.fields ? response.data.features[0].attributes : false 
         
         if(consolidatedFirePerimeterData){
@@ -2835,7 +2854,7 @@ const containmentBar =  (containment) => {
       document.querySelector('#general-population').innerHTML = 
     `
       <div style = "margin-bottom: 10px;">
-      <h4 class= "bold">${populationObject.totalPopulation}</h4>
+      <h3 class= "bold">${populationObject.totalPopulation}</h3>
       <p style = "margin: -5px auto -5px"> POPULATION </p>
       </div>
     `

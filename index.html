@@ -174,7 +174,7 @@
                 <label class="checkbox-container disable">
                   <input class="layer-checkbox auto-checkbox" id="census-points" type="checkbox" disabled>
                   <span class="checkmark"></span>
-                  2020 Census population
+                  2020 Census block population
                 </label>
                 <div id="population-points-legend" style="display:none; margin-top: 10px;">
                   <div class="population-legend-spacing" style="margin-bottom: 15px; margin-top: 15px;">
@@ -245,10 +245,11 @@
           <div>
             <div id="sideBarMobileHeader">
               <div class="trailer-0">
-                <span class='bold' style="color: #FFBA1F; font-size: 1.8rem; white-space: nowrap;">WILDFIRE AWARE - ESRI</span>
+                <span class='bold' style="color: #FFBA1F; font-size: 1.8rem; white-space: nowrap;">WILDFIRE AWARE</span>
+                <img id = "esriLogo" src="https://www.arcgis.com/sharing/rest/content/items/9063a0c62bb746b183ebe3078bd65a42/data">
                 <span id="modal-btn" class="right btn cursor-pointer js-modal-toggle" href="#" tabIndex ='0' data-modal="infoModal">
                   <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"
-                    style="width: 24px; height: 24px; margin-top: -5px; margin-left:-1px; fill: currentColor;" class="svg-icon">
+                    style="width: 25px; height: 24px; margin-top: -5px; margin-left:-1px; fill: currentColor;" class="svg-icon">
                     <path
                       d="M31.297 16.047c0 8.428-6.826 15.25-15.25 15.25S.797 24.475.797 16.047c0-8.424 6.826-15.25 15.25-15.25s15.25 6.826 15.25 15.25zM18 24V12h-4v12h-2v2h8v-2h-2zm0-18h-4v4h4V6z" />
                   </svg>
@@ -257,7 +258,7 @@
               <div class="trailer-0" style="margin-top: -8px;">
           
                 <p class="trailer-0" style="font-size: 14px">
-                  For community awareness within the US about a wildfire, select from the list or click on the map.
+                  For community awareness within the US about a wildfire, select from a list or click on the map.
                 </p>
               </div>
           
@@ -459,6 +460,7 @@
               right giving you more information about a wildfire along with impacts to human and ecosystem populations.
               You can also sort by wildfire name, date or size, by selecting the relevant filter in the information pane.
               </br>
+              </br>
               Read more about Wildfire Aware and ways to use it <a class="link" href="https://www.esri.com/arcgis-blog/products/arcgis-living-atlas/public-safety/wildfire-aware/" target="_blank" tabIndex = '0' aria-selected='false'>here</a>.
             </p>  
           <h5 class='avenir-demi trailer-half' style="color:rgb(255,186,31); margin-bottom: 0;">PERSONNEL BREAKDOWNS</h5>
@@ -521,14 +523,14 @@
             
             <h5 class='avenir-demi trailer-half' style="color:rgb(255,186,31); margin-bottom: 0;">SOURCES</h5>
             <p>
-              The 23 data layers used in this application can be found in ArcGIS <a class="link" href = "https://livingatlas.arcgis.com/en/home/" target ="_blank">Living Atlas</a>:
+              The 22 data layers used in this application can be found in <a class="link" href = "https://livingatlas.arcgis.com/en/home/" target ="_blank">ArcGIS Living Atlas</a>:
               </br>
               </br>
-              Environmental Protection Agency – <a class="link" href = "https://esri.maps.arcgis.com/home/item.html?id=3a21a75ffc8244f6a1c85a19b8ff7713" target ="_blank">Ecoregions</a> and Air Quality <a class="link" href="https://www.arcgis.com/home/item.html?id=61864315c28f4668bbbbdc73b08f4113" target="_blank">Current</a> and <a class="link" href="https://www.arcgis.com/home/item.html?id=61864315c28f4668bbbbdc73b08f4113" target="_blank">Tomorrow</a></br>
+              Environmental Protection Agency – <a class="link" href = " https://www.arcgis.com/home/item.html?id=3a21a75ffc8244f6a1c85a19b8ff7713" target ="_blank">Ecoregions</a> and Air Quality <a class="link" href="https://www.arcgis.com/home/item.html?id=61864315c28f4668bbbbdc73b08f4113" target="_blank">Current</a> and <a class="link" href="https://www.arcgis.com/home/item.html?id=61864315c28f4668bbbbdc73b08f4113" target="_blank">Tomorrow</a></br>
               National Aeronautics and Space Administration – <a class="link" href="https://www.arcgis.com/home/item.html?id=b8f4033069f141729ffb298b7418b653" target="_blank">MODIS</a> and <a class="link" href="https://www.arcgis.com/home/item.html?id=dece90af1a0242dcbf0ca36d30276aa3" target="_blank">VIIRS</a> </br>
               National Weather Service – <a class="link" href="https://www.arcgis.com/home/item.html?id=0ae7cf18df0a4b4d9e7eea665f00500d" target="_blank">Temperature Forecast</a>, <a class="link" href="https://www.arcgis.com/home/item.html?id=47ed83c3b4f943118e848fbfc33d119e" target="_blank">Wind Speed</a>, <a class="link" href="https://www.arcgis.com/home/item.html?id=a6134ae01aad44c499d12feec782b386" target="_blank">Weather Watches and Warnings</a></br>
               US Department of Agriculture – <a class="link" href="https://www.arcgis.com/home/item.html?id=7d4cc55ecaef4ceb82c8d05b13e0d049" target="_blank">Drought Monitor</a></br>
-              US Census – <a class="link" href="https://www.arcgis.com/home/item.html?id=b3642e91b49548f5af772394b0537681" target="_blank">Census 2020 Redistricting Blocks</a> and <a class="link" href="https://esri.maps.arcgis.com/home/group.html?id=16b3a5ac36834ed6b3f16261d9a988ea#overview" target="_blank">American Community Survey</a></br>
+              US Census – <a class="link" href="https://www.arcgis.com/home/item.html?id=b3642e91b49548f5af772394b0537681" target="_blank">Census 2020 Redistricting Blocks</a> and <a class="link" href="https://www.arcgis.com/home/group.html?id=16b3a5ac36834ed6b3f16261d9a988ea" target="_blank">American Community Survey</a></br>
               USDA Forest Service – <a class="link" href ="https://www.arcgis.com/home/item.html?id=c7dc5721f6ab42f5a515ae7f832115a9" target="_blank">Wildfire Burned Areas</a> and <a class="link" href="https://www.arcgis.com/home/item.html?id=9274dfe5318540d7a09f0117c0be0730" target="_blank">Wildfire Hazard Potential</a></br>
               USDA Forest Service FIA – <a class="link" href="https://www.arcgis.com/home/item.html?id=fe77a8a503ca4b9ba1ee2ef3c8ff7b19" target="_blank">Forest Type Groups</a> and <a class="link" href="https://www.arcgis.com/home/item.html?id=70aa58201e044303823a24a71a422d00" target="_blank">Predominant Major Forest Carbon Pools</a></br>
               US Fish and Wildlife Service – <a class="link" href = "https://www.arcgis.com/home/item.html?id=794de45b9d774d21aed3bf9b5313ee24" target ="_blank">Critical Habitat</a></br>
