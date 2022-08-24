@@ -109,9 +109,8 @@ img {
   bottom: 0;
 }
 
-#esriLogo {
-  width: 80px;
-  margin: 0px 0 -3px 17px;
+#title{
+  font-size: 1.8rem;
 }
 
 #modal-btn {
@@ -366,7 +365,7 @@ img {
 } */
 
 #people-container .bold {
-  color: #07698C;
+  color: #0285a8;
   margin-bottom: -5px;
 }
 
@@ -628,6 +627,11 @@ img {
     text-align: center;
     margin: 0 47%
   }
+
+  #title {
+    font-size: 1.7rem;
+  }
+
   .divider {
     margin: 0.5rem -1rem 0rem;
     padding-bottom:0;
@@ -654,7 +658,7 @@ img {
 
   #esriLogo {
     width: 80px;
-    margin: -30px 0 0 8px;
+    margin: -33px 0 0 8px;
     position: absolute;
     left: -50%;
   }
@@ -719,7 +723,7 @@ img {
 
   #esriLogo {
     width: 80px;
-    margin: -30px 0 0 8px;
+    margin: -33px 0 0 8px;
     position: absolute;
     left: -32%;
   }
@@ -753,7 +757,7 @@ img {
   
   #esriLogo{
     width: 80px;
-    margin: -30px 0 0 8px;
+    margin: -33px 0 0 8px;
     position: absolute;
     left: 0;
   }

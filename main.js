@@ -107,7 +107,8 @@ require([
     .then(() => {
       mapView.map = webmap;
       mapView.constraints = {
-        rotationEnabled: false
+        rotationEnabled: false,
+        snapToZoom: true
       }
       document.querySelector('.loader').classList.remove('is-active')
     })
@@ -149,7 +150,7 @@ require([
 
   return mapView.goTo({
                   zoom: 4,
-                  center: [245, 53]
+                  center: [245, 48]
                 });
   };
   
@@ -511,12 +512,12 @@ const resetURLParams = () => {
     if(window.screen.width <= 820){
       return mapView.goTo({
         zoom: 4,
-        center: [257, 35]
+        center: [263, 35]
       })
     } else {
       return mapView.goTo({
         zoom: 4,
-        center: [245, 53]
+        center: [245, 48]
       });
     }
   }
@@ -660,21 +661,17 @@ const goto = async ({ mapPoint }) => {
       return
     }
     
-    const point = new Point(
-      {
-        x:  mapPoint.x, 
-        y:  mapPoint.y
-      }
+    const pointTarget = new Point(
+      
+       mapPoint
+      
     )
   
   mapView.goTo(
     {
-      zoom: 12,
-      target: mapPoint
-    },
-    {
-      duration: 1000
-    }
+      center: pointTarget,
+      zoom: 12
+    },{duration: 1000}
   )
     .catch((error) => {
       console.error(error)
@@ -944,7 +941,7 @@ const goto = async ({ mapPoint }) => {
     await removeCircleGraphic()
 
     await removePreviousFireIcon();
-
+    // goto({ mapPoint });
     mapHitTest(event)
     
     window.screen.width <= 720 
@@ -1315,7 +1312,7 @@ const goto = async ({ mapPoint }) => {
       time: null,
       outFields: ['IrwinID', 'IncidentName', 'POOState', 'POOCounty', 'ModifiedOnDateTime', 'FireDiscoveryDateTime', 'FireDiscoveryAge ', 'IncidentTypeCategory', 'DailyAcres', 'TotalIncidentPersonnel','PercentContained'].join(","),
       returnGeometry: true,
-      outSR: 4326,
+      // outSR: 4326,
       f: 'json'
     };
 
@@ -1330,9 +1327,10 @@ console.log(response)
         ? response.data.features[0].attributes.IncidentTypeCategory !== "RX"
           ? 'INCIDENT COMPLEX' : 'PERSCRIPTTION BURN'
         : 'WILDFIRE'
-        const mapPoint = new Point(
-        
-          response.data.features[0].geometry
+        const mapPoint = new Point({
+          x: response.data.features[0].geometry.x,
+          y: response.data.features[0].geometry.y
+        }
         )
         
 
@@ -2371,7 +2369,7 @@ const containmentBar =  (containment) => {
         .attr('y', d => yScale(d.data))
         .attr('width', xScale.bandwidth())
         .attr('height', d => originalHeight - yScale(d.data))
-        .attr('fill', '#07698C')
+        .attr('fill', '#0285a8')
       .on('mouseover', (e, d) => {
         svg.append('text')
           .attr('class', 'pop')
@@ -2438,7 +2436,7 @@ const containmentBar =  (containment) => {
   
   const barColors = d3.scaleOrdinal()
                         .domain(data)
-                        .range(['#032235', '#07698C',])
+                        .range(['#032235', '#0285a8',])
 
     const barSVG = d3.select('#english-speaking-svg')
       .attr('class', 'bar')
@@ -2518,7 +2516,7 @@ const containmentBar =  (containment) => {
 
   const barColors = d3.scaleOrdinal()
                         .domain(data)
-                        .range(['#032235', '#07698C',])
+                        .range(['#032235', '#0285a8',])
 
     const barSVG = d3.select('#vehicle-svg')
       .attr('class', 'bar')
@@ -2864,7 +2862,7 @@ const containmentBar =  (containment) => {
       document.querySelector('#disability').innerHTML = 
     `
     <div style = "margin-bottom: 10px;">
-    <h4 class = "bold text-center">${populationObject.percentofPopulationInPoverty}</h4>
+    <h3 class = "bold text-center">${populationObject.percentofPopulationInPoverty}</h3>
     <p class= "text-center" style = "margin: -5px auto -5px; text-align: left;">DISABILITY</p>
     </div>
     `
@@ -2874,7 +2872,7 @@ const containmentBar =  (containment) => {
       document.querySelector('#poverty').innerHTML = 
     `
     <div style = "margin-bottom: 10px;">
-    <h4 class = "bold text-center">${populationObject.percentofPopulationWithDisability}</h4>
+    <h3 class = "bold text-center">${populationObject.percentofPopulationWithDisability}</h3>
     <p class= "text-center" style = "margin: -5px auto -5px; text-align: left;">POVERTY</p>
     </div>
     `
