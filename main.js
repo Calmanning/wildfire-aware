@@ -12,8 +12,9 @@ require([
           "esri/layers/GraphicsLayer",
           "esri/core/reactiveUtils",
           "esri/geometry/Point",
-          "esri/geometry/Circle"
-], (esriConfig, WebMap, MapView, Search, Home, ScaleBar, Measurement, Graphic, SimpleLineSymbol, GraphicsLayer, reactiveUtils, Point, Circle) => {
+          "esri/geometry/Circle",
+          "esri/layers/support/TileInfo"
+], (esriConfig, WebMap, MapView, Search, Home, ScaleBar, Measurement, Graphic, SimpleLineSymbol, GraphicsLayer, reactiveUtils, Point, Circle, TileInfo) => {
     
   'use strict';
 
@@ -96,6 +97,14 @@ require([
     }
   });
 
+  const tileInfo = TileInfo.create({
+  spatialReference: {
+    wkid: 102100},
+  numLODs: 32
+  });
+  const lods = tileInfo.lods;
+
+
   const graphicsLayer = new GraphicsLayer({
     graphics:[]
   })
@@ -107,8 +116,10 @@ require([
     .then(() => {
       mapView.map = webmap;
       mapView.constraints = {
+        lods: lods,
         rotationEnabled: false,
-        snapToZoom: true
+        snapToZoom: true,
+
       }
       document.querySelector('.loader').classList.remove('is-active')
     })
@@ -122,7 +133,8 @@ require([
     view: mapView,
     resultGraphicEnabled: false,
     popupEnabled: false,
-    container: searchWidgetContainer
+    container: searchWidgetContainer,
+    placeholder: 'Search for an address or location'
   });
 
   const homeWidget = new Home({
@@ -143,15 +155,21 @@ require([
   if(window.screen.width <= 820){
     console.log('home')
     return mapView.goTo({
-                  zoom: 4,
-                  center: [257, 35]
-                });
+                  zoom: 5,
+                  center: [255, 39],
+                  spatialReference: {
+                    wkid: 102100
+                  }
+                },{duration: 1000});
   }
 
   return mapView.goTo({
                   zoom: 4,
-                  center: [245, 48]
-                });
+                  center: [245, 48],
+                  spatialReference: {
+                    wkid: 102100
+                  }
+                },{duration: 1000});
   };
   
   const scaleBar = new ScaleBar({
@@ -511,14 +529,20 @@ const resetURLParams = () => {
   const initialMapExtent = () => {
     if(window.screen.width <= 820){
       return mapView.goTo({
-        zoom: 4,
-        center: [263, 35]
-      })
+        zoom: 5,
+        center: [255, 39],
+        spatialReference: {
+                    wkid: 102100
+                  }
+                },{duration: 1000})
     } else {
       return mapView.goTo({
         zoom: 4,
-        center: [245, 48]
-      });
+        center: [245, 48],
+        spatialReference:{
+          wkid: 102100
+        }
+      }, {duration: 1000});
     }
   }
 
@@ -657,22 +681,28 @@ await removePreviousFireIcon()
 
 const goto = async ({ mapPoint }) => {
 
+  
     if (mapView.zoom >= 8 ) {
       return
     }
+
+    console.log("goto map point", mapPoint.toJSON())
     
-    const pointTarget = new Point(
-      
-       mapPoint
-      
-    )
-  
-  mapView.goTo(
-    {
-      center: pointTarget,
-      zoom: 12
-    },{duration: 1000}
-  )
+    // const pointTarget = new Point(
+    //    mapPoint
+    // )
+    const opts = {
+                  duration: 1000,
+                  animate: true
+                  }
+  console.log(mapPoint)
+  mapView.goTo({
+    target: mapPoint,
+    zoom: 12
+  }, opts)
+
+    
+    
     .catch((error) => {
       console.error(error)
       
@@ -1312,7 +1342,7 @@ const goto = async ({ mapPoint }) => {
       time: null,
       outFields: ['IrwinID', 'IncidentName', 'POOState', 'POOCounty', 'ModifiedOnDateTime', 'FireDiscoveryDateTime', 'FireDiscoveryAge ', 'IncidentTypeCategory', 'DailyAcres', 'TotalIncidentPersonnel','PercentContained'].join(","),
       returnGeometry: true,
-      // outSR: 4326,
+      outSR: 4326,
       f: 'json'
     };
 
@@ -1320,20 +1350,21 @@ const goto = async ({ mapPoint }) => {
       params
     })
       .then((response) => {
-console.log(response)
+        console.log(response)
         const fireIconGraphicInfo = response.data.features[0]
         
         const incidentType = response.data.features[0].attributes.IncidentTypeCategory !== "WF" 
         ? response.data.features[0].attributes.IncidentTypeCategory !== "RX"
           ? 'INCIDENT COMPLEX' : 'PERSCRIPTTION BURN'
         : 'WILDFIRE'
-        const mapPoint = new Point({
-          x: response.data.features[0].geometry.x,
-          y: response.data.features[0].geometry.y
-        }
-        )
-        
 
+        const mapPoint = new Point({
+          "x": response.data.features[0].geometry.x.toFixed(3),
+          "y": response.data.features[0].geometry.y.toFixed(3)
+
+        
+        });
+          
         const fireData = response.data.features[0]
           ? {
               irwinId: response.data.features[0].attributes.IrwinID,
@@ -1348,7 +1379,6 @@ console.log(response)
               personnelAssigned: !response.data.features[0].attributes.TotalIncidentPersonnel ? 'Not reported': response.data.features[0].attributes.TotalIncidentPersonnel,
               percentContained: response.data.features[0].attributes.PercentContained === null ? 'Not reported' : response.data.features[0].attributes.PercentContained
             }
-        //DO I NEED THIS ANY MORE? I'M NOT RELYING ON HITTEST INFO, Right?
           : {
             irwinId: hitTestResponse.IrwinID,
             incidentName: hitTestResponse.IncidentName,
@@ -2838,7 +2868,7 @@ const containmentBar =  (containment) => {
     console.log(totalRadiusPopulation || perimeterPopulation)
 
     const containerSubheader = totalRadiusPopulation
-                             ? 'WITHIN 2 MILE RADIUS'
+                             ? 'WITHIN CIRCLE (2 MI RADIUS)'
                              : 'WITHIN FIRE PERIMETER'
 
     const poepleContentHeader = infoItemHeader[2].innerHTML = `<p class = "trailer-0 sectionHeader">POPULATION</p>
@@ -2896,7 +2926,7 @@ const containmentBar =  (containment) => {
     console.log(radiusHousingData || perimeterHousingData)
 
     const containerSubheader = radiusHousingData
-                             ? 'WITHIN 2 MILE RADIUS'
+                             ? 'WITHIN CIRCLE (2 MI RADIUS)'
                              : 'WITHIN FIRE PERIMETER' 
     
     const poepleContentHeader = infoItemHeader[3].innerHTML = `<p class = "trailer-0 sectionHeader">HOUSING</p>
@@ -2934,7 +2964,7 @@ const containmentBar =  (containment) => {
     console.log(perimeterEcology || aggregateEcoObj);
 
     const containerSubheader = aggregateEcoObj
-                             ? 'WITHIN 2 MILE RADIUS'
+                             ? 'WITHIN CIRCLE (2 MI RADIUS)'
                              : 'WITHIN FIRE PERIMETER'
 
     const habitatContentControl = ({ ecoObject }) => {
