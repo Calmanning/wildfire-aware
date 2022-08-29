@@ -18,14 +18,12 @@ require([
     
   'use strict';
 
-  console.log("so far...")
   
 // GLOBAL VARIABLES
 
   //DOM VARIABLES
   const viewURL = new URL(window.location.href)
   const sideBarContainer = document.querySelector("#sideBar");
-  const sideBarTop  = document.querySelector('#sideBarTop');
   const sideBarToggleArrow = document.querySelector('#sideBarToggleArrow');
   const searchWidgetContainer = document.querySelector("#searchContainer");
   const sideBarInformation = document.getElementById('sideBarInformation');
@@ -34,8 +32,6 @@ require([
   const fireListSorting = document.querySelector('#fireSorting');
   const infoItemHeader = document.getElementsByClassName('item-header');
   const infoItemContent = document.getElementsByClassName('item-content');
-  const atRiskDiv = document.querySelector('#at-risk-population');
-  const fireListDate  = document.getElementsByClassName('fire-list-date')
   const fireListItem  = document.getElementsByClassName('fire-item');
   
   
@@ -65,7 +61,7 @@ require([
   const censusPointsCheckbox = document.querySelector('#census-points');
   const censusPointLegend = document.querySelector('#population-points-legend');
 
-  
+  //the layer lists
   let firePoints = {};
   let fireArea = {};
   let firePerimeter = {};
@@ -153,7 +149,6 @@ require([
   scrollToTop();
 
   if(window.screen.width <= 820){
-    console.log('home')
     return mapView.goTo({
                   zoom: 5,
                   center: [255, 39],
@@ -685,17 +680,11 @@ const goto = async ({ mapPoint }) => {
     if (mapView.zoom >= 8 ) {
       return
     }
-
-    console.log("goto map point", mapPoint.toJSON())
     
-    // const pointTarget = new Point(
-    //    mapPoint
-    // )
     const opts = {
                   duration: 1000,
                   animate: true
                   }
-  console.log(mapPoint)
   mapView.goTo({
     target: mapPoint,
     zoom: 12
@@ -830,7 +819,7 @@ const goto = async ({ mapPoint }) => {
           
           <div>
             <div class = "trailer-0 " style= "margin-top: 10px;"> 
-              <span style = "vertical-align: 2px; margin: 0 5px 0px 103px"> DAY </span> <h4 class = "bold trailer-0" style = "white-space: nowrap;"> ${window.screen.width > 700 ? fireAge : '< 24 hours'}</h4>
+              <span style = "vertical-align: 2px; margin: 0 5px 0px 103px"> DAY </span> <h4 class = "bold trailer-0" style = "white-space: nowrap;"> ${window.screen.width > 700 ? fireAge : fireAge > 0 ? fireAge : '< 24 hours'}</h4>
             </div>
             <div class = "trailer-0 " style= "margin-top: 10px;"> 
               <span style = "vertical-align: 2px; margin: 0 5px 0px 45px;"> PERSONNEL </span> <h4 class = "bold trailer-0" style = "white-space: nowrap;"> ${firePersonnel}</h4>
@@ -1313,7 +1302,6 @@ const goto = async ({ mapPoint }) => {
         item.addEventListener('mouseleave', removePreviousFireIcon);
         
         item.addEventListener("click", (event) => {
-          console.log(event)
           
           item.removeEventListener("mouseleave", removePreviousFireIcon)
       
@@ -1350,7 +1338,6 @@ const goto = async ({ mapPoint }) => {
       params
     })
       .then((response) => {
-        console.log(response)
         const fireIconGraphicInfo = response.data.features[0]
         
         const incidentType = response.data.features[0].attributes.IncidentTypeCategory !== "WF" 
@@ -1422,7 +1409,6 @@ const goto = async ({ mapPoint }) => {
       params
     })
       .then((response) => {
-        console.log(response)
         const consolidatedFirePerimeterData = response.data.fields ? response.data.features[0].attributes : false 
         
         if(consolidatedFirePerimeterData){
@@ -1487,8 +1473,6 @@ const goto = async ({ mapPoint }) => {
           console.log(error)
         }
 
-        const test = consolidatedFirePerimeterData.CritHab.split(', ')
-        console.log([...new Set(consolidatedFirePerimeterData.CritHab.split(', '))].join(", "))
         const perimeterEcology = {
             Hex_Count: consolidatedFirePerimeterData.Hex_Count, 
             L3EcoReg: consolidatedFirePerimeterData.L3EcoReg ? consolidatedFirePerimeterData.L3EcoReg : 'No information',
@@ -2132,7 +2116,6 @@ const goto = async ({ mapPoint }) => {
   };
 
 //DATA VIZ
-
 //Landcover piechart
 const landCoverDataFormatting = ({ aggregateEcoObj, perimeterLandCover }) => {
                      
@@ -2865,7 +2848,7 @@ const containmentBar =  (containment) => {
  
   
   const totalPopulationUIRender = async ({ totalRadiusPopulation, perimeterPopulation }) => {
-    console.log(totalRadiusPopulation || perimeterPopulation)
+    // console.log(totalRadiusPopulation || perimeterPopulation)
 
     const containerSubheader = totalRadiusPopulation
                              ? 'WITHIN CIRCLE (2 MI RADIUS)'
@@ -2923,7 +2906,7 @@ const containmentBar =  (containment) => {
 
 
   const housingInfoRender = ({ radiusHousingData, perimeterHousingData }) => {
-    console.log(radiusHousingData || perimeterHousingData)
+    // console.log(radiusHousingData || perimeterHousingData)
 
     const containerSubheader = radiusHousingData
                              ? 'WITHIN CIRCLE (2 MI RADIUS)'
@@ -2961,7 +2944,7 @@ const containmentBar =  (containment) => {
   }
 
   const habitatInfoRender = ({ aggregateEcoObj, perimeterEcology }) => {
-    console.log(perimeterEcology || aggregateEcoObj);
+    // console.log(perimeterEcology || aggregateEcoObj);
 
     const containerSubheader = aggregateEcoObj
                              ? 'WITHIN CIRCLE (2 MI RADIUS)'
