@@ -38,7 +38,7 @@
                 <span class="checkmark" style = "margin-top: 10px;"></span>
                 Assigned personnel
               </label>
-              <div id="fire-points-legend" style="display:inherit; margin-bottom: 10px;">
+              <div id="fire-points-legend" style="display:initial; margin-bottom: 10px;">
                 <div class="legend-spacing" style="margin-bottom: 30px; margin-left: -10px;">
                   <div class="legend-image-spacing">
                     <img style="margin-top: -10px; min-width: 3rem; height: 3rem;"
@@ -85,13 +85,13 @@
                 <span class="checkmark"></span>
                 Wildfire perimeters
               </label>
-              <div class = "legend-bar-img" id = "fire-perimeter-legend" style = "display: inherit; margin-bottom: 10px; width:25%; background: rgba(214, 164, 159, 0.7); border: solid 2px #B13F31;"></div>
+              <div class = "legend-bar-img" id = "fire-perimeter-legend" style = "display: initial; margin-bottom: 10px; padding: 0 25px; background: rgba(214, 164, 159, 0.7); border: solid 2px #B13F31;"></div>
               <label class = "checkbox-container">
-                <input class = "auto-checkbox layer-checkbox" type="checkbox" id = "satellite-hotspots" style = "width: 0; height: 0;">
+                <input class = "layer-checkbox" type="checkbox" id = "satellite-hotspots" style = "width: 0; height: 0;">
                 <span class="checkmark"></span>
                 Satellite hot spots
               </label>
-              <div id="SatelliteHotSpot-img-legend" style="display: inherit; margin-bottom: 10px;">
+              <div id="SatelliteHotSpot-img-legend" style="display: initial; margin-bottom: 10px;">
                 <div class="legend-bar-img" style="background: linear-gradient(90deg, #FFCB48, #f69d58 18%, #2e2e2e );">
                 </div>
                 <span class="legend-bar-img-text">&lt 24 hr</span><span>&gt 72 hr</span>
@@ -468,7 +468,7 @@
           <h5 class='avenir-demi trailer-half' style="color:rgb(255,186,31); margin-bottom: 0;">PERSONNEL BREAKDOWNS</h5>
             The categories below represent the number of personnel assigned.
           <div style = "margin-top: 25px;">
-            <div id="fire-points-legend" style="display:inherit; margin-bottom: 10px;">
+            <div id="fire-points-legend" style="display:initial; margin-bottom: 10px;">
               <div class="legend-spacing">
                 <div class="legend-image-spacing" style="margin-bottom: 25px;">
                   <img style="margin-top: -10px; margin-left: -6px; width: 2.7rem; height: 2.7rem;"
@@ -569,8 +569,8 @@
   <script src="https://js.arcgis.com/4.23/"></script>
   
   <!-- NOTE for development -->
-  <!-- <script type = "text/javascript" src="main.js?v=0.01"></script> -->
+  <script type = "text/javascript" src="main.js?v=0.01"></script>
   <!-- NOTE for production -->
-  <script type = "text/javascript" src="main.min.js?v=0.01"></script>
+  <!-- <script type = "text/javascript" src="main.min.js?v=0.01"></script> -->
 
 </html>

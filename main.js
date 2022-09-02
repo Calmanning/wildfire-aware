@@ -319,15 +319,15 @@ require([
 	//NOTE: this function is called by all legend-img-divs.
 	//NOTE: may need to make the conditioning more explicit
 	const toggleLegendDivVisibility = (legendDivId) => {
-		if (legendDivId.style.display === 'inherit') {
+		if (legendDivId.style.display === 'initial') {
 			legendDivId.style.display = 'none';
 		} else {
-			legendDivId.style.display = 'inherit';
+			legendDivId.style.display = 'initial';
 		}
 	};
 
 	const hideAllLegendDivs = () => {
-		satelliteHotSpotLegend.style.display = 'none';
+		// satelliteHotSpotLegend.style.display = 'none';
 		aqiTodayLegend.style.display = 'none';
 		aqiTomorrowLegend.style.display = 'none';
 		watchesAndWarningsLegend.style.display = 'none';
@@ -498,7 +498,6 @@ require([
 		document.querySelectorAll('.auto-checkbox').forEach((checkbox) => {
 			checkbox.checked = false;
 
-			satelliteHotspotsLayer.visible = satelliteHotspotsCheckbox.checked;
 			AQITodayLayer.visible = checkbox.checked;
 			AQITomorrowLayer.visible = checkbox.checked;
 			weatherWatchesAndWarningsLayer.visible =
@@ -511,15 +510,22 @@ require([
 	};
 
 	const resetFirePointsAndPerimeters = () => {
-		if (!firePoints.visible || (!firePerimeter.visible && fireArea.visible)) {
-			firePoints.visible = true;
-			firePerimeter.visible = true;
-			fireArea.visible = true;
+		if (!firePoints.visible) {
 			firePointsLayerCheckbox.checked = true;
-			firePermieterLayerCheckbox.checked = true;
-			toggleLegendDivVisibility(firePerimeterLegend);
+			firePoints.visible = true;
 			toggleLegendDivVisibility(firePointLegend);
 			toggleFireGraphicVisibility();
+		}
+		if (!firePerimeter.visible || !fireArea.visible) {
+			firePermieterLayerCheckbox.checked = true;
+			firePerimeter.visible = true;
+			fireArea.visible = true;
+			toggleLegendDivVisibility(firePerimeterLegend);
+		}
+		if (!satelliteHotspotsLayer.visible && mapView.zoom >= 7) {
+			satelliteHotspotsLayer.visible = true;
+			satelliteHotspotsCheckbox.checked = true;
+			toggleLegendDivVisibility(satelliteHotSpotLegend);
 		}
 	};
 
@@ -667,7 +673,7 @@ require([
 	};
 
 	const goto = async ({ mapPoint }) => {
-		if (mapView.zoom >= 8) {
+		if (mapView.zoom > 10) {
 			return;
 		}
 
@@ -900,10 +906,12 @@ require([
 			if (!(mapView.zoom >= 7)) {
 				disableMapLayer(satelliteHotspotsCheckbox);
 				satelliteHotspotsLayer.visible = satelliteHotspotsCheckbox.checked;
+				satelliteHotSpotLegend.style.display = 'none';
 			} else {
 				enableMapLayer(satelliteHotspotsCheckbox);
 				satelliteHotspotsLayer.visible = true;
 				satelliteHotspotsCheckbox.checked = true;
+				satelliteHotSpotLegend.style.display = 'initial';
 			}
 
 			if (!(mapView.zoom >= 9 && mapView.zoom <= 11)) {
