@@ -1,5 +1,10 @@
 # wildfire-aware
 
+# The map is now live at https://livingatlas.arcgis.com/wildfireware/
+
+For more information about the app you can find more at https://www.esri.com/arcgis-blog/products/arcgis-living-atlas/public-safety/wildfire-aware/ 
+
+
 ABOUT THIS APP
 
 The Wildfire Aware app is intended to provide information about the current status and potential impact of wildfire incidents in the United States. This app opens with the list of fires sorted by the number of personnel assigned from greatest to least as reported by incident staff. The data included in this application can all be found in ArcGIS Living Atlas and are from authoritative entities.
