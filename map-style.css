@@ -180,10 +180,13 @@ img {
 /* ESRI WIDGETS */
 /* SEARCH BAR */
 
+
+
 #searchContainer {
   width: 250px;
   margin-left: 5.7rem;
-  margin-top: -4.57rem;
+  margin-top: -4.6rem;
+  margin-bottom: 11px;
 }
 
 .esri-search__container .esri-search__input-container .esri-search__form .esri-search__input{

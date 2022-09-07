@@ -148,13 +148,13 @@ require([
 		view: mapView,
 		resultGraphicEnabled: false,
 		popupEnabled: false,
-		container: searchWidgetContainer,
+		// container: searchWidgetContainer,
 		placeholder: 'Search for an address or location',
 	});
 
 	const homeWidget = new Home({
 		view: mapView,
-		container: homeContainer,
+		// container: homeContainer,
 	});
 
 	homeWidget.goToOverride = () => {
