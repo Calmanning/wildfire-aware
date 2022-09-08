@@ -148,13 +148,12 @@ require([
 		view: mapView,
 		resultGraphicEnabled: false,
 		popupEnabled: false,
-		// container: searchWidgetContainer,
-		placeholder: 'Search for an address or location',
+		container: searchWidgetContainer,
 	});
 
 	const homeWidget = new Home({
 		view: mapView,
-		// container: homeContainer,
+		container: homeContainer,
 	});
 
 	homeWidget.goToOverride = () => {
@@ -272,6 +271,11 @@ require([
 			.then(() => {
 				//ADD WIDGETS
 				mapView.ui.add(searchWidget, 'top-left');
+				//add placeholder text
+				() => {
+					document.querySelector('#searchWidget-input').placeholder =
+						'Find address or location';
+				};
 				mapView.ui.add(homeWidget, 'top-left');
 				mapView.ui.add(scaleBar, { position: 'bottom-right' });
 				webmap.add(graphicsLayer);
@@ -1295,7 +1299,9 @@ require([
 				'FireDiscoveryDateTime',
 				'FireDiscoveryAge',
 				'IncidentTypeCategory',
+				'CalculatedAcres',
 				'DailyAcres',
+				'DiscoveryAcres',
 				'PercentContained',
 				'TotalIncidentPersonnel',
 			].join(','),
@@ -1339,6 +1345,8 @@ require([
 					groupedFires[dateKey].forEach((data) => {
 						data.fire.attributes.DailyAcres = data.fire.attributes.DailyAcres
 							? +data.fire.attributes.DailyAcres
+							: data.fire.attributes.DiscoveryAcres
+							? data.fire.attributes.DiscoveryAcres
 							: 'Unreported';
 						dateSorted.push([data.fire]);
 					});
@@ -1825,9 +1833,8 @@ require([
 						const dailyTemperatures = response.data.features.sort((a, b) => {
 							a.attributes.Period - b.attributes.Period;
 						});
-
 						const temp = {
-							todayF: `${dailyTemperatures[0].attributes.Temp}&deg F`,
+							todayF: `${dailyTemperatures[2].attributes.Temp}&deg F`,
 							tomorrowF: `${dailyTemperatures[1].attributes.Temp}&deg F`,
 							todayC: `${Math.round(
 								((dailyTemperatures[0].attributes.Temp - 32) * 5) / 9
