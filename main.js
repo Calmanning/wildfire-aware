@@ -41,6 +41,7 @@ require([
 	const sideBarInformation = document.getElementById('sideBarInformation');
 	const fireListEl = document.querySelector('#fire-list');
 	const fireListBtn = document.querySelector('#fire-list-Btn');
+	const firesSortingContainer = document.querySelector('#activeFiresDropdown');
 	const fireListSorting = document.querySelector('#fireSorting');
 	const infoItemHeader = document.getElementsByClassName('item-header');
 	const infoItemContent = document.getElementsByClassName('item-content');
@@ -162,7 +163,8 @@ require([
 			(fireListBtn.style.display = 'none'),
 			(sideBarInformation.style.display = 'none'),
 			(fireListSorting.style.display = 'initial'),
-			removePreviousFireIcon();
+			(firesSortingContainer.style.position = 'sticky');
+		removePreviousFireIcon();
 		removeCircleGraphic();
 		scrollToTop();
 
@@ -271,11 +273,6 @@ require([
 			.then(() => {
 				//ADD WIDGETS
 				mapView.ui.add(searchWidget, 'top-left');
-				//add placeholder text
-				() => {
-					document.querySelector('#searchWidget-input').placeholder =
-						'Find address or location';
-				};
 				mapView.ui.add(homeWidget, 'top-left');
 				mapView.ui.add(scaleBar, { position: 'bottom-right' });
 				webmap.add(graphicsLayer);
@@ -310,7 +307,7 @@ require([
 	const changelayerListButtonText = () => {
 		layerList.style.display === 'none'
 			? (layerListBtn.innerText = 'MAP LAYERS')
-			: (layerListBtn.innerText = 'RESET & CLOSE');
+			: (layerListBtn.innerText = 'CLOSE');
 	};
 
 	const closeLayerList = () => {
@@ -338,7 +335,7 @@ require([
 		burnedAreasLegend.style.display = 'none';
 		censusPointLegend.style.display = 'none';
 
-		closeLayerList();
+		// closeLayerList();
 	};
 
 	const enableMapLayer = (enabledLayer) => {
@@ -497,41 +494,42 @@ require([
 	})();
 
 	const resetLayerList = () => {
-		resetFirePointsAndPerimeters();
+		// resetFirePointsAndPerimeters();
 
-		document.querySelectorAll('.auto-checkbox').forEach((checkbox) => {
-			checkbox.checked = false;
+		// document.querySelectorAll('.auto-checkbox').forEach((checkbox) => {
+		// 	checkbox.checked = false;
 
-			AQITodayLayer.visible = checkbox.checked;
-			AQITomorrowLayer.visible = checkbox.checked;
-			weatherWatchesAndWarningsLayer.visible =
-				watchesAndWarningsCheckbox.checked;
-			burnedAreasPerimeterLayer.visible = burnedAreasCheckbox.checked;
-			burnedAreasFillLayer.visible = burnedAreasCheckbox.checked;
-			censusLayer.visible = censusPointsCheckbox.checked;
-		});
-		hideAllLegendDivs();
+		// 	AQITodayLayer.visible = checkbox.checked;
+		// 	AQITomorrowLayer.visible = checkbox.checked;
+		// 	weatherWatchesAndWarningsLayer.visible =
+		// 		watchesAndWarningsCheckbox.checked;
+		// 	burnedAreasPerimeterLayer.visible = burnedAreasCheckbox.checked;
+		// 	burnedAreasFillLayer.visible = burnedAreasCheckbox.checked;
+		// 	censusLayer.visible = censusPointsCheckbox.checked;
+		// });
+		// hideAllLegendDivs();
+		closeLayerList();
 	};
 
-	const resetFirePointsAndPerimeters = () => {
-		if (!firePoints.visible) {
-			firePointsLayerCheckbox.checked = true;
-			firePoints.visible = true;
-			toggleLegendDivVisibility(firePointLegend);
-			toggleFireGraphicVisibility();
-		}
-		if (!firePerimeter.visible || !fireArea.visible) {
-			firePermieterLayerCheckbox.checked = true;
-			firePerimeter.visible = true;
-			fireArea.visible = true;
-			toggleLegendDivVisibility(firePerimeterLegend);
-		}
-		if (!satelliteHotspotsLayer.visible && mapView.zoom >= 7) {
-			satelliteHotspotsLayer.visible = true;
-			satelliteHotspotsCheckbox.checked = true;
-			toggleLegendDivVisibility(satelliteHotSpotLegend);
-		}
-	};
+	// const resetFirePointsAndPerimeters = () => {
+	// 	if (!firePoints.visible) {
+	// 		firePointsLayerCheckbox.checked = true;
+	// 		firePoints.visible = true;
+	// 		toggleLegendDivVisibility(firePointLegend);
+	// 		toggleFireGraphicVisibility();
+	// 	}
+	// 	if (!firePerimeter.visible || !fireArea.visible) {
+	// 		firePermieterLayerCheckbox.checked = true;
+	// 		firePerimeter.visible = true;
+	// 		fireArea.visible = true;
+	// 		toggleLegendDivVisibility(firePerimeterLegend);
+	// 	}
+	// 	if (!satelliteHotspotsLayer.visible && mapView.zoom >= 7) {
+	// 		satelliteHotspotsLayer.visible = true;
+	// 		satelliteHotspotsCheckbox.checked = true;
+	// 		toggleLegendDivVisibility(satelliteHotSpotLegend);
+	// 	}
+	// };
 
 	//SETTING THE CENTER OF MAP VIEW ON PAGE LOAD. NOTE: is there a better placement in the code for this function?
 	const initialMapExtent = () => {
@@ -1071,11 +1069,13 @@ require([
 			? ((fireListEl.style.display = 'none'),
 			  (fireListBtn.style.display = 'initial'),
 			  (sideBarInformation.style.display = 'initial'),
+			  (firesSortingContainer.style.position = ''),
 			  scrollToTop(),
 			  (fireListSorting.style.display = 'none'))
 			: ((fireListEl.style.display = 'initial'),
 			  (fireListBtn.style.display = 'none'),
 			  (sideBarInformation.style.display = 'none'),
+			  (firesSortingContainer.style.position = 'sticky'),
 			  (fireListSorting.style.display = 'initial'),
 			  scrollToTop());
 	};
@@ -1545,6 +1545,13 @@ require([
 							name: '+ 80',
 						},
 					];
+					const totalDemographyPopulation =
+						consolidatedFirePerimeterData.sum_estimated80pluspop +
+						consolidatedFirePerimeterData.sum_estimated65_79pop +
+						consolidatedFirePerimeterData.sum_estimated18to64pop +
+						consolidatedFirePerimeterData.sum_estimated15_17pop +
+						consolidatedFirePerimeterData.sum_estimated0_14pop;
+
 					const perimeterPopulationWithVehicle = {
 						value: parseFloat(
 							100 -
@@ -1577,15 +1584,15 @@ require([
 					};
 
 					const perimeterPopulation = {
-						totalPopulation: consolidatedFirePerimeterData.sum_p0010001
-							? consolidatedFirePerimeterData.sum_p0010001.toLocaleString()
+						totalPopulation: totalDemographyPopulation
+							? totalDemographyPopulation.toLocaleString()
 							: 0,
 						percentofPopulationInPoverty:
 							(consolidatedFirePerimeterData.sum_estpopinpoverty =
 								consolidatedFirePerimeterData.sum_estpopinpoverty
 									? `${parseFloat(
 											(consolidatedFirePerimeterData.sum_estpopinpoverty /
-												consolidatedFirePerimeterData.sum_p0010001) *
+												totalDemographyPopulation) *
 												100
 									  ).toFixed(0)}%`
 									: '0%'),
@@ -1594,7 +1601,7 @@ require([
 								consolidatedFirePerimeterData.sum_estpopwithdisability
 									? `${parseFloat(
 											(consolidatedFirePerimeterData.sum_estpopwithdisability /
-												consolidatedFirePerimeterData.sum_p0010001) *
+												totalDemographyPopulation) *
 												100
 									  ).toFixed(0)}%`
 									: '0%'),
@@ -2153,11 +2160,19 @@ require([
 							name: '+ 80',
 						},
 					];
+
+					const totalDemographyPopulation =
+						aggregatedPopulationBlockObject.Estimated80PlusPop +
+						aggregatedPopulationBlockObject.Estimated65_79Pop +
+						aggregatedPopulationBlockObject.Estimated18to64Pop +
+						aggregatedPopulationBlockObject.Estimated15_17Pop +
+						aggregatedPopulationBlockObject.Estimated0_14Pop;
+
 					const englishSpeakingPopulation = {
 						value: parseFloat(
 							100 -
 								(aggregatedPopulationBlockObject.EstPopNoEnglish /
-									aggregatedPopulationBlockObject.P0010001) *
+									totalDemographyPopulation) *
 									100
 						).toFixed(1),
 					};
@@ -2165,7 +2180,7 @@ require([
 						value: parseFloat(
 							100 -
 								(aggregatedPopulationBlockObject.EstPopWith0Vehicles /
-									aggregatedPopulationBlockObject.P0010001) *
+									totalDemographyPopulation) *
 									100
 						).toFixed(1),
 					};
@@ -2183,14 +2198,14 @@ require([
 							: null,
 					};
 					const totalRadiusPopulation = {
-						totalPopulation: aggregatedPopulationBlockObject.P0010001
-							? aggregatedPopulationBlockObject.P0010001.toLocaleString()
+						totalPopulation: totalDemographyPopulation
+							? totalDemographyPopulation.toLocaleString()
 							: 0,
 						percentofPopulationInPoverty:
 							aggregatedPopulationBlockObject.EstPopinPoverty
 								? `${parseFloat(
 										(aggregatedPopulationBlockObject.EstPopinPoverty /
-											aggregatedPopulationBlockObject.P0010001) *
+											totalDemographyPopulation) *
 											100
 								  ).toFixed(0)}%`
 								: '0%',
@@ -2198,7 +2213,7 @@ require([
 							aggregatedPopulationBlockObject.EstPopWithDisability
 								? `${parseFloat(
 										(aggregatedPopulationBlockObject.EstPopWithDisability /
-											aggregatedPopulationBlockObject.P0010001) *
+											totalDemographyPopulation) *
 											100
 								  ).toFixed(0)}%`
 								: '0%',
