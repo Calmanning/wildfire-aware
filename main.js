@@ -2779,6 +2779,7 @@ require([
 
 	//Population Bar Chart
 	const populationBarGraph = (populationData) => {
+		console.log(populationData);
 		const populationDataValue = populationData.reduce((a, b) => a + b.data, 0);
 
 		const originalWidth = 220;
@@ -2846,16 +2847,20 @@ require([
 			.append('rect')
 			.attr('class', 'rect-bar')
 			.attr('x', (d, i) => xScale(d.name, i))
-			.attr('y', (d) => yScale(d.data))
+			.attr('y', (d) => (d.data === 0 ? yScale(0.1) : yScale(d.data)))
 			.attr('width', xScale.bandwidth())
-			.attr('height', (d) => originalHeight - yScale(d.data))
+			.attr('height', (d) =>
+				d.data === 0
+					? originalHeight - yScale(0.1)
+					: originalHeight - yScale(d.data)
+			)
 			.attr('fill', '#0285a8')
 			.on('mouseover', (e, d) => {
 				svg
 					.append('text')
 					.attr('class', 'pop')
 					.attr('x', xScale(d.name))
-					.attr('y', yScale(d.data))
+					.attr('y', d.data === 0 ? yScale(0.1) : yScale(d.data))
 					.attr('dy', '-0.5em')
 					.attr('dx', `${d.data < 10 ? '0.7em' : '0.25em'}`)
 					.attr('transform', `translate(${d.data > 999 ? -6 : 0}, 0)`)
@@ -3233,7 +3238,7 @@ require([
 		const weatherContentHeader = (temp) => {
 			if (temp.renderWeather) {
 				infoItemHeader[1].innerHTML = `<p class = "trailer-0 padding-trailer-0 sectionHeader">WEATHER</p>
-                                     <p class = "trailer-0 padding-leader-0 sectionSubHeader">LOCATION CLICKED</p>`;
+                                     <p class = "trailer-0 padding-leader-0 sectionSubHeader">AT LOCATION</p>`;
 			} else {
 				infoItemHeader[1].innerHTML = ``;
 			}
