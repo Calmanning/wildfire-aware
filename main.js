@@ -837,7 +837,8 @@ require([
 	reactiveUtils.when(
 		() => mapView?.stationary,
 		() => {
-			const extentGeometry = mapView.extent;
+			let extentGeometry = mapView.extent;
+			console.log(extentGeometry);
 			getFiresByExtent({ extentGeometry });
 		}
 	);
@@ -1248,13 +1249,13 @@ require([
 		const url =
 			'https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/USA_Wildfires_v1/FeatureServer/0/query';
 
+		console.log(extentGeometry.toJSON());
+
 		const params = {
 			where: `1=1`,
-			time: null,
-			geometry: extentGeometry,
+			geometry: JSON.stringify(extentGeometry),
 			geometryType: 'esriGeometryEnvelope',
 			spatialRelationship: 'intersects',
-			inSR: 3857,
 			returnGeometry: true,
 			returnQueryGeometry: true,
 			outFields: [
@@ -1279,7 +1280,7 @@ require([
 			})
 			.then((response) => {
 				const wildFires = response.data.features;
-
+				console.log(response.data);
 				let fires = wildFires.map((fire) => ({
 					fire,
 					monthDay: new Date(
