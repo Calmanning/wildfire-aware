@@ -494,42 +494,8 @@ require([
 	})();
 
 	const resetLayerList = () => {
-		// resetFirePointsAndPerimeters();
-
-		// document.querySelectorAll('.auto-checkbox').forEach((checkbox) => {
-		// 	checkbox.checked = false;
-
-		// 	AQITodayLayer.visible = checkbox.checked;
-		// 	AQITomorrowLayer.visible = checkbox.checked;
-		// 	weatherWatchesAndWarningsLayer.visible =
-		// 		watchesAndWarningsCheckbox.checked;
-		// 	burnedAreasPerimeterLayer.visible = burnedAreasCheckbox.checked;
-		// 	burnedAreasFillLayer.visible = burnedAreasCheckbox.checked;
-		// 	censusLayer.visible = censusPointsCheckbox.checked;
-		// });
-		// hideAllLegendDivs();
 		closeLayerList();
 	};
-
-	// const resetFirePointsAndPerimeters = () => {
-	// 	if (!firePoints.visible) {
-	// 		firePointsLayerCheckbox.checked = true;
-	// 		firePoints.visible = true;
-	// 		toggleLegendDivVisibility(firePointLegend);
-	// 		toggleFireGraphicVisibility();
-	// 	}
-	// 	if (!firePerimeter.visible || !fireArea.visible) {
-	// 		firePermieterLayerCheckbox.checked = true;
-	// 		firePerimeter.visible = true;
-	// 		fireArea.visible = true;
-	// 		toggleLegendDivVisibility(firePerimeterLegend);
-	// 	}
-	// 	if (!satelliteHotspotsLayer.visible && mapView.zoom >= 7) {
-	// 		satelliteHotspotsLayer.visible = true;
-	// 		satelliteHotspotsCheckbox.checked = true;
-	// 		toggleLegendDivVisibility(satelliteHotSpotLegend);
-	// 	}
-	// };
 
 	//SETTING THE CENTER OF MAP VIEW ON PAGE LOAD. NOTE: is there a better placement in the code for this function?
 	const initialMapExtent = () => {
@@ -662,7 +628,7 @@ require([
 			fireIconGraphic.symbol.size = 17;
 		}
 
-		webmap.layers.reorder(graphicsLayer, 12);
+		webmap.layers.reorder(graphicsLayer, 11);
 		graphicsLayer.graphics.push(fireIconGraphic);
 	};
 
@@ -807,7 +773,7 @@ require([
 			} else if (typeof fireData.personnelAssigned === 'number') {
 				return 'https://esri.maps.arcgis.com/sharing/rest/content/items/b56beb3d45d14b63af0113901dd767f7/data';
 			} else if (typeof fireData.personnelAssigned === 'string') {
-				return 'https://www.arcgis.com/sharing/rest/content/items/83e1078b2faf42309b73ba46bd86f1b8/data';
+				return 'https://www.arcgis.com/sharing/rest/content/items/6f3a489a81a54494a1b57cb577e92fcb/data';
 			}
 		};
 
@@ -905,16 +871,16 @@ require([
 				enableMapLayer(watchesAndWarningsCheckbox);
 			}
 
-			if (!(mapView.zoom >= 7)) {
-				disableMapLayer(satelliteHotspotsCheckbox);
-				satelliteHotspotsLayer.visible = satelliteHotspotsCheckbox.checked;
-				satelliteHotSpotLegend.style.display = 'none';
-			} else {
-				enableMapLayer(satelliteHotspotsCheckbox);
-				satelliteHotspotsLayer.visible = true;
-				satelliteHotspotsCheckbox.checked = true;
-				satelliteHotSpotLegend.style.display = 'initial';
-			}
+			// if (!(mapView.zoom >= 7)) {
+			// 	disableMapLayer(satelliteHotspotsCheckbox);
+			// 	satelliteHotspotsLayer.visible = satelliteHotspotsCheckbox.checked;
+			// 	satelliteHotSpotLegend.style.display = 'none';
+			// } else {
+			// 	enableMapLayer(satelliteHotspotsCheckbox);
+			// 	satelliteHotspotsLayer.visible = true;
+			// 	satelliteHotspotsCheckbox.checked = true;
+			// 	satelliteHotSpotLegend.style.display = 'initial';
+			// }
 
 			if (!(mapView.zoom >= 9 && mapView.zoom <= 11)) {
 				disableMapLayer(burnedAreasCheckbox);
