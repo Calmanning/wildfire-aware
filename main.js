@@ -163,8 +163,7 @@ require([
 			(fireListBtn.style.display = 'none'),
 			(sideBarInformation.style.display = 'none'),
 			(fireListSorting.style.display = 'initial'),
-			(firesSortingContainer.style.position = 'sticky');
-		removePreviousFireIcon();
+			removePreviousFireIcon();
 		removeCircleGraphic();
 		scrollToTop();
 
@@ -672,8 +671,11 @@ require([
 	const formatActiveFires = (sortedFireList) => {
 		if (!sortedFireList.length) {
 			fireListEl.innerHTML = '';
+
 			return;
 		}
+
+		scrollToTop();
 
 		const fires = sortedFireList.map((fire) => {
 			if (typeof fire === 'object') {
@@ -1035,13 +1037,11 @@ require([
 			? ((fireListEl.style.display = 'none'),
 			  (fireListBtn.style.display = 'initial'),
 			  (sideBarInformation.style.display = 'initial'),
-			  (firesSortingContainer.style.position = ''),
 			  scrollToTop(),
 			  (fireListSorting.style.display = 'none'))
 			: ((fireListEl.style.display = 'initial'),
 			  (fireListBtn.style.display = 'none'),
 			  (sideBarInformation.style.display = 'none'),
-			  (firesSortingContainer.style.position = 'sticky'),
 			  (fireListSorting.style.display = 'initial'),
 			  scrollToTop());
 	};

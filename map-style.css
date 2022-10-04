@@ -97,6 +97,24 @@ img {
   
 }
 
+/* #activeFiresDropdown {
+    width: 100%;
+    position: sticky;
+    top: 0;
+    background: rgb(17, 49, 73);
+}
+
+#fireSorting {
+  display: initial;
+   width: 100%;
+   margin-bottom: 0.5rem; 
+   white-space: nowrap;
+}
+
+#fire-list{
+  display: initial;
+} */
+
 #infoBar {
   /* background-color: rgba(17, 49, 73, 1); */
   width: 416px;
