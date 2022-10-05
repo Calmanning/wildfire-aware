@@ -675,8 +675,6 @@ require([
 			return;
 		}
 
-		scrollToTop();
-
 		const fires = sortedFireList.map((fire) => {
 			if (typeof fire === 'object') {
 				const fireListItem = {
@@ -838,7 +836,6 @@ require([
 		() => mapView?.stationary,
 		() => {
 			let extentGeometry = mapView.extent;
-			console.log(extentGeometry);
 			getFiresByExtent({ extentGeometry });
 		}
 	);
@@ -963,7 +960,6 @@ require([
 	window.addEventListener('resize', sizeReport, false);
 
 	mapView.on('click', async (event) => {
-		console.log('map click');
 		const mapPoint = JSON.stringify(event.mapPoint);
 
 		if ((await mapPointLocationCheck({ mapPoint })) === false) {
@@ -1013,7 +1009,6 @@ require([
 	};
 
 	const updateURLParams = ({ mapPoint, irwinIdNumber }) => {
-		console.log('mappoint for url', mapPoint);
 		viewURL.hash = `@=${mapPoint.longitude.toFixed(
 			3
 		)},${mapPoint.latitude.toFixed(3)},${
@@ -1281,7 +1276,6 @@ require([
 			})
 			.then((response) => {
 				const wildFires = response.data.features;
-				console.log(response.data);
 				let fires = wildFires.map((fire) => ({
 					fire,
 					monthDay: new Date(
@@ -1737,7 +1731,6 @@ require([
 				params,
 			})
 			.then((response) => {
-				console.log(response);
 				const droughtCondition = response.data.features[0]
 					? response.data.features[0].attributes.dm
 					: 'Drought conditions not reported';
@@ -1862,7 +1855,6 @@ require([
 					params,
 				})
 				.then((response) => {
-					console.log(response);
 					const windTime = response.data.features.length
 						? response.data.features.sort(
 								(a, b) => a.attributes.fromdate - b.attributes.fromdate
@@ -2266,7 +2258,6 @@ require([
 				params,
 			})
 			.then((response) => {
-				console.log('aggregateEcoObject', response);
 				const ecoResponse = response.data.features;
 
 				if (response.data.fields) {
@@ -2760,7 +2751,6 @@ require([
 
 	//Population Bar Chart
 	const populationBarGraph = (populationData) => {
-		console.log(populationData);
 		const populationDataValue = populationData.reduce((a, b) => a + b.data, 0);
 
 		const originalWidth = 220;
@@ -3340,8 +3330,6 @@ require([
 		totalRadiusPopulation,
 		perimeterPopulation,
 	}) => {
-		// console.log(totalRadiusPopulation || perimeterPopulation)
-
 		const containerSubheader = totalRadiusPopulation
 			? 'WITHIN CIRCLE (2 MI RADIUS)'
 			: 'WITHIN FIRE PERIMETER';
@@ -3395,8 +3383,6 @@ require([
 	};
 
 	const housingInfoRender = ({ radiusHousingData, perimeterHousingData }) => {
-		// console.log(radiusHousingData || perimeterHousingData)
-
 		const containerSubheader = radiusHousingData
 			? 'WITHIN CIRCLE (2 MI RADIUS)'
 			: 'WITHIN FIRE PERIMETER';
@@ -3432,8 +3418,6 @@ require([
 	};
 
 	const habitatInfoRender = ({ aggregateEcoObj, perimeterEcology }) => {
-		// console.log(perimeterEcology || aggregateEcoObj);
-
 		const containerSubheader = aggregateEcoObj
 			? 'WITHIN CIRCLE (2 MI RADIUS)'
 			: 'WITHIN FIRE PERIMETER';
