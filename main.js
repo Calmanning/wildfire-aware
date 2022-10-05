@@ -963,7 +963,8 @@ require([
 	window.addEventListener('resize', sizeReport, false);
 
 	mapView.on('click', async (event) => {
-		const mapPoint = event.mapPoint;
+		console.log('map click');
+		const mapPoint = JSON.stringify(event.mapPoint);
 
 		if ((await mapPointLocationCheck({ mapPoint })) === false) {
 			return;
@@ -1012,6 +1013,7 @@ require([
 	};
 
 	const updateURLParams = ({ mapPoint, irwinIdNumber }) => {
+		console.log('mappoint for url', mapPoint);
 		viewURL.hash = `@=${mapPoint.longitude.toFixed(
 			3
 		)},${mapPoint.latitude.toFixed(3)},${
@@ -1249,13 +1251,12 @@ require([
 		const url =
 			'https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/USA_Wildfires_v1/FeatureServer/0/query';
 
-		console.log(extentGeometry.toJSON());
-
 		const params = {
 			where: `1=1`,
 			geometry: JSON.stringify(extentGeometry),
 			geometryType: 'esriGeometryEnvelope',
 			spatialRelationship: 'intersects',
+			inSR: 3857,
 			returnGeometry: true,
 			returnQueryGeometry: true,
 			outFields: [
@@ -1722,9 +1723,9 @@ require([
 			where: '1=1',
 			geometry: fireInformation
 				? `${fireInformation[0]}`
-				: `${mapPoint.longitude}, ${mapPoint.latitude}`,
+				: JSON.stringify(mapPoint),
 			geometryType: 'esriGeometryPoint',
-			inSR: 4326,
+			inSR: fireInformation ? 4326 : 3857,
 			spatialRelationship: 'intersects',
 			outFields: 'dm',
 			returnQueryGeometry: true,
@@ -1736,6 +1737,7 @@ require([
 				params,
 			})
 			.then((response) => {
+				console.log(response);
 				const droughtCondition = response.data.features[0]
 					? response.data.features[0].attributes.dm
 					: 'Drought conditions not reported';
@@ -1845,7 +1847,9 @@ require([
 
 			const params = {
 				where: '1=1',
-				geometry: fireInformation ? `${fireInformation[0]}` : mapPoint,
+				geometry: fireInformation
+					? `${fireInformation[0]}`
+					: JSON.stringify(mapPoint),
 				geometryType: 'esriGeometryPoint',
 				inSR: 4326,
 				outFields: ['fromdate', 'todate', 'force', 'label'].join(','),
@@ -1858,6 +1862,7 @@ require([
 					params,
 				})
 				.then((response) => {
+					console.log(response);
 					const windTime = response.data.features.length
 						? response.data.features.sort(
 								(a, b) => a.attributes.fromdate - b.attributes.fromdate
@@ -1964,7 +1969,9 @@ require([
 
 			const params = {
 				where: '1=1',
-				geometry: fireInformation ? `${fireInformation[0]}` : mapPoint,
+				geometry: fireInformation
+					? `${fireInformation[0]}`
+					: JSON.stringify(mapPoint),
 				geometryType: 'esriGeometryPoint',
 				inSR: 4326,
 				outFields: 'gridcode',
@@ -2014,7 +2021,9 @@ require([
 
 			const params = {
 				where: '1=1',
-				geometry: fireInformation ? `${fireInformation[0]}` : mapPoint,
+				geometry: fireInformation
+					? `${fireInformation[0]}`
+					: JSON.stringify(mapPoint),
 				geometryType: 'esriGeometryPoint',
 				inSR: 4326,
 				outFields: 'gridcode',
@@ -2063,7 +2072,9 @@ require([
 
 		const params = {
 			where: '1=1',
-			geometry: fireInformation ? `${fireInformation[0]}` : mapPoint,
+			geometry: fireInformation
+				? `${fireInformation[0]}`
+				: JSON.stringify(mapPoint),
 			geometryType: 'esriGeometryPoint',
 			spatialRelationship: 'intersects',
 			distance: 2,
@@ -2217,7 +2228,9 @@ require([
 
 		const params = {
 			where: '1=1',
-			geometry: fireInformation ? `${fireInformation[0]}` : mapPoint,
+			geometry: fireInformation
+				? `${fireInformation[0]}`
+				: JSON.stringify(mapPoint),
 			geometryType: 'esriGeometryPoint',
 			inSR: 4326,
 			spatialRelationship: 'intersects',
@@ -2253,6 +2266,7 @@ require([
 				params,
 			})
 			.then((response) => {
+				console.log('aggregateEcoObject', response);
 				const ecoResponse = response.data.features;
 
 				if (response.data.fields) {
