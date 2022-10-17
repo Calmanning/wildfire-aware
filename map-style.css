@@ -274,7 +274,7 @@ img {
   bottom: 0.5rem;
 }
 
-#viewDiv .esri-scale-bar__line--bottom {
+/* #viewDiv .esri-scale-bar__line--bottom {
   top: -1px;
   border-top: 1px solid #ffffff;
   background-color: rgb(17, 54, 81);
@@ -309,7 +309,7 @@ img {
     position: absolute;
     top: -1px;
     border-right: 1px solid #ffffff;
-}
+} */
 
 /* MAP LAYERS CONTAINER & BUTTON */
 #layerListContainer {

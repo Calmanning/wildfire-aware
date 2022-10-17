@@ -340,16 +340,23 @@ require([
 	const enableMapLayer = (enabledLayer) => {
 		enabledLayer.removeAttribute('disabled');
 		enabledLayer.parentElement.classList.remove('disable');
+		enabledLayer.parentElement.classList.remove('tooltip');
 	};
 
 	const disableMapLayer = (disabledLayer) => {
 		disabledLayer.setAttribute('disabled', '');
 		disabledLayer.parentElement.classList.add('disable');
+		disabledLayer.parentElement.classList.add('tooltip');
 		hideLegendDiv(disabledLayer);
 	};
 
+	const showLegendDiv = (enabledLayer) => {
+		// disabledLayer.checked = false;
+		enabledLayer.parentElement.nextElementSibling.style.display = 'initial';
+	};
+
 	const hideLegendDiv = (disabledLayer) => {
-		disabledLayer.checked = false;
+		// disabledLayer.checked = false;
 		disabledLayer.parentElement.nextElementSibling.style.display = 'none';
 	};
 
@@ -843,11 +850,11 @@ require([
 	reactiveUtils.watch(
 		() => mapView?.zoom,
 		async () => {
-			if (!(mapView.zoom >= 0 && mapView.zoom <= 9)) {
+			if (!(mapView.zoom >= 0 && mapView.zoom <= 11)) {
 				disableMapLayer(AQITodayCheckbox);
 				disableMapLayer(AQITomorrowCheckbox);
-				AQITodayLayer.visible = AQITodayCheckbox.checked;
-				AQITomorrowLayer.visible = AQITodayCheckbox.checked;
+				AQITodayLayer.visible = false;
+				AQITomorrowLayer.visible = false;
 				if (
 					aqiTodayLegend.style.display === 'intitial' ||
 					aqiTomorrowLegend.style.display === 'intitial'
@@ -860,15 +867,27 @@ require([
 				) {
 					enableMapLayer(AQITodayCheckbox);
 					enableMapLayer(AQITomorrowCheckbox);
+					AQITodayCheckbox.checked === true
+						? ((AQITodayLayer.visible = AQITodayCheckbox.checked),
+						  showLegendDiv(AQITodayCheckbox))
+						: (AQITodayCheckbox.visible = false);
+					AQITomorrowCheckbox.checked === true
+						? ((AQITomorrowLayer.visible = AQITomorrowCheckbox.checked),
+						  showLegendDiv(AQITomorrowCheckbox))
+						: (AQITomorrowLayer.visible = false);
 				}
 			}
 
-			if (!(mapView.zoom >= 0 && mapView.zoom <= 9)) {
+			if (!(mapView.zoom >= 0 && mapView.zoom <= 11)) {
 				disableMapLayer(watchesAndWarningsCheckbox);
-				weatherWatchesAndWarningsLayer.visible =
-					watchesAndWarningsCheckbox.checked;
+				weatherWatchesAndWarningsLayer.visible = false;
+				watchesAndWarningsCheckbox.checked;
 			} else {
 				enableMapLayer(watchesAndWarningsCheckbox);
+				if (watchesAndWarningsCheckbox.checked === true) {
+					showLegendDiv(watchesAndWarningsCheckbox);
+					weatherWatchesAndWarningsLayer.visible = true;
+				}
 			}
 
 			// if (!(mapView.zoom >= 7)) {
@@ -882,19 +901,28 @@ require([
 			// 	satelliteHotSpotLegend.style.display = 'initial';
 			// }
 
-			if (!(mapView.zoom >= 9 && mapView.zoom <= 11)) {
+			if (!(mapView.zoom >= 0 && mapView.zoom <= 11)) {
 				disableMapLayer(burnedAreasCheckbox);
-				burnedAreasFillLayer.visible = burnedAreasCheckbox.checked;
-				burnedAreasPerimeterLayer.visible = burnedAreasCheckbox.checked;
+				burnedAreasFillLayer.visible = false;
+				burnedAreasPerimeterLayer.visible = false;
 			} else {
 				enableMapLayer(burnedAreasCheckbox);
+				if (burnedAreasCheckbox.checked === true) {
+					showLegendDiv(burnedAreasCheckbox);
+					burnedAreasFillLayer.visible = true;
+					burnedAreasPerimeterLayer.visible = true;
+				}
 			}
 
 			if (!(mapView.zoom >= 12 && mapView.zoom <= 15)) {
 				disableMapLayer(censusPointsCheckbox);
-				censusLayer.visible = censusPointsCheckbox.checked;
+				censusLayer.visible = false;
 			} else {
 				enableMapLayer(censusPointsCheckbox);
+				if (censusPointsCheckbox.checked === true) {
+					showLegendDiv(censusPointsCheckbox);
+					censusLayer.visible = true;
+				}
 			}
 
 			if (
