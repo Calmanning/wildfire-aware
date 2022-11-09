@@ -1745,9 +1745,9 @@ require([
 			where: '1=1',
 			geometry: fireInformation
 				? `${fireInformation[0]}`
-				: JSON.stringify(mapPoint),
+				: `${mapPoint.longitude}, ${mapPoint.latitude}`,
 			geometryType: 'esriGeometryPoint',
-			inSR: fireInformation ? 4326 : 3857,
+			inSR: 4326,
 			spatialRelationship: 'intersects',
 			outFields: 'dm',
 			returnQueryGeometry: true,
@@ -1773,12 +1773,11 @@ require([
 					} else if (droughtCondition === 3) {
 						return 'Extreme';
 					} else if (droughtCondition === 4) {
-						return ' Exceptional';
+						return 'Exceptional';
 					} else if (droughtCondition === 'Not present') {
 						return 'None present';
 					}
 				};
-
 				renderDroughtStatus(droughtStatus(droughtCondition));
 			});
 	};
@@ -3200,8 +3199,9 @@ require([
 	//RENDERING UI CONTENT
 
 	const renderDroughtStatus = (droughtStatus) => {
-		const drought = (document.querySelector('#drought-condition').innerHTML = `
-      <div style = "display: flex;">
+		const drought = (document.querySelector(
+			'#drought-condition'
+		).innerHTML = `<div style = "display: flex;">
           <div style = "width: max-content;">
             <p style="margin-bottom: 0">DROUGHT STATUS</p>
           </div>
