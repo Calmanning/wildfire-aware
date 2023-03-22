@@ -5,7 +5,7 @@ require([
 	'esri/widgets/Search',
 	'esri/widgets/Home',
 	'esri/widgets/ScaleBar',
-	'esri/widgets/Measurement',
+	'esri/widgets/DistanceMeasurement2D',
 	'esri/Graphic',
 	'esri/symbols/SimpleLineSymbol',
 	'esri/layers/GraphicsLayer',
@@ -20,7 +20,7 @@ require([
 	Search,
 	Home,
 	ScaleBar,
-	Measurement,
+	DistanceMeasurement2D,
 	Graphic,
 	SimpleLineSymbol,
 	GraphicsLayer,
@@ -31,7 +31,38 @@ require([
 ) => {
 	'use strict';
 
-	// GLOBAL VARIABLES
+	//CONFIGURABLES
+	//Enivronment
+	const ENV = window.location.host;
+	const config =
+		ENV === 'livingatlasdev.arcgis.com'
+			? //DEVELOPMENT ENVIRONMENT
+			  {
+					webmapID: 'd4ec5d878d00465cb884a6c610aa5442',
+					queryURLs: {
+						aggregatePerimeterURL:
+							'https://services.arcgis.com/jIL9msH9OI208GCb/arcgis/rest/services/Wildfire_aggregated_v1/FeatureServer/1/query',
+					},
+			  }
+			: //PRODUCTION ENIRONMENT
+			  {
+					webmapID: '068b64e0e1b740e385fa746758b03750',
+					queryURLs: {
+						aggregatePerimeterURL:
+							'https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/Wildfire_aggregated_v1/FeatureServer/1/query',
+					},
+			  };
+
+	//WebmapID
+	const webmapID = config.webmapID;
+	//Query URLs
+	const aggregatePerimeterURL = config.queryURLs.aggregatePerimeterURL;
+
+	console.log('testing');
+	console.log(ENV);
+	console.log(config);
+	console.log(webmapID);
+	console.log(aggregatePerimeterURL);
 
 	//DOM VARIABLES
 	const viewURL = new URL(window.location.href);
@@ -99,7 +130,7 @@ require([
 
 	const webmap = new WebMap({
 		portalItem: {
-			id: 'd4ec5d878d00465cb884a6c610aa5442',
+			id: webmapID,
 		},
 		layers: [],
 	});
@@ -196,6 +227,10 @@ require([
 		view: mapView,
 	});
 
+	const distanceMeasure = new DistanceMeasurement2D({
+		view: mapView,
+	});
+
 	const resetURLParams = () => {
 		window.location.hash = '';
 	};
@@ -274,6 +309,7 @@ require([
 				mapView.ui.add(searchWidget, 'top-left');
 				mapView.ui.add(homeWidget, 'top-left');
 				mapView.ui.add(scaleBar, { position: 'bottom-right' });
+				mapView.ui.add(distanceMeasure, { position: 'top-right' });
 				webmap.add(graphicsLayer);
 			})
 			.then(() => {
@@ -775,7 +811,7 @@ require([
 		const fireType = fireData.incidentType;
 
 		const fireIcon = () => {
-			if (fireData.personnelAssigned && fireType === 'PERSCRIPTTION BURN') {
+			if (fireData.personnelAssigned && fireType === 'PRESCRIBED FIRE') {
 				return 'https://www.arcgis.com/sharing/rest/content/items/4078350792ea4da2b36cab7351909fd7/data';
 			} else if (typeof fireData.personnelAssigned === 'number') {
 				return 'https://esri.maps.arcgis.com/sharing/rest/content/items/b56beb3d45d14b63af0113901dd767f7/data';
@@ -977,7 +1013,7 @@ require([
 	);
 
 	const sizeReport = () => {
-		if (window.screen.width > 720) {
+		if (window.screen.width > 800) {
 			sideBarContainer.style.height
 				? (sideBarContainer.style.height = null)
 				: null;
@@ -999,7 +1035,7 @@ require([
 		// goto({ mapPoint });
 		mapHitTest(event);
 
-		window.screen.width <= 720
+		window.screen.width <= 800
 			? (sideBarContainer.style.height = '100%')
 			: null;
 		sideBarToggleArrow.style.transform = 'rotate(180deg)';
@@ -1477,27 +1513,25 @@ require([
 		irwinIdNumber,
 		mapPoint,
 	}) => {
-		const url =
-			'https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/Wildfire_aggregated_v1/FeatureServer/1/query';
+		//NOTE: These urls need to be changed from the development link to the production-ready link
+		// const devLink =
+		// 	'https://services.arcgis.com/jIL9msH9OI208GCb/arcgis/rest/services/Wildfire_aggregated_v1/FeatureServer/1/query';
+		// const productionLink =
+		// 	'https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/Wildfire_aggregated_v1/FeatureServer/1/query';
 
 		const params = {
 			where: `irwinID = '{${irwinIdNumber}}'`,
-			geometryType: 'esriGeometryPoint',
-			spatialRelationship: 'intersects',
-			distance: 2,
-			units: 'esriSRUnit_StatuteMile',
 			inSR: 3857,
 			outFields: '*',
-			returnGeometry: true,
-			returnQueryGeometry: true,
 			f: 'json',
 		};
 
 		axios
-			.get(url, {
+			.get(aggregatePerimeterURL, {
 				params,
 			})
 			.then((response) => {
+				console.log(response);
 				const consolidatedFirePerimeterData = response.data.fields
 					? response.data.features[0].attributes
 					: false;

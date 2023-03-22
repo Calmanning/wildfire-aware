@@ -311,6 +311,12 @@ img {
     border-right: 1px solid #ffffff;
 } */
 
+/* MEASURE WIDGET */
+#top-right-container {
+  position:relative;
+  background-color: cornflowerblue;
+}
+
 /* MAP LAYERS CONTAINER & BUTTON */
 #layerListContainer {
   width: 215px;
@@ -615,7 +621,7 @@ img {
   }
 }
 
-@media screen and (max-width: 720px) {
+@media screen and (max-width: 801px) {
   #searchContainer {
     width: 150px;
   }
