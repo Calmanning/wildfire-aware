@@ -58,17 +58,12 @@ require([
 	//Query URLs
 	const aggregatePerimeterURL = config.queryURLs.aggregatePerimeterURL;
 
-	console.log('testing');
-	console.log(ENV);
-	console.log(config);
-	console.log(webmapID);
-	console.log(aggregatePerimeterURL);
-
 	//DOM VARIABLES
 	const viewURL = new URL(window.location.href);
 	const sideBarContainer = document.querySelector('#sideBar');
 	const sideBarToggleArrow = document.querySelector('#sideBarToggleArrow');
 	const searchWidgetContainer = document.querySelector('#searchContainer');
+	const topRightContainer = document.querySelector('.top-right-container');
 	const sideBarInformation = document.getElementById('sideBarInformation');
 	const fireListEl = document.querySelector('#fire-list');
 	const fireListBtn = document.querySelector('#fire-list-Btn');
@@ -98,7 +93,7 @@ require([
 
 	const layerList = document.querySelector('#layers');
 	const layerListBackground = document.querySelector(
-		'#layer-List-Container-background'
+		'.layer-List-Container-background'
 	);
 	const layerListBtn = document.querySelector('#layer-list-button');
 	const firePointsLayerCheckbox = document.querySelector('#fire-points');
@@ -180,12 +175,12 @@ require([
 		view: mapView,
 		resultGraphicEnabled: false,
 		popupEnabled: false,
-		container: searchWidgetContainer,
+		container: topRightContainer,
 	});
 
 	const homeWidget = new Home({
 		view: mapView,
-		container: homeContainer,
+		// container: topRightContainer,
 	});
 
 	homeWidget.goToOverride = () => {
@@ -229,8 +224,16 @@ require([
 
 	const distanceMeasure = new DistanceMeasurement2D({
 		view: mapView,
+		unitOptions: ['miles', 'yards', 'feet'],
 	});
 
+	const newDistanceHelpText = `
+		Click the map to start measuring.
+		Press 'Z' to undo.\n
+		Press 'esc' key when finished.
+    `;
+
+	console.log(distanceMeasure);
 	const resetURLParams = () => {
 		window.location.hash = '';
 	};
@@ -306,11 +309,14 @@ require([
 			})
 			.then(() => {
 				//ADD WIDGETS
-				mapView.ui.add(searchWidget, 'top-left');
-				mapView.ui.add(homeWidget, 'top-left');
+				mapView.ui.add(searchWidget, 'top-right');
+				mapView.ui.move('zoom', { position: 'top-right' });
+				mapView.ui.add(homeWidget, 'top-right');
+				mapView.ui.add(distanceMeasure, { position: 'bottom-right' });
 				mapView.ui.add(scaleBar, { position: 'bottom-right' });
-				mapView.ui.add(distanceMeasure, { position: 'top-right' });
 				webmap.add(graphicsLayer);
+
+				distanceMeasure.messages.hint = newDistanceHelpText;
 			})
 			.then(() => {
 				//setting up view -- if url-information is relevant have the view reflect that information, otherwise set center on continental US.
@@ -333,10 +339,10 @@ require([
 
 	const addLayerList = (event) => {
 		layerList.style.display === 'none'
-			? ((layerList.style.display = 'inherit'),
-			  (layerListBackground.style.background = 'rgb(17, 54, 81)'),
+			? ((layerList.style.display = 'initial'),
+			  layerListBackground.classList.add('blue-background'),
 			  changelayerListButtonText())
-			: (resetLayerList(), (layerListBackground.style.background = 'none'));
+			: resetLayerList();
 	};
 
 	const changelayerListButtonText = () => {
@@ -347,6 +353,7 @@ require([
 
 	const closeLayerList = () => {
 		layerList.style.display = 'none';
+		layerListBackground.classList.remove('blue-background');
 		changelayerListButtonText();
 	};
 
@@ -822,7 +829,7 @@ require([
 
 		const fireHeader = (infoItemHeader[0].innerHTML = `
                           <p class = "trailer-0 sectionHeader">FIRE INFORMATION</p>
-                          <p class="sectionSubHeader">CURRENT AS OF:  ${recentFireData.toUpperCase()} </p>`);
+                          <p class="sectionSubHeader">Current as of:  ${recentFireData.toUpperCase()} </p>`);
 
 		infoItemContent[0].setAttribute('style', 'display: inline');
 
@@ -882,6 +889,15 @@ require([
 			getFiresByExtent({ extentGeometry });
 		}
 	);
+
+	// reactiveUtils.when(
+	// 	() => distanceMeasure.active === true,
+	// 	() => {
+	// 		console.log('measure active');
+	// 		console.log(mapView);
+	// 		mapClickEvent.remove();
+	// 	}
+	// );
 
 	reactiveUtils.watch(
 		() => mapView?.zoom,
@@ -1022,24 +1038,36 @@ require([
 
 	window.addEventListener('load', sizeReport, false);
 	window.addEventListener('resize', sizeReport, false);
+	// let mapClickEvent;
 
-	mapView.on('click', async (event) => {
-		const mapPoint = JSON.stringify(event.mapPoint);
+	let mapClickEvent = () => {
+		console.log(distanceMeasure);
 
-		if ((await mapPointLocationCheck({ mapPoint })) === false) {
-			return;
-		}
-		await removeCircleGraphic();
+		mapView.on('click', async (event) => {
+			if (distanceMeasure.active) {
+				console.log(distanceMeasure);
+				return;
+			}
+			console.log('mapclicked');
+			const mapPoint = JSON.stringify(event.mapPoint);
 
-		await removePreviousFireIcon();
-		// goto({ mapPoint });
-		mapHitTest(event);
+			if ((await mapPointLocationCheck({ mapPoint })) === false) {
+				return;
+			}
+			await removeCircleGraphic();
 
-		window.screen.width <= 800
-			? (sideBarContainer.style.height = '100%')
-			: null;
-		sideBarToggleArrow.style.transform = 'rotate(180deg)';
-	});
+			await removePreviousFireIcon();
+			// goto({ mapPoint });
+			mapHitTest(event);
+
+			window.screen.width <= 800
+				? (sideBarContainer.style.height = '100%')
+				: null;
+			sideBarToggleArrow.style.transform = 'rotate(180deg)';
+		});
+	};
+
+	mapClickEvent();
 
 	const mapHitTest = (event) => {
 		let feature;
@@ -1744,7 +1772,7 @@ require([
 						consolidatedWHPClass['Very Low'] =
 							consolidatedWHPClass['Very Low'] /
 								consolidatedFirePerimeterData.Hex_Count || 0;
-
+						console.log(consolidatedWHPClass);
 						formatWildfireRiskData({ consolidatedWHPClass });
 					} catch (error) {
 						console.error(error);
@@ -3271,7 +3299,7 @@ require([
 		const weatherContentHeader = (temp) => {
 			if (temp.renderWeather) {
 				infoItemHeader[1].innerHTML = `<p class = "trailer-0 padding-trailer-0 sectionHeader">WEATHER</p>
-                                     <p class = "trailer-0 padding-leader-0 sectionSubHeader">AT LOCATION</p>`;
+                                     <p class = "trailer-0 padding-leader-0 sectionSubHeader">At location</p>`;
 			} else {
 				infoItemHeader[1].innerHTML = ``;
 			}
@@ -3393,8 +3421,8 @@ require([
 		perimeterPopulation,
 	}) => {
 		const containerSubheader = totalRadiusPopulation
-			? 'WITHIN CIRCLE (2 MI RADIUS)'
-			: 'WITHIN FIRE PERIMETER';
+			? 'Within circle (2 Mi radius)'
+			: 'Within fire Perimeter';
 
 		const poepleContentHeader =
 			(infoItemHeader[2].innerHTML = `<p class = "trailer-0 sectionHeader">POPULATION</p>
@@ -3446,8 +3474,8 @@ require([
 
 	const housingInfoRender = ({ radiusHousingData, perimeterHousingData }) => {
 		const containerSubheader = radiusHousingData
-			? 'WITHIN CIRCLE (2 MI RADIUS)'
-			: 'WITHIN FIRE PERIMETER';
+			? 'Within circle (2 Mi radius)'
+			: 'Within fire Perimeter';
 
 		const poepleContentHeader =
 			(infoItemHeader[3].innerHTML = `<p class = "trailer-0 sectionHeader">HOUSING</p>
@@ -3456,7 +3484,6 @@ require([
 		poepleContentHeader;
 
 		const areaHousingObject = radiusHousingData || perimeterHousingData;
-
 		if (areaHousingObject.TotalHousingUnits && areaHousingObject.MedianValue) {
 			document.querySelector('#housing-container').style.display = 'grid';
 
@@ -3481,20 +3508,25 @@ require([
 
 	const habitatInfoRender = ({ aggregateEcoObj, perimeterEcology }) => {
 		const containerSubheader = aggregateEcoObj
-			? 'WITHIN CIRCLE (2 MI RADIUS)'
-			: 'WITHIN FIRE PERIMETER';
+			? 'Within circle (2 Mi radius)'
+			: 'Within fire Perimeter';
 
 		const habitatContentControl = ({ ecoObject }) => {
-			if (ecoObject.Hex_Count) {
+			if (
+				!ecoObject.L3EcoReg &&
+				!ecoObject.LandForm &&
+				!ecoObject.ForestTypeGroup &&
+				ecoObject.RichClass
+			) {
+				return (
+					(infoItemContent[4].style.display = `none`),
+					(infoItemHeader[4].innerHTML = ``)
+				);
+			} else {
 				return (
 					(infoItemContent[4].style.display = `initial`),
 					(infoItemHeader[4].innerHTML = `<p class = "trailer-0 sectionHeader">ECOSYSTEM</p>
                                                 <p class = "trailer-0 sectionSubHeader">${containerSubheader}</p>`)
-				);
-			} else {
-				return (
-					(infoItemContent[4].style.display = `none`),
-					(infoItemHeader[4].innerHTML = ``)
 				);
 			}
 		};

@@ -21,23 +21,23 @@
   <body>
     <main>
       <div id="viewDiv" style = "float: left;">
-        <div id = "homeContainer" style="width: 2rem; height:2rem; background:rgb(255, 255, 255); color: rgb(17, 54, 81); margin-left: 2.8rem; margin-top: -2.7rem;"> </div>
-        <div id= "searchContainer"></div>
-        <div id = "top-right-container "></div>
+        <!-- <div id = "homeContainer" style="width: 2rem; height:2rem; background:rgb(255, 255, 255); color: rgb(17, 54, 81); margin-left: 2.8rem; margin-top: -2.7rem;"> </div>
+        <div id= "searchContainer"></div> -->
+        <div class = "top-right-container"></div>
         
         <div class="loader is-active padding-leader-3 padding-trailer-3" style = "display: inital; position: absolute; top: 35%; left: 27%;" >
           <div class="loader-bars"></div>
           <div class="loader-text">Loading...</div>
         </div>
         
-        <div id="layerListContainer">
-        <div id = "layer-List-Container-background" style = "margin: auto 0; background: none;">
-          <div id="layers" class="animate-in-up js-animation" style = "display: none;"> 
+        <div id="layerListContainer" class="animate-in-up animate-fade-out js-animation">
+        <div class = "layer-List-Container-background" >
+          <div id="layers" class="animate-in-up animate-fade-out js-animation" style = "display: none;"> 
             <ul class="animate-in-up js-animation" style = "margin-left: 5px;">
               <label style = "padding-top: 10px;" class = "checkbox-container">
                 <input class="layer-checkbox" type="checkbox" id="fire-points" checked="checked">
                 <span class="checkmark" style = "margin-top: 10px;"></span>
-                Assigned personnel
+                Assigned fire personnel
               </label>
               <div id="fire-points-legend" style="display:initial; margin-bottom: 10px;">
                 <div class="legend-spacing" style="margin-bottom: 30px; margin-left: -10px;">
@@ -97,7 +97,6 @@
                 </div>
                 <span class="legend-bar-img-text">&lt 24 hr</span><span>&gt 72 hr</span>
               </div>
-
               <label class = "checkbox-container tooltip-multiline modifier-class"
               aria-label="Zoom out to enable.">
                 <input class="auto-checkbox layer-checkbox" id="AQI-today" type="checkbox">
@@ -234,6 +233,7 @@
                   </div>
                 </div>
             </ul>
+            <div class="layer-list-footer"></div>
           </div>
           <button class="btn modifier-class btn-fill" id = "layer-list-button"
             tab-index="2" aria-haspopup="false" aria-expanded="false">
@@ -358,6 +358,7 @@
                       <div id="english-pop-percentage"></div>
                       <div id="vehicle-pop-percentage"></div>
                     </div>
+                  </div>
                   </div>
 
                 <div class="item-container">
@@ -574,7 +575,7 @@
   <script type = "text/javascript" src="main.js"></script>
   <!-- for production -->
   <!-- NOTE: MAKE SURE YOU CHANGE THE VERSION NUMBER WHEN EVERY THE MIN FILE IS CHANGED -->
-  <!-- CHANGE TO v=0.05 when ready for next push. Last change 11/09-->
-  <!-- <script type = "text/javascript" src="main.min.js?v=0.04"></script> -->
+  <!-- CHANGE TO v=0.06 when ready for next push. Last change 03/28-->
+  <!-- <script type = "text/javascript" src="main.min.js?v=0.05"></script> -->
 
 </html>
