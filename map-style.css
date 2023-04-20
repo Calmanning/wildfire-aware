@@ -347,13 +347,16 @@ overflow:visible;
 
 .esri-component .esri-button, .esri-elevation-profile__header button {
 background-color: #FFFFFF;
-border-color: rgba(17, 49, 73, 1);
+border-color: rgba(17, 49, 73, 0);
 color: black;
-transition: background-color 125ms ease-in-out,border 125ms ease-in-out;
+font-weight:bolder;
+font-size: 0.9375rem
+/* transition: background-color 125ms ease-in-out,border 125ms ease-in-out; */
 }
 
 .esri-component .esri-button:hover, .esri-elevation-profile__header button:hover {
 background-color: rgba(17, 49, 73, 1);
+border-color: rgba(17, 49, 73, 0);
 color: #ffffff;
 /* transition: background-color 125ms ease-in-out,border 125ms ease-in-out; */
 }
@@ -372,13 +375,18 @@ color: #ffffff;
 
 #layer-list-button {
   background: #FFFFFF;
-  border: 1px solid rgba(17, 49, 73, 1);
+  border: 1px solid rgba(17, 49, 73, 0);
   color: #14273d;
   width: 160px;
   margin-left: 20px;
   margin-bottom: 17px;
   font-weight:bolder;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+#layer-list-button:hover {
+  color: #FFFFFF;
+  background: #14273d;
 }
 
 .no-background {
@@ -458,6 +466,14 @@ color: #ffffff;
   font-weight: bold;
   color: #ffba1f;
   display: inline;
+}
+
+.stick {
+  position: sticky;
+  top: 0px;
+  background:rgba(17, 49, 73, 1);
+  margin: 0 -17px;
+  padding: 0px 20px;
 }
 
 /* #people-container {

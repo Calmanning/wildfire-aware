@@ -140,13 +140,13 @@ require([
 		},
 	});
 
-	const tileInfo = TileInfo.create({
-		spatialReference: {
-			wkid: 102100,
-		},
-		numLODs: 32,
-	});
-	const lods = tileInfo.lods;
+	// const tileInfo = TileInfo.create({
+	// 	spatialReference: {
+	// 		wkid: 102100,
+	// 	},
+	// 	numLODs: 32,
+	// });
+	// const lods = tileInfo.lods;
 
 	const graphicsLayer = new GraphicsLayer({
 		graphics: [],
@@ -159,11 +159,11 @@ require([
 		})
 		.then(() => {
 			mapView.map = webmap;
-			mapView.constraints = {
-				lods: lods,
-				rotationEnabled: false,
-				snapToZoom: true,
-			};
+			// mapView.constraints = {
+			// 	lods: lods,
+			// 	rotationEnabled: false,
+			// 	snapToZoom: true,
+			// };
 			document.querySelector('.loader').classList.remove('is-active');
 		})
 		.catch((error) => {
@@ -227,6 +227,7 @@ require([
 		unitOptions: ['miles', 'yards', 'feet'],
 	});
 
+	const measureBtnText = `MEASURE`;
 	const newDistanceHelpText = `
 		Click the map to start measuring.
 		Press 'Z' to undo.\n
@@ -316,7 +317,14 @@ require([
 				mapView.ui.add(scaleBar, { position: 'bottom-right' });
 				webmap.add(graphicsLayer);
 
+				distanceMeasure.messages.newMeasurement = measureBtnText;
 				distanceMeasure.messages.hint = newDistanceHelpText;
+				distanceMeasure.viewModel.palette.pathPrimaryColor = [
+					255, 186, 31, 255,
+				];
+				distanceMeasure.viewModel.palette.pathSecondaryColor = [
+					17, 49, 73, 255,
+				];
 			})
 			.then(() => {
 				//setting up view -- if url-information is relevant have the view reflect that information, otherwise set center on continental US.
@@ -942,16 +950,18 @@ require([
 				}
 			}
 
-			// if (!(mapView.zoom >= 7)) {
-			// 	disableMapLayer(satelliteHotspotsCheckbox);
-			// 	satelliteHotspotsLayer.visible = satelliteHotspotsCheckbox.checked;
-			// 	satelliteHotSpotLegend.style.display = 'none';
-			// } else {
-			// 	enableMapLayer(satelliteHotspotsCheckbox);
-			// 	satelliteHotspotsLayer.visible = true;
-			// 	satelliteHotspotsCheckbox.checked = true;
-			// 	satelliteHotSpotLegend.style.display = 'initial';
-			// }
+			if (mapView.zoom <= 10) {
+				console.log('hotspots');
+				disableMapLayer(satelliteHotspotsCheckbox);
+				satelliteHotspotsLayer.visible = false;
+				satelliteHotspotsCheckbox.checked = false;
+				satelliteHotSpotLegend.style.display = 'none';
+			} else {
+				enableMapLayer(satelliteHotspotsCheckbox);
+				satelliteHotspotsLayer.visible = true;
+				satelliteHotspotsCheckbox.checked = true;
+				satelliteHotSpotLegend.style.display = 'initial';
+			}
 
 			if (!(mapView.zoom >= 0 && mapView.zoom <= 11)) {
 				disableMapLayer(burnedAreasCheckbox);
@@ -2243,10 +2253,14 @@ require([
 									100
 						).toFixed(1),
 					};
+
 					const weightedMedianHomeValue = Math.round(
 						aggregatedPopulationBlockObject.WeightedMedianHomeValue /
 							aggregatedPopulationBlockObject.H0010001
 					);
+					console.log(aggregatedPopulationBlockObject.WeightedMedianHomeValue);
+					console.log(aggregatedPopulationBlockObject.H0010001);
+					console.log(weightedMedianHomeValue);
 
 					const radiusHousingData = {
 						TotalHousingUnits: aggregatedPopulationBlockObject.H0010001
@@ -2803,7 +2817,8 @@ require([
 				.append('svg')
 				.attr('class', 'bar')
 				.attr('id', 'containment-bar')
-				.style('margin', '6px 5px 0')
+				.style('margin', '0px -14px 0')
+				.style('padding', '6px 10px 0px')
 				.attr('width', '100%')
 				.attr('height', '85%')
 				.attr('viewBox', `0 0 181 40`)
@@ -3421,7 +3436,7 @@ require([
 		perimeterPopulation,
 	}) => {
 		const containerSubheader = totalRadiusPopulation
-			? 'Within circle (2 Mi radius)'
+			? 'Within circle (2 mile radius)'
 			: 'Within fire Perimeter';
 
 		const poepleContentHeader =
@@ -3474,7 +3489,7 @@ require([
 
 	const housingInfoRender = ({ radiusHousingData, perimeterHousingData }) => {
 		const containerSubheader = radiusHousingData
-			? 'Within circle (2 Mi radius)'
+			? 'Within circle (2 mile radius)'
 			: 'Within fire Perimeter';
 
 		const poepleContentHeader =
@@ -3508,7 +3523,7 @@ require([
 
 	const habitatInfoRender = ({ aggregateEcoObj, perimeterEcology }) => {
 		const containerSubheader = aggregateEcoObj
-			? 'Within circle (2 Mi radius)'
+			? 'Within circle (2 mile radius)'
 			: 'Within fire Perimeter';
 
 		const habitatContentControl = ({ ecoObject }) => {
