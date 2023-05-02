@@ -285,18 +285,20 @@ img {
   /* width: 31%; */
 }
 
-/* #viewDiv .esri-scale-bar__line--bottom {
-  top: -1px;
-  border-top: 1px solid #ffffff;
-  background-color: rgb(17, 54, 81);
-  outline: 6px solid rgb(17, 54, 81);
+#viewDiv .esri-scale-bar__line--bottom {
+  top: -7px;
+  border-top: 1px solid #0a0a0a;
+  background-color: rgb(255, 255, 255);
+  outline: 7px solid rgb(255, 255, 255);
 }
 
 #viewDiv .esri-scale-bar__label{
   font-size: inherit;
-  color: #ffffff;
+  color: #0a0a0a;
   white-space: nowrap;
+  margin: -4px 0;
   padding: 0 7px;
+  font-size: 1rem;
   font-weight: bold;
 }
 
@@ -305,10 +307,10 @@ img {
     display: block;
     width: 1px;
     height: 1.5em;
-    background-color: rgb(17, 54, 81);
+    background-color: rgb(255, 255, 255);
     position: absolute;
     top: -1px;
-    border-right: 1px solid #ffffff;
+    border-right: 1px solid #0a0a0a;
 }
 
 #viewDiv .esri-scale-bar__line--bottom:after{
@@ -316,11 +318,11 @@ img {
     display: block;
     width: 1px;
     height: 1.5em;
-    background-color: rgb(17, 54, 81);
+    background-color: rgb(255, 255, 255);
     position: absolute;
     top: -1px;
-    border-right: 1px solid #ffffff;
-} */
+    border-right: 1px solid #0a0a0a;
+} 
 
 .top-right-container {
   position:absolute;
@@ -338,6 +340,12 @@ overflow:visible;
   padding: 0;
   overflow:hidden;
   width: 11rem;
+  background: rgb(17, 49, 73);
+  color: #ffffff;
+}
+
+.esri-component .esri-distance-measurement-2d__container section{
+  background: rgb(17, 49, 73);
 }
 
 .esri-component .esri-distance-measurement-2d__actions {
@@ -355,9 +363,9 @@ font-size: 0.9375rem
 }
 
 .esri-component .esri-button:hover, .esri-elevation-profile__header button:hover {
-background-color: rgba(17, 49, 73, 1);
+background-color: rgba(255, 186, 31, 1);
 border-color: rgba(17, 49, 73, 0);
-color: #ffffff;
+color: #113651;
 /* transition: background-color 125ms ease-in-out,border 125ms ease-in-out; */
 }
 
@@ -384,9 +392,14 @@ color: #ffffff;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-#layer-list-button:hover {
-  color: #FFFFFF;
-  background: #14273d;
+#layer-list-button.btn:hover {
+  color: #113651;
+  background: #FFBA1F;
+}
+
+#layer-list-button.btn.open-list:hover {
+  color: #113651;
+  background: #FFBA1F;
 }
 
 .no-background {

@@ -319,12 +319,12 @@ require([
 
 				distanceMeasure.messages.newMeasurement = measureBtnText;
 				distanceMeasure.messages.hint = newDistanceHelpText;
-				distanceMeasure.viewModel.palette.pathPrimaryColor = [
-					255, 186, 31, 255,
-				];
+				distanceMeasure.viewModel.palette.pathPrimaryColor = [17, 49, 43, 255];
 				distanceMeasure.viewModel.palette.pathSecondaryColor = [
-					17, 49, 73, 255,
+					255, 255, 255, 255,
+					// 255, 186, 31, 255,
 				];
+				distanceMeasure.viewModel.palette.handleColor = [255, 255, 255, 255];
 			})
 			.then(() => {
 				//setting up view -- if url-information is relevant have the view reflect that information, otherwise set center on continental US.
@@ -349,7 +349,8 @@ require([
 		layerList.style.display === 'none'
 			? ((layerList.style.display = 'initial'),
 			  layerListBackground.classList.add('blue-background'),
-			  changelayerListButtonText())
+			  changelayerListButtonText(),
+			  setLayerListBtnColor())
 			: resetLayerList();
 	};
 
@@ -357,6 +358,17 @@ require([
 		layerList.style.display === 'none'
 			? (layerListBtn.innerText = 'MAP LAYERS')
 			: (layerListBtn.innerText = 'CLOSE');
+	};
+
+	const setLayerListBtnColor = () => {
+		if (!layerListBtn.classList.contains('open-list')) {
+			console.log('bottuncolor');
+			console.log(layerListBtn.classList);
+			layerListBtn.classList.add('open-list');
+		} else {
+			console.log('buttonremovesomething');
+			layerListBtn.classList.remove('open-list');
+		}
 	};
 
 	const closeLayerList = () => {
@@ -552,6 +564,7 @@ require([
 
 	const resetLayerList = () => {
 		closeLayerList();
+		setLayerListBtnColor();
 	};
 
 	//SETTING THE CENTER OF MAP VIEW ON PAGE LOAD. NOTE: is there a better placement in the code for this function?
@@ -559,7 +572,7 @@ require([
 		if (window.screen.width <= 820) {
 			return mapView.goTo(
 				{
-					zoom: 5,
+					zoom: 6,
 					center: [255, 39],
 					spatialReference: {
 						wkid: 102100,
@@ -570,8 +583,8 @@ require([
 		} else {
 			return mapView.goTo(
 				{
-					zoom: 4,
-					center: [245, 48],
+					zoom: 5,
+					center: [262, 40],
 					spatialReference: {
 						wkid: 102100,
 					},
