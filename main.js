@@ -38,7 +38,7 @@ require([
 		ENV === 'livingatlasdev.arcgis.com'
 			? //DEVELOPMENT ENVIRONMENT
 			  {
-					webmapID: 'd4ec5d878d00465cb884a6c610aa5442',
+					webmapID: '068b64e0e1b740e385fa746758b03750',
 					queryURLs: {
 						aggregatePerimeterURL:
 							'https://services.arcgis.com/jIL9msH9OI208GCb/arcgis/rest/services/Wildfire_aggregated_v1/FeatureServer/1/query',
@@ -46,13 +46,15 @@ require([
 			  }
 			: //PRODUCTION ENIRONMENT
 			  {
-					webmapID: '068b64e0e1b740e385fa746758b03750',
+					webmapID: 'd4ec5d878d00465cb884a6c610aa5442',
 					queryURLs: {
 						aggregatePerimeterURL:
 							'https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/Wildfire_aggregated_v1/FeatureServer/1/query',
 					},
 			  };
 
+	// console.log(ENV);
+	console.log(config);
 	//WebmapID
 	const webmapID = config.webmapID;
 	//Query URLs
@@ -234,7 +236,6 @@ require([
 		Press 'esc' key when finished.
     `;
 
-	console.log(distanceMeasure);
 	const resetURLParams = () => {
 		window.location.hash = '';
 	};
@@ -362,11 +363,8 @@ require([
 
 	const setLayerListBtnColor = () => {
 		if (!layerListBtn.classList.contains('open-list')) {
-			console.log('bottuncolor');
-			console.log(layerListBtn.classList);
 			layerListBtn.classList.add('open-list');
 		} else {
-			console.log('buttonremovesomething');
 			layerListBtn.classList.remove('open-list');
 		}
 	};
@@ -911,15 +909,6 @@ require([
 		}
 	);
 
-	// reactiveUtils.when(
-	// 	() => distanceMeasure.active === true,
-	// 	() => {
-	// 		console.log('measure active');
-	// 		console.log(mapView);
-	// 		mapClickEvent.remove();
-	// 	}
-	// );
-
 	reactiveUtils.watch(
 		() => mapView?.zoom,
 		async () => {
@@ -964,7 +953,6 @@ require([
 			}
 
 			if (mapView.zoom <= 10) {
-				console.log('hotspots');
 				disableMapLayer(satelliteHotspotsCheckbox);
 				satelliteHotspotsLayer.visible = false;
 				satelliteHotspotsCheckbox.checked = false;
@@ -1064,14 +1052,11 @@ require([
 	// let mapClickEvent;
 
 	let mapClickEvent = () => {
-		console.log(distanceMeasure);
-
 		mapView.on('click', async (event) => {
 			if (distanceMeasure.active) {
-				console.log(distanceMeasure);
 				return;
 			}
-			console.log('mapclicked');
+
 			const mapPoint = JSON.stringify(event.mapPoint);
 
 			if ((await mapPointLocationCheck({ mapPoint })) === false) {
@@ -1499,7 +1484,7 @@ require([
 					response.data.features[0].attributes.IncidentTypeCategory !== 'WF'
 						? response.data.features[0].attributes.IncidentTypeCategory !== 'RX'
 							? 'INCIDENT COMPLEX'
-							: 'PERSCRIPTTION BURN'
+							: 'PERSCRIPTION BURN'
 						: 'WILDFIRE';
 
 				const mapPoint = new Point({
@@ -1582,7 +1567,7 @@ require([
 				params,
 			})
 			.then((response) => {
-				console.log(response);
+				// console.log('perimeter response', response);
 				const consolidatedFirePerimeterData = response.data.fields
 					? response.data.features[0].attributes
 					: false;
@@ -1643,10 +1628,12 @@ require([
 									100
 						).toFixed(1),
 					};
-					const perimeterWeightedMedianHousing = Math.round(
-						consolidatedFirePerimeterData.sum_weightedmedianhomevalue /
-							consolidatedFirePerimeterData.sum_h0010001
-					);
+					const perimeterWeightedMedianHousing =
+						consolidatedFirePerimeterData.sum_weightedmedianhomevalue;
+					// Math.round(
+					// 	consolidatedFirePerimeterData.sum_weightedmedianhomevalue /
+					// 		consolidatedFirePerimeterData.sum_h0010001
+					// );
 
 					const perimeterHousingData = {
 						TotalHousingUnits: consolidatedFirePerimeterData.sum_h0010001
@@ -1795,7 +1782,6 @@ require([
 						consolidatedWHPClass['Very Low'] =
 							consolidatedWHPClass['Very Low'] /
 								consolidatedFirePerimeterData.Hex_Count || 0;
-						console.log(consolidatedWHPClass);
 						formatWildfireRiskData({ consolidatedWHPClass });
 					} catch (error) {
 						console.error(error);
@@ -2209,6 +2195,8 @@ require([
 			})
 			.then((response) => {
 				if (response.data.features) {
+					// console.log(response);
+					// console.log('fire point incident response', response.data.features);
 					const aggregatedPopulationBlockObject = response.data.features.reduce(
 						(a, b) => {
 							Object.keys(b.attributes).forEach((key) => {
@@ -2269,11 +2257,11 @@ require([
 
 					const weightedMedianHomeValue = Math.round(
 						aggregatedPopulationBlockObject.WeightedMedianHomeValue /
-							aggregatedPopulationBlockObject.H0010001
+							aggregatedPopulationBlockObject.P0010001
 					);
-					console.log(aggregatedPopulationBlockObject.WeightedMedianHomeValue);
-					console.log(aggregatedPopulationBlockObject.H0010001);
-					console.log(weightedMedianHomeValue);
+					// console.log(aggregatedPopulationBlockObject.WeightedMedianHomeValue);
+					// console.log(aggregatedPopulationBlockObject.H0010001);
+					// console.log(weightedMedianHomeValue);
 
 					const radiusHousingData = {
 						TotalHousingUnits: aggregatedPopulationBlockObject.H0010001
