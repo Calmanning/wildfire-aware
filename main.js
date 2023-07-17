@@ -4,7 +4,6 @@ require([
 	'esri/views/MapView',
 	'esri/widgets/Search',
 	'esri/widgets/Home',
-	'esri/widgets/ScaleBar',
 	'esri/widgets/DistanceMeasurement2D',
 	'esri/Graphic',
 	'esri/symbols/SimpleLineSymbol',
@@ -19,7 +18,6 @@ require([
 	MapView,
 	Search,
 	Home,
-	ScaleBar,
 	DistanceMeasurement2D,
 	Graphic,
 	SimpleLineSymbol,
@@ -35,13 +33,15 @@ require([
 	//Enivronment
 	const ENV = window.location.host;
 	const config =
-		ENV === 'livingatlasdev.arcgis.com'
+		ENV === 'livingatlasdev.arcgis.com' || 'localhost'
 			? //DEVELOPMENT ENVIRONMENT
 			  {
 					webmapID: '068b64e0e1b740e385fa746758b03750',
 					queryURLs: {
 						aggregatePerimeterURL:
 							'https://services.arcgis.com/jIL9msH9OI208GCb/arcgis/rest/services/Wildfire_aggregated_v1/FeatureServer/1/query',
+						populatedBlockCentroidsURL:
+							'https://services.arcgis.com/jIL9msH9OI208GCb/ArcGIS/rest/services/Populated_Blocks_2023/FeatureServer/2/query',
 					},
 			  }
 			: //PRODUCTION ENIRONMENT
@@ -50,15 +50,19 @@ require([
 					queryURLs: {
 						aggregatePerimeterURL:
 							'https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/Wildfire_aggregated_v1/FeatureServer/1/query',
+						populatedBlockCentroidsURL:
+							'https://services.arcgis.com/jIL9msH9OI208GCb/ArcGIS/rest/services/Populated_Block_Centroids_2020_v3/FeatureServer/1/query',
 					},
 			  };
 
-	// console.log(ENV);
+	console.log(ENV);
 	console.log(config);
 	//WebmapID
 	const webmapID = config.webmapID;
 	//Query URLs
 	const aggregatePerimeterURL = config.queryURLs.aggregatePerimeterURL;
+	const populatedBlockCentroidsURL =
+		config.queryURLs.populatedBlockCentroidsURL;
 
 	//DOM VARIABLES
 	const viewURL = new URL(window.location.href);
@@ -74,6 +78,10 @@ require([
 	const infoItemHeader = document.getElementsByClassName('item-header');
 	const infoItemContent = document.getElementsByClassName('item-content');
 	const fireListItem = document.getElementsByClassName('fire-item');
+
+	//distance measure widget
+	let distanceMeasure;
+	let isMeasureActive = false;
 
 	//FireList variables
 	const dateSortedList = [];
@@ -220,21 +228,22 @@ require([
 		);
 	};
 
-	const scaleBar = new ScaleBar({
-		view: mapView,
-	});
+	// const distanceMeasure = new DistanceMeasurement2D({
+	// 	view: mapView,
+	// 	container: 'distanceMeasurementBtn',
+	// 	unitOptions: ['miles', 'yards', 'feet'],
+	// });
 
-	const distanceMeasure = new DistanceMeasurement2D({
-		view: mapView,
-		unitOptions: ['miles', 'yards', 'feet'],
-	});
-
-	const measureBtnText = `MEASURE`;
-	const newDistanceHelpText = `
-		Click the map to start measuring.
-		Press 'Z' to undo.\n
-		Press 'esc' key when finished.
-    `;
+	// const measureBtnText = `MEASURE`;
+	// const hintText = `
+	// Click on the map to start measuring
+	// `;
+	// const newMessageText = {
+	// 	messages: {
+	// 		newMeasurement: measureBtnText,
+	// 		hint: hintText,
+	// 	},
+	// };
 
 	const resetURLParams = () => {
 		window.location.hash = '';
@@ -314,18 +323,22 @@ require([
 				mapView.ui.add(searchWidget, 'top-right');
 				mapView.ui.move('zoom', { position: 'top-right' });
 				mapView.ui.add(homeWidget, 'top-right');
-				mapView.ui.add(distanceMeasure, { position: 'bottom-right' });
-				mapView.ui.add(scaleBar, { position: 'bottom-right' });
+				//you've been using this for reference: https://developers.arcgis.com/javascript/latest/sample-code/sandbox/?sample=widgets-measurement-2d
+				mapView.ui.add('distanceMeasurementBtn', { position: 'bottom-right' });
+				mapView.ui.add(measurementWrapper, { position: 'bottom-right' });
 				webmap.add(graphicsLayer);
 
-				distanceMeasure.messages.newMeasurement = measureBtnText;
-				distanceMeasure.messages.hint = newDistanceHelpText;
-				distanceMeasure.viewModel.palette.pathPrimaryColor = [17, 49, 43, 255];
-				distanceMeasure.viewModel.palette.pathSecondaryColor = [
-					255, 255, 255, 255,
-					// 255, 186, 31, 255,
-				];
-				distanceMeasure.viewModel.palette.handleColor = [255, 255, 255, 255];
+				// mapView.ui.add(measurementWrapper, { position: 'bottom-right' });
+				// distanceMeasure.set(newMessageText);
+
+				// distanceMeasure.messages.newMeasurement = measureBtnText;
+				// distanceMeasure.messages.hint = hintText;
+				// distanceMeasure.viewModel.palette.pathPrimaryColor = [17, 49, 43, 255]; //[255, 0, 0, 255]
+				// distanceMeasure.viewModel.palette.pathSecondaryColor = [
+				// 	255, 255, 255, 255,
+				// 	// 255, 186, 31, 255,
+				// ];
+				// distanceMeasure.viewModel.palette.handleColor = [255, 255, 255, 255];
 			})
 			.then(() => {
 				//setting up view -- if url-information is relevant have the view reflect that information, otherwise set center on continental US.
@@ -952,7 +965,7 @@ require([
 				}
 			}
 
-			if (mapView.zoom <= 10) {
+			if (mapView.zoom <= 7) {
 				disableMapLayer(satelliteHotspotsCheckbox);
 				satelliteHotspotsLayer.visible = false;
 				satelliteHotspotsCheckbox.checked = false;
@@ -1051,9 +1064,82 @@ require([
 	window.addEventListener('resize', sizeReport, false);
 	// let mapClickEvent;
 
+	//you've been using this for reference: https://developers.arcgis.com/javascript/latest/sample-code/sandbox/?sample=widgets-measurement-2d
+	//this too: https://developers.arcgis.com/javascript/latest/api-reference/esri-widgets-DistanceMeasurement2D.html#constructors-summary
+	document
+		.querySelector('#distanceMeasurementBtn')
+		.addEventListener('click', (event) => {
+			if (!isMeasureActive) {
+				event.target.closest('#distanceMeasurementBtn').classList.add('active');
+				const widgetContainer = document.createElement('div');
+				widgetContainer.setAttribute('id', 'measureWidget');
+				document
+					.querySelector('#measurementWrapper')
+					.appendChild(widgetContainer);
+
+				distanceMeasure = new DistanceMeasurement2D({
+					view: mapView,
+					container: 'measureWidget',
+					unitOptions: ['miles', 'yards', 'feet'],
+					messages: {
+						newMeasurement: `MEASURE`,
+					},
+				});
+
+				const measureBtnText = `MEASURE`;
+				const hintText = `
+        Click on the map to start measuring
+        `;
+
+				const newMessageText = {
+					messages: {
+						newMeasurement: measureBtnText,
+						hint: hintText,
+					},
+				};
+
+				distanceMeasure.when(() => {
+					distanceMeasure.messages.newMeasurement = measureBtnText;
+					distanceMeasure.messages.hint = hintText;
+					distanceMeasure.set(newMessageText);
+				});
+
+				mapView.ui.add(measureWidget, { position: 'bottom-right' });
+
+				distanceMeasure.viewModel.palette.pathPrimaryColor = [17, 49, 43, 255]; //[255, 0, 0, 255]
+				distanceMeasure.viewModel.palette.pathSecondaryColor = [
+					255, 255, 255, 255,
+					// 255, 186, 31, 255,
+				];
+				distanceMeasure.viewModel.palette.handleColor = [255, 255, 255, 255];
+
+				distanceMeasure.viewModel.start();
+
+				console.log(distanceMeasure.messages);
+				isMeasureActive = true;
+				console.log(isMeasureActive);
+			} else {
+				event.target
+					.closest('#distanceMeasurementBtn')
+					.classList.remove('active');
+				mapView.ui.remove(distanceMeasure);
+				distanceMeasure.destroy();
+				// document
+				// 	.querySelector('#distanceMeasureText')
+				// 	.classList.add('invisible');
+				isMeasureActive = false;
+				console.log(isMeasureActive);
+				console.log(distanceMeasure);
+			}
+		});
+
 	let mapClickEvent = () => {
 		mapView.on('click', async (event) => {
-			if (distanceMeasure.active) {
+			if (isMeasureActive) {
+				// document
+				// 	.querySelector('#distanceMeasureText')
+				// 	.classList.remove('invisible');
+				// console.log(distanceMeasure);
 				return;
 			}
 
@@ -2157,9 +2243,6 @@ require([
 	};
 
 	const censusBlockCentroidQuery = ({ mapPoint, fireInformation }) => {
-		const url =
-			'https://services.arcgis.com/jIL9msH9OI208GCb/ArcGIS/rest/services/Populated_Block_Centroids_2020_v3/FeatureServer/1/query';
-
 		const params = {
 			where: '1=1',
 			geometry: fireInformation
@@ -2182,7 +2265,7 @@ require([
 				'EstPopNoEnglish',
 				'EstPopWith0Vehicles',
 				'H0010001',
-				'WeightedMedianHomeValue',
+				'MedHomeValueWeighted',
 			].join(','),
 			returnGeometry: true,
 			returnQueryGeometry: true,
@@ -2190,12 +2273,12 @@ require([
 		};
 
 		axios
-			.get(url, {
+			.get(populatedBlockCentroidsURL, {
 				params,
 			})
 			.then((response) => {
+				console.log(response);
 				if (response.data.features) {
-					// console.log(response);
 					// console.log('fire point incident response', response.data.features);
 					const aggregatedPopulationBlockObject = response.data.features.reduce(
 						(a, b) => {

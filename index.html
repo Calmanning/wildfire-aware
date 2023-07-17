@@ -30,6 +30,29 @@
           <div class="loader-text">Loading...</div>
         </div>
         
+        <div>
+          <button
+        class="measure-button"
+        id="distanceMeasurementBtn"
+        type="button"
+        title="Measure distance between two or more points"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24"><path d="M1 20h22v-8H1zm1-7h20v6h-1v-3h-1v3h-1v-2h-1v2h-1v-5h-1v5h-1v-2h-1v2h-1v-3h-1v3h-1v-2h-1v2H9v-5H8v5H7v-2H6v2H5v-3H4v3H2zm18-9v1H4V4H1v3h3V6h16v1h3V4zM3 6H2V5h1zm19 0h-1V5h1z"></path></svg>
+          </button>
+        </div>
+        
+        <div id="measurementWrapper">
+          
+          <div id="distanceMeasureText" class="invisible">
+            <span>START</span> - Click </br>
+            <span>FINISH</span> - Double-click </br>
+            <span>UNDO</span> - Z </br>
+            <span>CLEAR</span> - Esc
+          </div>
+          
+          
+        </div>
+
         <div id="layerListContainer" class="animate-in-up animate-fade-out js-animation">
         <div class = "layer-List-Container-background" >
           <div id="layers" class="animate-in-up animate-fade-out js-animation" style = "display: none;"> 
@@ -548,6 +571,9 @@
               Nature Serve – <a class="link" href="https://www.arcgis.com/home/item.html?id=6e90cefddb634e6a949838e7efff55fb" target="_blank">Imperiled Species</a></br>
               Esri – <a class="link" href="https://doc.arcgis.com/en/esri-demographics/latest/regional-data/updated-demographics.htm" target="_blank">2022 Demographics</a> and <a class="link" href="https://www.arcgis.com/home/item.html?id=cd817a746aa7437cbd72a6d39cdb4559" target="_blank">World Ecological Landforms</a>
             <br>
+            <br>
+              * Reflects the potential population and housing at risk within the search parameters.   
+            <br>
             <p>
             This app is provided for informational purposes and is not monitored 24/7 for accuracy and currency and is licensed
             under the Esri Master License Agreement.
@@ -573,13 +599,13 @@
   <script src="./Libraries/axios1.13.min.js"></script>
   <!-- <script type="module" src="./Libraries/axios-1.1.3/index.js"></script> -->
   
-  <script src="https://js.arcgis.com/4.23/"></script>
+  <script src="https://js.arcgis.com/4.24/"></script>
   
   <!-- for development -->
   <script type = "text/javascript" src="main.js"></script>
   <!-- for production -->
   <!-- NOTE: MAKE SURE YOU CHANGE THE VERSION NUMBER WHEN EVERY THE MIN FILE IS CHANGED -->
-  <!-- CHANGE TO v=0.10 when ready for next push. Last change 05/17-->
-  <!-- <script type = "text/javascript" src="main.min.js?v=0.09"></script> -->
+  <!-- CHANGE TO v=0.11 when ready for next push. Last change 05/25-->
+  <!-- <script type = "text/javascript" src="main.min.js?v=0.10"></script> -->
 
 </html>

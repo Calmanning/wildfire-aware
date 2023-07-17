@@ -32,12 +32,19 @@ img {
   object-fit: cover;
 }
 
+.hidden{
+  visibility: hidden;
+}
 .invisible {
   display: none;
 }
 
 .link {
   color: #ffba1f;
+}
+
+.active {
+  background-color: #ffba1f;
 }
 
 .underline {
@@ -330,7 +337,52 @@ img {
 }
 
 /* MEASURE WIDGET */
-div.esri-ui-bottom-right.esri-ui-corner .esri-component.esri-distance-measurement-2d.esri-widget.esri-widget--panel {
+.measure-button {
+  
+    font-size: 16px;
+    border: 1px solid transparent;
+    color: #6e6e6e;
+    height: 32px;
+    width: 32px;
+    text-align: center;
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.3);
+}
+
+.measure-button:hover {
+  background-color: #ffba1f;
+}
+
+.esri-ui-bottom-right.esri-ui-corner #measureWidget {
+  width: 176px;
+  position: absolute;
+  right: 45px;
+  /* bottom: -0.4rem */
+}
+
+.esri-ui-bottom-right.esri-ui-corner #distanceMeasureText{
+  /* width: 175px; */
+  background: rgb(17, 49, 73);
+  padding: 10px 15px 0px;
+  margin: 0 0 -6px 0;
+}
+
+.esri-ui-bottom-right.esri-ui-corner .esri-distance-measurement-2d__hint-text{
+  /* color: #ffba1f; */
+  padding: 0 10px;
+  text-align: left;
+}
+
+.esri-ui-bottom-right.esri-ui-corner #distanceMeasureText span{
+  font-weight: 900;
+  color: #ffBA1f;
+}
+
+.esri-ui-bottom-right.esri-ui-corner .esri-component .esri-distance-measurement-2d__container .esri-distance-measurement-2d__measurement-item-value span{
+  color: #ffba1f;
+
+}
+
+#distanceMeasurementContainer {
 width: 175px;
 overflow:visible;
 }
@@ -346,6 +398,11 @@ overflow:visible;
 
 .esri-component .esri-distance-measurement-2d__container section{
   background: rgb(17, 49, 73);
+}
+
+.esri-component .esri-distance-measurement-2d__container span{
+  font-size: 1.15rem;
+    margin: 0 auto;
 }
 
 .esri-component .esri-distance-measurement-2d__actions {
