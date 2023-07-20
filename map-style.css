@@ -56,6 +56,12 @@ img {
     cursor: default;
 }
 
+.closeBtn{
+  background-color: #113149;
+  fill: #efefef;
+  text-align: right;
+}
+
 .sortClass{
   font-size: 20px;
   padding-right: 2rem;
@@ -341,7 +347,7 @@ img {
   
     font-size: 16px;
     border: 1px solid transparent;
-    color: #6e6e6e;
+    background-color: #ffffff;
     height: 32px;
     width: 32px;
     text-align: center;
@@ -352,7 +358,8 @@ img {
   background-color: #ffba1f;
 }
 
-.esri-ui-bottom-right.esri-ui-corner #measureWidget {
+/* .esri-ui-bottom-right.esri-ui-corner #measureWidget { */
+.esri-ui-bottom-right.esri-ui-corner #measurementWrapper {
   width: 176px;
   position: absolute;
   right: 45px;

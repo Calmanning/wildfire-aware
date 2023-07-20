@@ -80,7 +80,7 @@ require([
 	const fireListItem = document.getElementsByClassName('fire-item');
 
 	//distance measure widget
-	let distanceMeasure;
+	// let distanceMeasure;
 	let isMeasureActive = false;
 
 	//FireList variables
@@ -228,22 +228,23 @@ require([
 		);
 	};
 
-	// const distanceMeasure = new DistanceMeasurement2D({
-	// 	view: mapView,
-	// 	container: 'distanceMeasurementBtn',
-	// 	unitOptions: ['miles', 'yards', 'feet'],
-	// });
+	const distanceMeasure = new DistanceMeasurement2D({
+		view: mapView,
+		// container: 'measurementWrapper',
+		unitOptions: ['miles', 'kilometers', 'meters', 'feet'],
+	});
 
-	// const measureBtnText = `MEASURE`;
-	// const hintText = `
-	// Click on the map to start measuring
-	// `;
-	// const newMessageText = {
-	// 	messages: {
-	// 		newMeasurement: measureBtnText,
-	// 		hint: hintText,
-	// 	},
-	// };
+	const measureBtnText = `MEASURE`;
+	const hintText = `
+	Click on the map to start measuring
+	`;
+
+	const newMessageText = {
+		messages: {
+			newMeasurement: measureBtnText,
+			hint: hintText,
+		},
+	};
 
 	const resetURLParams = () => {
 		window.location.hash = '';
@@ -324,21 +325,30 @@ require([
 				mapView.ui.move('zoom', { position: 'top-right' });
 				mapView.ui.add(homeWidget, 'top-right');
 				//you've been using this for reference: https://developers.arcgis.com/javascript/latest/sample-code/sandbox/?sample=widgets-measurement-2d
-				mapView.ui.add('distanceMeasurementBtn', { position: 'bottom-right' });
-				mapView.ui.add(measurementWrapper, { position: 'bottom-right' });
+				// mapView.ui.add('distanceMeasurementBtn', { position: 'bottom-right' });
+				// mapView.ui.add(measurementWrapper, { position: 'bottom-right' });
 				webmap.add(graphicsLayer);
 
-				// mapView.ui.add(measurementWrapper, { position: 'bottom-right' });
-				// distanceMeasure.set(newMessageText);
+				mapView.ui.add(measurementWrapper, { position: 'bottom-right' });
+				distanceMeasure.container = measurementWrapper;
+				distanceMeasure.set(newMessageText);
 
-				// distanceMeasure.messages.newMeasurement = measureBtnText;
-				// distanceMeasure.messages.hint = hintText;
-				// distanceMeasure.viewModel.palette.pathPrimaryColor = [17, 49, 43, 255]; //[255, 0, 0, 255]
-				// distanceMeasure.viewModel.palette.pathSecondaryColor = [
-				// 	255, 255, 255, 255,
-				// 	// 255, 186, 31, 255,
-				// ];
-				// distanceMeasure.viewModel.palette.handleColor = [255, 255, 255, 255];
+				distanceMeasure.messages.newMeasurement = measureBtnText;
+				distanceMeasure.messages.hint = hintText;
+				distanceMeasure.viewModel.palette.pathPrimaryColor = [17, 49, 43, 255]; //[255, 0, 0, 255]
+				distanceMeasure.viewModel.palette.pathSecondaryColor = [
+					255, 255, 255, 255,
+					// 255, 186, 31, 255,
+				];
+				distanceMeasure.viewModel.palette.handleColor = [255, 255, 255, 255];
+
+				const closeWidgetBtn = document.createElement('div');
+				const closeBtn =
+					'<svg xmlns="http://www.w3.org/2000/svg" height="18" width="26"><path d="M18.01 6.697L12.707 12l5.303 5.303-.707.707L12 12.707 6.697 18.01l-.707-.707L11.293 12 5.99 6.697l.707-.707L12 11.293l5.303-5.303z"></path></svg>';
+				closeWidgetBtn.setAttribute('class', 'closeBtn invisible');
+				closeWidgetBtn.innerHTML = closeBtn;
+				document.querySelector('#measurementWrapper').prepend(closeWidgetBtn);
+				widgetClose();
 			})
 			.then(() => {
 				//setting up view -- if url-information is relevant have the view reflect that information, otherwise set center on continental US.
@@ -671,8 +681,6 @@ require([
 		mapView.graphics.removeAll();
 	};
 
-	//RENDER CENSUS SELECTED TRACT
-
 	const fireGraphic = async ({ fireIconGraphicInfo, fireInformation }) => {
 		const fireLocation = fireInformation
 			? fireInformation[0].split(',')
@@ -922,6 +930,13 @@ require([
 		}
 	);
 
+	reactiveUtils.when(
+		() => distanceMeasure.active,
+		() => {
+			document.querySelector('.closeBtn').classList.toggle('invisible');
+		}
+	);
+
 	reactiveUtils.watch(
 		() => mapView?.zoom,
 		async () => {
@@ -965,7 +980,7 @@ require([
 				}
 			}
 
-			if (mapView.zoom <= 7) {
+			if (mapView.zoom <= 6) {
 				disableMapLayer(satelliteHotspotsCheckbox);
 				satelliteHotspotsLayer.visible = false;
 				satelliteHotspotsCheckbox.checked = false;
@@ -1063,79 +1078,96 @@ require([
 	window.addEventListener('load', sizeReport, false);
 	window.addEventListener('resize', sizeReport, false);
 	// let mapClickEvent;
-
+	console.log(distanceMeasure);
 	//you've been using this for reference: https://developers.arcgis.com/javascript/latest/sample-code/sandbox/?sample=widgets-measurement-2d
 	//this too: https://developers.arcgis.com/javascript/latest/api-reference/esri-widgets-DistanceMeasurement2D.html#constructors-summary
-	document
-		.querySelector('#distanceMeasurementBtn')
-		.addEventListener('click', (event) => {
-			if (!isMeasureActive) {
-				event.target.closest('#distanceMeasurementBtn').classList.add('active');
-				const widgetContainer = document.createElement('div');
-				widgetContainer.setAttribute('id', 'measureWidget');
-				document
-					.querySelector('#measurementWrapper')
-					.appendChild(widgetContainer);
+	const widgetClose = () => {
+		document
+			.querySelector('.closeBtn svg')
+			.addEventListener('click', (event) => {
+				console.log(distanceMeasure.active);
+				// if (distanceMeasure.active) {
+				// mapView.ui.remove(distanceMeasure);
+				console.log(distanceMeasure);
+				distanceMeasure.viewModel.clear();
+				console.log(event.target);
+				document.querySelector('.closeBtn').classList.toggle('invisible');
+				// distanceMeasure.active = false;
 
-				distanceMeasure = new DistanceMeasurement2D({
-					view: mapView,
-					container: 'measureWidget',
-					unitOptions: ['miles', 'yards', 'feet'],
-					messages: {
-						newMeasurement: `MEASURE`,
-					},
-				});
+				// distanceMeasure.viewModel.disabled = false;
 
-				const measureBtnText = `MEASURE`;
-				const hintText = `
-        Click on the map to start measuring
-        `;
+				// event.target.closest('#distanceMeasurementBtn').classList.add('active');
 
-				const newMessageText = {
-					messages: {
-						newMeasurement: measureBtnText,
-						hint: hintText,
-					},
-				};
+				// const widgetContainer = document.createElement('div');
+				// widgetContainer.setAttribute('id', 'measureWidget');
+				// document.querySelector('#measurementWrapper').appendChild(widgetContainer);
 
-				distanceMeasure.when(() => {
-					distanceMeasure.messages.newMeasurement = measureBtnText;
-					distanceMeasure.messages.hint = hintText;
-					distanceMeasure.set(newMessageText);
-				});
+				// const closeWidgetBtn = document.createElement('div');
+				// const closeBtn =
+				// 	'<svg xmlns="http://www.w3.org/2000/svg" height="32" width="32"><path d="M23.985 8.722L16.707 16l7.278 7.278-.707.707L16 16.707l-7.278 7.278-.707-.707L15.293 16 8.015 8.722l.707-.707L16 15.293l7.278-7.278z"></path></svg>';
+				// closeWidgetBtn.setAttribute('class', 'closeBtn');
+				// closeWidgetBtn.innerHTML = closeBtn;
+				// document.querySelector('#measurementWrapper').appendChild(closeWidgetBtn);
 
-				mapView.ui.add(measureWidget, { position: 'bottom-right' });
+				// distanceMeasure = new DistanceMeasurement2D({
+				// 	view: mapView,
+				// 	container: 'measureWidget',
+				// 	unitOptions: ['miles', 'kilometers', 'meters', 'feet'],
+				// 	messages: {
+				// 		newMeasurement: `MEASURE`,
+				// 	},
+				// });
 
-				distanceMeasure.viewModel.palette.pathPrimaryColor = [17, 49, 43, 255]; //[255, 0, 0, 255]
-				distanceMeasure.viewModel.palette.pathSecondaryColor = [
-					255, 255, 255, 255,
-					// 255, 186, 31, 255,
-				];
-				distanceMeasure.viewModel.palette.handleColor = [255, 255, 255, 255];
+				// const measureBtnText = `MEASURE`;
+				// const hintText = `
+				// Click on the map to start measuring
+				// `;
 
-				distanceMeasure.viewModel.start();
+				// const newMessageText = {
+				// 	messages: {
+				// 		newMeasurement: measureBtnText,
+				// 		hint: hintText,
+				// 	},
+				// };
 
-				console.log(distanceMeasure.messages);
-				isMeasureActive = true;
-				console.log(isMeasureActive);
-			} else {
-				event.target
-					.closest('#distanceMeasurementBtn')
-					.classList.remove('active');
-				mapView.ui.remove(distanceMeasure);
-				distanceMeasure.destroy();
+				// distanceMeasure.when(() => {
+				// 	distanceMeasure.messages.newMeasurement = measureBtnText;
+				// 	distanceMeasure.messages.hint = hintText;
+				// 	distanceMeasure.set(newMessageText);
+				// });
+
+				// mapView.ui.add(measureWidget, { position: 'bottom-right' });
+
+				// distanceMeasure.viewModel.palette.pathPrimaryColor = [17, 49, 43, 255]; //[255, 0, 0, 255]
+				// distanceMeasure.viewModel.palette.pathSecondaryColor = [
+				// 	255, 255, 255, 255,
+				// 	// 255, 186, 31, 255,
+				// ];
+				// distanceMeasure.viewModel.palette.handleColor = [255, 255, 255, 255];
+
+				// distanceMeasure.viewModel.start();
+
+				// console.log(distanceMeasure.messages);
+				// isMeasureActive = true;
+				// console.log(isMeasureActive);
+				// }
+				// else {
+				// event.target.closest('#distanceMeasurementBtn').classList.remove('active');
+				// mapView.ui.remove(distanceMeasure);
+				// distanceMeasure.destroy();
 				// document
 				// 	.querySelector('#distanceMeasureText')
 				// 	.classList.add('invisible');
-				isMeasureActive = false;
-				console.log(isMeasureActive);
-				console.log(distanceMeasure);
-			}
-		});
+				// 	isMeasureActive = false;
+				// 	console.log(isMeasureActive);
+				// 	console.log(distanceMeasure);
+				// }
+			});
+	};
 
 	let mapClickEvent = () => {
 		mapView.on('click', async (event) => {
-			if (isMeasureActive) {
+			if (distanceMeasure.active) {
 				// document
 				// 	.querySelector('#distanceMeasureText')
 				// 	.classList.remove('invisible');
@@ -1653,7 +1685,7 @@ require([
 				params,
 			})
 			.then((response) => {
-				// console.log('perimeter response', response);
+				console.log('perimeter response', response);
 				const consolidatedFirePerimeterData = response.data.fields
 					? response.data.features[0].attributes
 					: false;
@@ -1715,7 +1747,7 @@ require([
 						).toFixed(1),
 					};
 					const perimeterWeightedMedianHousing =
-						consolidatedFirePerimeterData.sum_weightedmedianhomevalue;
+						consolidatedFirePerimeterData.sum_MedHomeValueWeighted;
 					// Math.round(
 					// 	consolidatedFirePerimeterData.sum_weightedmedianhomevalue /
 					// 		consolidatedFirePerimeterData.sum_h0010001
@@ -1725,10 +1757,9 @@ require([
 						TotalHousingUnits: consolidatedFirePerimeterData.sum_h0010001
 							? consolidatedFirePerimeterData.sum_h0010001.toLocaleString()
 							: null,
-						MedianValue:
-							consolidatedFirePerimeterData.sum_weightedmedianhomevalue
-								? `$${perimeterWeightedMedianHousing.toLocaleString()}`
-								: null,
+						MedianValue: consolidatedFirePerimeterData.sum_MedHomeValueWeighted
+							? `$${perimeterWeightedMedianHousing.toLocaleString()}`
+							: null,
 					};
 
 					const perimeterPopulation = {
@@ -1800,6 +1831,7 @@ require([
 
 					//ForestTypeGroup
 					try {
+						console.log(consolidatedFirePerimeterData.ForestTypeGroup);
 						consolidatedFirePerimeterData.ForestTypeGroup =
 							consolidatedFirePerimeterData.ForestTypeGroup.replace(/'/g, '"');
 						const consolidatedForestTypeGroup = JSON.parse(
@@ -2339,8 +2371,8 @@ require([
 					};
 
 					const weightedMedianHomeValue = Math.round(
-						aggregatedPopulationBlockObject.WeightedMedianHomeValue /
-							aggregatedPopulationBlockObject.P0010001
+						aggregatedPopulationBlockObject.MedHomeValueWeighted /
+							aggregatedPopulationBlockObject.H0010001
 					);
 					// console.log(aggregatedPopulationBlockObject.WeightedMedianHomeValue);
 					// console.log(aggregatedPopulationBlockObject.H0010001);
@@ -2350,7 +2382,7 @@ require([
 						TotalHousingUnits: aggregatedPopulationBlockObject.H0010001
 							? aggregatedPopulationBlockObject.H0010001.toLocaleString()
 							: null,
-						MedianValue: aggregatedPopulationBlockObject.WeightedMedianHomeValue
+						MedianValue: aggregatedPopulationBlockObject.MedHomeValueWeighted
 							? `$${weightedMedianHomeValue.toLocaleString()}`
 							: null,
 					};
@@ -2375,6 +2407,9 @@ require([
 								  ).toFixed(0)}%`
 								: '0%',
 					};
+
+					// console.log(aggregatedPopulationBlockObject);
+					// console.log(radiusHousingData);
 
 					populationBarGraph(populationData);
 					englishBarGraph(englishSpeakingPopulation);
@@ -2432,7 +2467,7 @@ require([
 				'PctCropland',
 				'PctWetlands',
 				'SumCarbon',
-				'ForestTypeGroup  ',
+				'ForestTypeGroup',
 			].join(','),
 			returnGeometry: true,
 			returnQueryGeometry: true,
@@ -2445,6 +2480,7 @@ require([
 				params,
 			})
 			.then((response) => {
+				console.log(response);
 				const ecoResponse = response.data.features;
 
 				if (response.data.fields) {
@@ -3572,6 +3608,7 @@ require([
 	};
 
 	const housingInfoRender = ({ radiusHousingData, perimeterHousingData }) => {
+		console.log(radiusHousingData || perimeterHousingData);
 		const containerSubheader = radiusHousingData
 			? 'Within circle (2 mile radius)'
 			: 'Within fire Perimeter';
