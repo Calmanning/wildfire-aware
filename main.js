@@ -55,8 +55,8 @@ require([
 					},
 			  };
 
-	console.log(ENV);
-	console.log(config);
+	// console.log(ENV);
+	// console.log(config);
 	//WebmapID
 	const webmapID = config.webmapID;
 	//Query URLs
@@ -931,9 +931,18 @@ require([
 	);
 
 	reactiveUtils.when(
-		() => distanceMeasure.active,
+		() => distanceMeasure.viewModel.state !== 'ready',
 		() => {
-			document.querySelector('.closeBtn').classList.toggle('invisible');
+			document.querySelector('.closeBtn').classList.remove('invisible');
+		}
+	);
+
+	reactiveUtils.when(
+		() => distanceMeasure.viewModel.state === 'ready',
+		() => {
+			if (document.querySelector('.closeBtn')) {
+				document.querySelector('.closeBtn').classList.add('invisible');
+			}
 		}
 	);
 
@@ -1078,20 +1087,19 @@ require([
 	window.addEventListener('load', sizeReport, false);
 	window.addEventListener('resize', sizeReport, false);
 	// let mapClickEvent;
-	console.log(distanceMeasure);
+	// console.log(distanceMeasure);
 	//you've been using this for reference: https://developers.arcgis.com/javascript/latest/sample-code/sandbox/?sample=widgets-measurement-2d
 	//this too: https://developers.arcgis.com/javascript/latest/api-reference/esri-widgets-DistanceMeasurement2D.html#constructors-summary
 	const widgetClose = () => {
 		document
 			.querySelector('.closeBtn svg')
 			.addEventListener('click', (event) => {
-				console.log(distanceMeasure.active);
 				// if (distanceMeasure.active) {
 				// mapView.ui.remove(distanceMeasure);
-				console.log(distanceMeasure);
+
 				distanceMeasure.viewModel.clear();
-				console.log(event.target);
-				document.querySelector('.closeBtn').classList.toggle('invisible');
+
+				document.querySelector('.closeBtn').classList.add('invisible');
 				// distanceMeasure.active = false;
 
 				// distanceMeasure.viewModel.disabled = false;
@@ -1685,7 +1693,7 @@ require([
 				params,
 			})
 			.then((response) => {
-				console.log('perimeter response', response);
+				// console.log('perimeter response', response);
 				const consolidatedFirePerimeterData = response.data.fields
 					? response.data.features[0].attributes
 					: false;
@@ -1831,7 +1839,6 @@ require([
 
 					//ForestTypeGroup
 					try {
-						console.log(consolidatedFirePerimeterData.ForestTypeGroup);
 						consolidatedFirePerimeterData.ForestTypeGroup =
 							consolidatedFirePerimeterData.ForestTypeGroup.replace(/'/g, '"');
 						const consolidatedForestTypeGroup = JSON.parse(
@@ -2309,7 +2316,6 @@ require([
 				params,
 			})
 			.then((response) => {
-				console.log(response);
 				if (response.data.features) {
 					// console.log('fire point incident response', response.data.features);
 					const aggregatedPopulationBlockObject = response.data.features.reduce(
@@ -2374,9 +2380,6 @@ require([
 						aggregatedPopulationBlockObject.MedHomeValueWeighted /
 							aggregatedPopulationBlockObject.H0010001
 					);
-					// console.log(aggregatedPopulationBlockObject.WeightedMedianHomeValue);
-					// console.log(aggregatedPopulationBlockObject.H0010001);
-					// console.log(weightedMedianHomeValue);
 
 					const radiusHousingData = {
 						TotalHousingUnits: aggregatedPopulationBlockObject.H0010001
@@ -2407,9 +2410,6 @@ require([
 								  ).toFixed(0)}%`
 								: '0%',
 					};
-
-					// console.log(aggregatedPopulationBlockObject);
-					// console.log(radiusHousingData);
 
 					populationBarGraph(populationData);
 					englishBarGraph(englishSpeakingPopulation);
@@ -2480,7 +2480,7 @@ require([
 				params,
 			})
 			.then((response) => {
-				console.log(response);
+				// console.log(response);
 				const ecoResponse = response.data.features;
 
 				if (response.data.fields) {
@@ -3608,7 +3608,6 @@ require([
 	};
 
 	const housingInfoRender = ({ radiusHousingData, perimeterHousingData }) => {
-		console.log(radiusHousingData || perimeterHousingData);
 		const containerSubheader = radiusHousingData
 			? 'Within circle (2 mile radius)'
 			: 'Within fire Perimeter';
