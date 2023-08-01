@@ -36,6 +36,8 @@ require([
 		ENV === 'livingatlasdev.arcgis.com' || 'localhost'
 			? //DEVELOPMENT ENVIRONMENT
 			  {
+					//NOTE: jim has a temporaary webmap we've put in plae to further test the updated cenus data: 19de2598960a435483423969cd62caf5
+					//This is the webmap id forr Emily's current dev-version: 068b64e0e1b740e385fa746758b03750
 					webmapID: '068b64e0e1b740e385fa746758b03750',
 					queryURLs: {
 						aggregatePerimeterURL:
@@ -255,6 +257,7 @@ require([
 		mapView
 			.when()
 			.then(() => {
+				// console.log(webmap);
 				firePoints = webmap.allLayers.find((layer) => {
 					return layer.title === 'Current Incidents';
 				});
@@ -316,7 +319,7 @@ require([
 				});
 
 				censusLayer = webmap.allLayers.find((layer) => {
-					return layer.title === '2020 Census Block Centroids';
+					return layer.title === 'Populated_Blocks_2023';
 				});
 			})
 			.then(() => {
