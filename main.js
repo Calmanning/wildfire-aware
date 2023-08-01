@@ -3554,13 +3554,13 @@ require([
 		});
 	};
 
-	const totalPopulationUIRender = async ({
+	const totalPopulationUIRender = ({
 		totalRadiusPopulation,
 		perimeterPopulation,
 	}) => {
 		const containerSubheader = totalRadiusPopulation
-			? 'Within circle (2 mile radius)'
-			: 'Within fire Perimeter';
+			? 'Estimated (2 mile radius)'
+			: 'Estimated within fire perimeter';
 
 		const poepleContentHeader =
 			(infoItemHeader[2].innerHTML = `<p class = "trailer-0 sectionHeader">POPULATION</p>
@@ -3612,8 +3612,8 @@ require([
 
 	const housingInfoRender = ({ radiusHousingData, perimeterHousingData }) => {
 		const containerSubheader = radiusHousingData
-			? 'Within circle (2 mile radius)'
-			: 'Within fire Perimeter';
+			? 'Estimated (2 mile radius)'
+			: 'Estimated within fire perimeter';
 
 		const poepleContentHeader =
 			(infoItemHeader[3].innerHTML = `<p class = "trailer-0 sectionHeader">HOUSING</p>
@@ -3646,8 +3646,8 @@ require([
 
 	const habitatInfoRender = ({ aggregateEcoObj, perimeterEcology }) => {
 		const containerSubheader = aggregateEcoObj
-			? 'Within circle (2 mile radius)'
-			: 'Within fire Perimeter';
+			? 'Estimated (2 mile radius)'
+			: 'Estimated within fire perimeter';
 
 		const habitatContentControl = ({ ecoObject }) => {
 			if (
