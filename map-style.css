@@ -101,7 +101,6 @@ img {
   z-index: 3;
   margin: 0px 0px;
   padding-top: 9px;
-  /* display: initial; */
 }
 
 #sideBarMobileHeader {
@@ -114,30 +113,10 @@ img {
   
 }
 
-/* #activeFiresDropdown {
-    width: 100%;
-    position: sticky;
-    top: 0;
-    background: rgb(17, 49, 73);
-}
-
-#fireSorting {
-  display: initial;
-   width: 100%;
-   margin-bottom: 0.5rem; 
-   white-space: nowrap;
-}
-
-#fire-list{
-  display: initial;
-} */
-
 #infoBar {
-  /* background-color: rgba(17, 49, 73, 1); */
   width: 416px;
   height: 91%;
   padding: 0rem 1rem;
-  /* margin-top: 20px; */
   overflow-y: scroll;
   overflow-x: hidden;
   top: 0;
@@ -162,8 +141,6 @@ img {
 #wfp-btn {
   padding: 0;
   border: 0;
-  /* color: #ea1600;
-  background-color: #ffffff; */
   border-radius: 50%;
   width: 20px;
   height: 20px;
@@ -176,10 +153,6 @@ img {
 #population-svg line {
   stroke: none;
 }
-
-/* #layer-list-button {
-  color: #fff;
-} */
 
 .dropdown .dropdown-menu .dropdown-link {
   color: white;
@@ -208,9 +181,6 @@ img {
   background: #b98816;
 }
 
-/* scrollBar for fireFox */
-/* scrollbar-width */
-
 
 /* ESRI WIDGETS */
 /* SEARCH BAR */
@@ -223,7 +193,6 @@ img {
 }
 
 .esri-search__container .esri-search__input-container .esri-search__form .esri-search__input{
-  /* background-color:rgb(17, 54, 81); */
   color: rgb(17, 54, 81);
 } 
 
@@ -257,13 +226,9 @@ img {
 }
 
 .esri-search__container button {
-  /* background-color: rgb(17, 54, 81); */
     color: rgb(17, 54, 81);
 }
 
-/* .esri-search__container button:hover {
-    background-color: #07698C;
-} */
 
 .esri-icon-search{
   color: rgb(17, 54, 81);
@@ -274,10 +239,6 @@ img {
   background-color: rgb(255,255,255);
 }
 
-/* .esri-zoom .esri-widget--button:hover {
-  background-color: #07698C;
-} */
-
 .esri-zoom .esri-widget--button .esri-icon-plus{
     color: rgb(17, 54, 81);
 }
@@ -287,15 +248,12 @@ img {
 }
 
 /* HOME BUTTON WIDGET */
-/* #homeContainer .esri-widget--button:hover {
-  background-color: #07698C;
-} */
+
 
 /* SCALE BAR */
 
 #viewDiv .esri-ui-bottom-right {
   bottom: 0.5rem;
-  /* width: 31%; */
 }
 
 #viewDiv .esri-scale-bar__line--bottom {
@@ -358,23 +316,20 @@ img {
   background-color: #ffba1f;
 }
 
-/* .esri-ui-bottom-right.esri-ui-corner #measureWidget { */
 .esri-ui-bottom-right.esri-ui-corner #measurementWrapper {
   width: 176px;
-  position: absolute;
-  right: 45px;
-  /* bottom: -0.4rem */
+  
 }
 
 .esri-ui-bottom-right.esri-ui-corner #distanceMeasureText{
-  /* width: 175px; */
+ 
   background: rgb(17, 49, 73);
   padding: 10px 15px 0px;
   margin: 0 0 -6px 0;
 }
 
 .esri-ui-bottom-right.esri-ui-corner .esri-distance-measurement-2d__hint-text{
-  /* color: #ffba1f; */
+ 
   padding: 0 10px;
   text-align: left;
 }
@@ -423,14 +378,12 @@ border-color: rgba(17, 49, 73, 0);
 color: black;
 font-weight:bolder;
 font-size: 0.9375rem
-/* transition: background-color 125ms ease-in-out,border 125ms ease-in-out; */
 }
 
 .esri-component .esri-button:hover, .esri-elevation-profile__header button:hover {
 background-color: rgba(255, 186, 31, 1);
 border-color: rgba(17, 49, 73, 0);
 color: #113651;
-/* transition: background-color 125ms ease-in-out,border 125ms ease-in-out; */
 }
 
 /* MAP LAYERS CONTAINER & BUTTON */
@@ -480,7 +433,6 @@ color: #113651;
 
 #layers {
   background:#FFFFFF;
-  /* box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); */
 }
 
 #bottom-btn {
@@ -513,7 +465,6 @@ color: #113651;
   margin: 0.5rem 0rem;
   border: none;
   border-top: 2px solid hsl(0, 0%, 70%);
-  /* padding-bottom: 13px */
 }
 
 .fire-item p {
@@ -552,10 +503,6 @@ color: #113651;
   margin: 0 -17px;
   padding: 0px 20px;
 }
-
-/* #people-container {
-   padding: 0 15px; 
-} */
 
 #people-container .bold {
   color: #0285a8;
@@ -640,11 +587,6 @@ color: #113651;
   width: 1.5rem;
   height: 1.5rem;
 }
-
-/* .population-icon-legend{
-  margin-bottom: 0;
-  object-fit: cover;
-} */
 
 .population-legend-spacing {
   display: flex;
@@ -836,7 +778,6 @@ color: #113651;
     background-color: rgba(17, 49, 73, 1);
     z-index: 3;
     margin: -3px -14px;
-    /* padding-top: 10px; */
     display: none;
   }
 
@@ -863,7 +804,6 @@ color: #113651;
   }
 
   #infoBar {
-    /* background-color: rgba(17, 49, 73, 0.85); */
     width: 100%;
     height: 100%;
     overscroll-behavior: contain;
@@ -898,11 +838,6 @@ color: #113651;
   #sideBar {
   padding: 40px 140px 0;
   }
-    /* #modal-btn {
-      position: absolute;
-      top: -40px;
-      right: -140px;
-    } */
 }
 
 @media screen and (max-width: 590px){

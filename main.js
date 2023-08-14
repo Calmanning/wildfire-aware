@@ -36,8 +36,6 @@ require([
 		ENV === 'livingatlasdev.arcgis.com' || 'localhost'
 			? //DEVELOPMENT ENVIRONMENT
 			  {
-					//NOTE: jim has a temporaary webmap we've put in plae to further test the updated cenus data: 19de2598960a435483423969cd62caf5
-					//This is the webmap id forr Emily's current dev-version: 068b64e0e1b740e385fa746758b03750
 					webmapID: '068b64e0e1b740e385fa746758b03750',
 					queryURLs: {
 						aggregatePerimeterURL:
@@ -144,21 +142,12 @@ require([
 
 	const mapView = new MapView({
 		container: 'viewDiv',
-		// map: webmap,
 		spatialReference: 102100,
 		popup: {
 			popup: null,
 			autoOpenEnabled: false,
 		},
 	});
-
-	// const tileInfo = TileInfo.create({
-	// 	spatialReference: {
-	// 		wkid: 102100,
-	// 	},
-	// 	numLODs: 32,
-	// });
-	// const lods = tileInfo.lods;
 
 	const graphicsLayer = new GraphicsLayer({
 		graphics: [],
@@ -171,11 +160,6 @@ require([
 		})
 		.then(() => {
 			mapView.map = webmap;
-			// mapView.constraints = {
-			// 	lods: lods,
-			// 	rotationEnabled: false,
-			// 	snapToZoom: true,
-			// };
 			document.querySelector('.loader').classList.remove('is-active');
 		})
 		.catch((error) => {
@@ -192,7 +176,6 @@ require([
 
 	const homeWidget = new Home({
 		view: mapView,
-		// container: topRightContainer,
 	});
 
 	homeWidget.goToOverride = () => {
@@ -232,7 +215,6 @@ require([
 
 	const distanceMeasure = new DistanceMeasurement2D({
 		view: mapView,
-		// container: 'measurementWrapper',
 		unitOptions: ['miles', 'kilometers', 'meters', 'feet'],
 	});
 
@@ -257,7 +239,6 @@ require([
 		mapView
 			.when()
 			.then(() => {
-				// console.log(webmap);
 				firePoints = webmap.allLayers.find((layer) => {
 					return layer.title === 'Current Incidents';
 				});
@@ -327,9 +308,7 @@ require([
 				mapView.ui.add(searchWidget, 'top-right');
 				mapView.ui.move('zoom', { position: 'top-right' });
 				mapView.ui.add(homeWidget, 'top-right');
-				//you've been using this for reference: https://developers.arcgis.com/javascript/latest/sample-code/sandbox/?sample=widgets-measurement-2d
-				// mapView.ui.add('distanceMeasurementBtn', { position: 'bottom-right' });
-				// mapView.ui.add(measurementWrapper, { position: 'bottom-right' });
+
 				webmap.add(graphicsLayer);
 
 				mapView.ui.add(measurementWrapper, { position: 'bottom-right' });
@@ -414,14 +393,11 @@ require([
 	};
 
 	const hideAllLegendDivs = () => {
-		// satelliteHotSpotLegend.style.display = 'none';
 		aqiTodayLegend.style.display = 'none';
 		aqiTomorrowLegend.style.display = 'none';
 		watchesAndWarningsLegend.style.display = 'none';
 		burnedAreasLegend.style.display = 'none';
 		censusPointLegend.style.display = 'none';
-
-		// closeLayerList();
 	};
 
 	const enableMapLayer = (enabledLayer) => {
@@ -634,7 +610,6 @@ require([
 			newEcoQuery({ mapPoint });
 			censusBlockCentroidQuery({ mapPoint });
 			addCircleGraphic({ mapPoint });
-			// updateURLParams({mapPoint})
 		} else if (URLLocationParams[3] && URLLocationParams[3].length >= 35) {
 			//use irwinID to collect fire info and use that to collect the surrounding information.
 			const irwinID = URLLocationParams[3];
@@ -1089,90 +1064,14 @@ require([
 
 	window.addEventListener('load', sizeReport, false);
 	window.addEventListener('resize', sizeReport, false);
-	// let mapClickEvent;
-	// console.log(distanceMeasure);
-	//you've been using this for reference: https://developers.arcgis.com/javascript/latest/sample-code/sandbox/?sample=widgets-measurement-2d
-	//this too: https://developers.arcgis.com/javascript/latest/api-reference/esri-widgets-DistanceMeasurement2D.html#constructors-summary
+
 	const widgetClose = () => {
 		document
 			.querySelector('.closeBtn svg')
 			.addEventListener('click', (event) => {
-				// if (distanceMeasure.active) {
-				// mapView.ui.remove(distanceMeasure);
-
 				distanceMeasure.viewModel.clear();
 
 				document.querySelector('.closeBtn').classList.add('invisible');
-				// distanceMeasure.active = false;
-
-				// distanceMeasure.viewModel.disabled = false;
-
-				// event.target.closest('#distanceMeasurementBtn').classList.add('active');
-
-				// const widgetContainer = document.createElement('div');
-				// widgetContainer.setAttribute('id', 'measureWidget');
-				// document.querySelector('#measurementWrapper').appendChild(widgetContainer);
-
-				// const closeWidgetBtn = document.createElement('div');
-				// const closeBtn =
-				// 	'<svg xmlns="http://www.w3.org/2000/svg" height="32" width="32"><path d="M23.985 8.722L16.707 16l7.278 7.278-.707.707L16 16.707l-7.278 7.278-.707-.707L15.293 16 8.015 8.722l.707-.707L16 15.293l7.278-7.278z"></path></svg>';
-				// closeWidgetBtn.setAttribute('class', 'closeBtn');
-				// closeWidgetBtn.innerHTML = closeBtn;
-				// document.querySelector('#measurementWrapper').appendChild(closeWidgetBtn);
-
-				// distanceMeasure = new DistanceMeasurement2D({
-				// 	view: mapView,
-				// 	container: 'measureWidget',
-				// 	unitOptions: ['miles', 'kilometers', 'meters', 'feet'],
-				// 	messages: {
-				// 		newMeasurement: `MEASURE`,
-				// 	},
-				// });
-
-				// const measureBtnText = `MEASURE`;
-				// const hintText = `
-				// Click on the map to start measuring
-				// `;
-
-				// const newMessageText = {
-				// 	messages: {
-				// 		newMeasurement: measureBtnText,
-				// 		hint: hintText,
-				// 	},
-				// };
-
-				// distanceMeasure.when(() => {
-				// 	distanceMeasure.messages.newMeasurement = measureBtnText;
-				// 	distanceMeasure.messages.hint = hintText;
-				// 	distanceMeasure.set(newMessageText);
-				// });
-
-				// mapView.ui.add(measureWidget, { position: 'bottom-right' });
-
-				// distanceMeasure.viewModel.palette.pathPrimaryColor = [17, 49, 43, 255]; //[255, 0, 0, 255]
-				// distanceMeasure.viewModel.palette.pathSecondaryColor = [
-				// 	255, 255, 255, 255,
-				// 	// 255, 186, 31, 255,
-				// ];
-				// distanceMeasure.viewModel.palette.handleColor = [255, 255, 255, 255];
-
-				// distanceMeasure.viewModel.start();
-
-				// console.log(distanceMeasure.messages);
-				// isMeasureActive = true;
-				// console.log(isMeasureActive);
-				// }
-				// else {
-				// event.target.closest('#distanceMeasurementBtn').classList.remove('active');
-				// mapView.ui.remove(distanceMeasure);
-				// distanceMeasure.destroy();
-				// document
-				// 	.querySelector('#distanceMeasureText')
-				// 	.classList.add('invisible');
-				// 	isMeasureActive = false;
-				// 	console.log(isMeasureActive);
-				// 	console.log(distanceMeasure);
-				// }
 			});
 	};
 
@@ -1678,12 +1577,6 @@ require([
 		irwinIdNumber,
 		mapPoint,
 	}) => {
-		//NOTE: These urls need to be changed from the development link to the production-ready link
-		// const devLink =
-		// 	'https://services.arcgis.com/jIL9msH9OI208GCb/arcgis/rest/services/Wildfire_aggregated_v1/FeatureServer/1/query';
-		// const productionLink =
-		// 	'https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/Wildfire_aggregated_v1/FeatureServer/1/query';
-
 		const params = {
 			where: `irwinID = '{${irwinIdNumber}}'`,
 			inSR: 3857,
@@ -1759,10 +1652,6 @@ require([
 					};
 					const perimeterWeightedMedianHousing =
 						consolidatedFirePerimeterData.sum_MedHomeValueWeighted;
-					// Math.round(
-					// 	consolidatedFirePerimeterData.sum_weightedmedianhomevalue /
-					// 		consolidatedFirePerimeterData.sum_h0010001
-					// );
 
 					const perimeterHousingData = {
 						TotalHousingUnits: consolidatedFirePerimeterData.sum_h0010001
@@ -3673,7 +3562,7 @@ require([
 		const ecoObject = aggregateEcoObj || perimeterEcology;
 
 		const ecoRegion = ({ ecoObject }) => {
-			if (ecoObject.L3EcoReg) {
+			if (ecoObject.L3EcoReg && ecoObject.L3EcoReg !== 'null') {
 				return (document.querySelector('#ecoregion').innerHTML = `
      <div>
         <p class = "trailer-0">ECOREGION</p>
