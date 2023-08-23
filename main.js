@@ -55,10 +55,11 @@ require([
 					},
 			  };
 
-	// console.log(ENV);
-	// console.log(config);
+	console.log(ENV);
+	console.log(config);
 	//WebmapID
 	const webmapID = config.webmapID;
+	console.log(webmapID);
 	//Query URLs
 	const aggregatePerimeterURL = config.queryURLs.aggregatePerimeterURL;
 	const populatedBlockCentroidsURL =
@@ -1589,7 +1590,7 @@ require([
 				params,
 			})
 			.then((response) => {
-				// console.log('perimeter response', response);
+				console.log('perimeter response', response);
 				const consolidatedFirePerimeterData = response.data.fields
 					? response.data.features[0].attributes
 					: false;
