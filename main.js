@@ -33,7 +33,7 @@ require([
 	//Enivronment
 	const ENV = window.location.host;
 	const config =
-		ENV === 'livingatlasdev.arcgis.com' || 'localhost'
+		ENV === 'livingatlasdev.arcgis.com'
 			? //DEVELOPMENT ENVIRONMENT
 			  {
 					webmapID: '068b64e0e1b740e385fa746758b03750',
