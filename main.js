@@ -33,7 +33,7 @@ require([
 	//Enivronment
 	const ENV = window.location.host;
 	const config =
-		ENV === 'livingatlasdev.arcgis.com'
+		window.location.host === 'livingatlasdev.arcgis.com'
 			? //DEVELOPMENT ENVIRONMENT
 			  {
 					webmapID: '068b64e0e1b740e385fa746758b03750',
@@ -51,15 +51,15 @@ require([
 						aggregatePerimeterURL:
 							'https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/Wildfire_aggregated_v1/FeatureServer/1/query',
 						populatedBlockCentroidsURL:
-							'https://services.arcgis.com/jIL9msH9OI208GCb/ArcGIS/rest/services/Populated_Block_Centroids_2020_v3/FeatureServer/1/query',
+							'https://services.arcgis.com/jIL9msH9OI208GCb/ArcGIS/rest/services/Populated_Blocks_2023/FeatureServer/2/query',
 					},
 			  };
 
-	console.log(ENV);
-	console.log(config);
+	// console.log(ENV);
+	// console.log(config);
 	//WebmapID
 	const webmapID = config.webmapID;
-	console.log(webmapID);
+	// console.log(webmapID);
 	//Query URLs
 	const aggregatePerimeterURL = config.queryURLs.aggregatePerimeterURL;
 	const populatedBlockCentroidsURL =
@@ -1590,7 +1590,7 @@ require([
 				params,
 			})
 			.then((response) => {
-				console.log('perimeter response', response);
+				// console.log('perimeter response', response);
 				const consolidatedFirePerimeterData = response.data.fields
 					? response.data.features[0].attributes
 					: false;
@@ -3522,7 +3522,7 @@ require([
       </div>
       <div>
       <h4 class = "bold" style = "line-height: 1.2;">${areaHousingObject.MedianValue}</h4>
-        <p style = "margin-bottom: -5px;"> MEDIAN HOUSING VALUE </p>
+        <p style = "margin-bottom: -5px;"> MEDIAN HOME VALUE </p>
       </div>
     `;
 		} else {
